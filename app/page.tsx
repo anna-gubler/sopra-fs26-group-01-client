@@ -11,11 +11,11 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <header>
-          <h1 style={{ fontFamily: "var(--font-ballet)", fontSize: "10.5rem" }}> Group 01: Setup Complete!</h1>
+          <h1 style={{ fontFamily: "var(--font-ballet)", fontSize: "10.5rem" }}> Group 01: Mappd</h1>
         </header>
         <div style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.5rem", textAlign: "center" }}>
-          <p>A warm welcome to you, dear TA.</p>
-          <b>Have a wonderful day!</b>
+          <b>In this space big things will emerge soon.</b>
+          <p>Our team consists of: Chiara Wooldridge, Elias Iskander, Sebastian Huber, Hadia Aslam and Anna Gubler.</p>
         </div>
 
         <div className={styles.ctas} style={{ textAlign: "center", display: "flex", justifyContent: "center" }}>
