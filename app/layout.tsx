@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat, Ballet, Alumni_Sans_Pinstripe } from "next/font/google";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
@@ -8,6 +8,9 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+const ballet = Ballet({variable: "--font-ballet", subsets: ["latin"]});
+const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"] });
+const alumni = Alumni_Sans_Pinstripe({ variable: "--font-alumni-sans-pinstripe-italic", subsets: ["latin"], weight: "400" });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -15,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student XX-XXX-XXX",
-  description: "sopra-fs26-template-client",
+  title: "Mappd WebApp",
+  description: "sopra-fs26-group-01",
 };
 
 export default function RootLayout({
