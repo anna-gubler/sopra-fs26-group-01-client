@@ -23,6 +23,7 @@ installation, therefore, save and close all your other work and programs
    ```
 ---
 
+
 3. If you experience any issues, try re-running the script a couple of times. If
    the installation remains unsuccessful, follow this
    [youtube tutorial](https://youtu.be/GIYOoMDfmkM) or post your question in the
