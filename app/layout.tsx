@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Montserrat, Ballet, Alumni_Sans_Pinstripe } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
@@ -8,9 +8,6 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-const ballet = Ballet({variable: "--font-ballet", subsets: ["latin"]});
-const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"] });
-const alumni = Alumni_Sans_Pinstripe({ variable: "--font-alumni-sans-pinstripe-italic", subsets: ["latin"], weight: "400" });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -18,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mappd WebApp",
-  description: "sopra-fs26-group-01",
+  title: "Student XX-XXX-XXX",
+  description: "sopra-fs26-template-client",
 };
 
 export default function RootLayout({
@@ -59,7 +56,21 @@ export default function RootLayout({
                 labelColor: "#fff",
                 algorithm: theme.defaultAlgorithm, // specify a specifc algorithm instead of true/false
               },
-              Card: {},
+              Card: {
+                colorBgContainer: "rgb(13, 0, 0)",
+              },
+              Table: {
+                headerBg: "#0d0000",
+                headerColor: "white",
+                rowHoverBg: "rgb(200,0,0,100)",
+                colorBgContainer: "rgb(232, 232, 232)",
+                colorText: "white",
+                borderColor: "rgb(200,0,0,100)",
+              },
+              Pagination: {
+                colorPrimary: "rgb(200,0,0)",
+                colorBgContainer: "rgb(13, 0, 0)",
+              }
             },
           }}
         >

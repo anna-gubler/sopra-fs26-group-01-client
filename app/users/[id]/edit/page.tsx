@@ -11,11 +11,11 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Card } from "antd";
+import { Card, Input, Form, Button } from "antd";
+import FormItem from "antd/es/form/FormItem";
 // For components that need React hooks and browser APIs,
 // SSR (server side rendering) has to be disabled.
 // Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
-
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -23,21 +23,28 @@ const Profile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [form] = Form.useForm();
 
 // Logout Handling / Redirect User to Login page / set user status to offline
-const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
-const handleLogout = async () => {
-  try {
-    await apiService.put(`/logout/${token}`, {});
-  } catch {
-    // user may not exist on server (e.g. after restart), still log out locally
-  }
+/* const handleLogout = async () => {
+  await apiService.put(`/logout/${token}`, {});
   clearToken();
   router.push("/login");
-};
+  };
+ */
+
+// Password change Handling and log user out
+const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
+  const handleChangeUser = async (values: { password: string }) => {
+    await apiService.put(`/users/${id}`, {password: values.password});
+    await apiService.put(`/logout/${token}`, {});
+    clearToken();
+    router.push(`/login`);
+  }
 
 // Check if user is signed in/has token. If not, redirect to login
 // This is technically redundant since implementing the header authentication, but it was still faster and felt more UX friendly
+
 useEffect(() => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -45,11 +52,16 @@ useEffect(() => {
   }
 }, []); 
 
-// User Identification
-const { value: loggedInId } = useLocalStorage<string>("id", "");
-const UserIdentification = String(loggedInId) === String(id);
+// User Identification on Page
+const { value: loggedInID } = useLocalStorage<string>("id", "");
+const UserIdentification = String(loggedInID) === String(id);
 
-// Added Header to keep track of the token, returning a 403. Keeing the redirect above though, as it's faster in handling the redirection
+useEffect(() => {
+  if (loggedInID && String(loggedInID) !== String(id)) {
+    router.push(`/users/${id}`);
+  }
+}, [loggedInID, id]);
+
   useEffect(() => {
   const getUser = async () => {
     try {
@@ -67,25 +79,36 @@ const UserIdentification = String(loggedInId) === String(id);
   if (!user) return null;
   const dateFormat = user.creationDate ? new Date(user.creationDate).toLocaleDateString("de-DE") : ""
   
-  // Used conditional to show or hide logout and edit buttons on other user profiles
   return (
     <div className="card-container">
       <Card className="User_Card">
-        <Link className="User_Overview" href="/users">← View all users</Link>
-        <p className="small_explainer">Name</p>
-        <p className="User_Name">{user.name}</p>
-        <p className="small_explainer">Username</p>
-        <p className="User_Username">{user.username}</p>
-        <h3 className="H3_User_Profile">BIO</h3>
-        <p className="User_Bio">{user.bio}</p>
-        <p className={user.status === "ONLINE" ? "User_status-online" : "User_status-offline"}>{user.status}</p>
-        <p className="User_CreationDate">User Since: {dateFormat}</p>
-        {UserIdentification && (<>
-        <Link className="button_standard button-ChangeUser" href={`/users/${id}/edit`}>Change your Password →</Link>
+        <Link className="User_Overview" href={`/users/${id}`}>← Back</Link>
+        <h3 className="H3_User_Profile">Adjust User Information</h3>
         <br></br>
-        <button className="button_standard logout_button" onClick={handleLogout}>Log Out</button>
-        </>
-        )}  
+        <Form
+        form={form}
+        name="register"
+        size="large"
+        variant="outlined"
+        onFinish={handleChangeUser}
+        layout="vertical"
+        >
+        <Form.Item
+          name="password"
+          label="New Password"
+          rules={[{ required: true, message: "Please input your new password!" }]}
+        >
+          <Input.Password placeholder="Enter new password" />
+        </Form.Item>
+        {/* <Form.Item
+          name="password 2"
+          label="Repeat New Password"
+          rules={[{ required: true, message: "Please input your new password!" }]}
+        >
+          <Input placeholder="Repeat new password" />
+        </Form.Item> */}
+          <button className="button_standard button-wide" type="submit" >Confirm Password Change</button>
+        </Form>
       </Card>
     </div>
   );

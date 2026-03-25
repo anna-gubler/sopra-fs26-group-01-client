@@ -15,22 +15,30 @@ import type { TableProps } from "antd"; // antd component library allows imports
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
   {
-    title: "Username",
-    dataIndex: "username",
-    key: "username",
-  },
-  {
     title: "Name",
     dataIndex: "name",
     key: "name",
   },
   {
-    title: "Id",
+    title: "Username",
+    dataIndex: "username",
+    key: "username",
+  },
+  // Added Status here, as I thought this makes sense in an overview
+  {
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+  },
+
+  {
+    title: " User ID",
     dataIndex: "id",
     key: "id",
   },
 ];
 
+// Reroute, API usage and set users to null until API responds and sets Users
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
@@ -39,17 +47,31 @@ const Dashboard: React.FC = () => {
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
   const {
-    // value: token, // is commented out because we dont need to know the token value for logout
+    value: token, // is commented out because we dont need to know the token value for logout
     // set: setToken, // is commented out because we dont need to set or update the token value
     clear: clearToken, // all we need in this scenario is a method to clear the token
   } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
 
-  const handleLogout = (): void => {
-    // Clear token using the returned function 'clear' from the hook
-    clearToken();
-    router.push("/login");
-  };
+const handleLogout = async () => {
+  try {
+    await apiService.put(`/logout/${token}`, {});
+  } catch {
+    // user may not exist on server (e.g. after restart), still log out locally
+  }
+  clearToken();
+  router.push("/login");
+};
 
+  // Check if user is signed in/has token. If not, redirect to login
+  // This is technically redundant since implementing the header authentication, but it was still faster and felt more UX friendly
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []); 
+
+// Authentication Header included here, returns 403 forbidden
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -59,7 +81,9 @@ const Dashboard: React.FC = () => {
         setUsers(users);
         console.log("Fetched users:", users);
       } catch (error) {
-        if (error instanceof Error) {
+        if ((error as { status?: number }).status === 403) {
+          router.push("/login");
+        } else if (error instanceof Error) {
           alert(`Something went wrong while fetching users:\n${error.message}`);
         } else {
           console.error("An unknown error occurred while fetching users.");
@@ -76,7 +100,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="card-container">
       <Card
-        title="Get all users from secure endpoint:"
+        title="All Users:"
         loading={!users}
         className="dashboard-container"
       >
@@ -92,7 +116,7 @@ const Dashboard: React.FC = () => {
                 style: { cursor: "pointer" },
               })}
             />
-            <Button onClick={handleLogout} type="primary">
+            <Button className="button_standard" onClick={handleLogout} type="primary">
               Logout
             </Button>
           </>
