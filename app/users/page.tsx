@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Card, Table } from "antd";
+import { App, Button, Card, Table } from "antd";
 import type { TableProps } from "antd";
 
 // columns definition for the Ant Design table
@@ -19,6 +19,7 @@ const columns: TableProps<User>["columns"] = [
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
+  const { message } = App.useApp();
   const [users, setUsers] = useState<User[] | null>(null);
   const { clear: clearToken } = useLocalStorage<string>("token", "");
 
@@ -51,7 +52,7 @@ const Dashboard: React.FC = () => {
         if ((error as { status?: number }).status === 403) {
           router.push("/login");
         } else if (error instanceof Error) {
-          alert(`Something went wrong while fetching users:\n${error.message}`);
+          message.error("Something went wrong while fetching users.");
         }
       }
     };

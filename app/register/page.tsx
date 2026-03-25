@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input } from "antd";
+import { ApplicationError } from "@/types/error";
 import Link from "next/link";
 
 // shape of the auth response returned by POST /auth/register
@@ -25,11 +27,13 @@ const Register: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+  const [errorMessage, setErrorMessage] = useState<string>("");
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
   const handleRegister = async (values: RegisterFormValues) => {
+    setErrorMessage("");
     try {
       const response = await apiService.post<AuthResponse>("/auth/register", values);
       // store credentials returned by the server
@@ -41,8 +45,13 @@ const Register: React.FC = () => {
       }
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during registration:\n${error.message}`);
+      const status = (error as ApplicationError).status;
+      if (status === 400) {
+        setErrorMessage("Please fill in all required fields.");
+      } else if (status === 409) {
+        setErrorMessage("This username is already taken.");
+      } else {
+        setErrorMessage("Registration failed. Please try again.");
       }
     }
   };
@@ -89,6 +98,9 @@ const Register: React.FC = () => {
           <Form.Item style={{ marginBottom: 4 }}>
             <Link href="/login">Already have an account? Log in Here</Link>
           </Form.Item>
+          {errorMessage && (
+            <Alert type="error" title={errorMessage} showIcon style={{ marginBottom: 16 }} />
+          )}
           <Form.Item>
             <Button type="primary" htmlType="submit" className="button_standard">
               Register

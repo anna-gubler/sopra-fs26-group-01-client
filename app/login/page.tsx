@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input } from "antd";
+import { ApplicationError } from "@/types/error";
 import Link from "next/link";
 
 // shape of the auth response returned by POST /auth/login
@@ -22,11 +24,13 @@ const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+  const [errorMessage, setErrorMessage] = useState<string>("");
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
   const handleLogin = async (values: LoginFormValues) => {
+    setErrorMessage("");
     try {
       const response = await apiService.post<AuthResponse>("/auth/login", values);
       // store credentials returned by the server
@@ -38,8 +42,13 @@ const Login: React.FC = () => {
       }
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
+      const status = (error as ApplicationError).status;
+      if (status === 400) {
+        setErrorMessage("Please enter both username and password.");
+      } else if (status === 401) {
+        setErrorMessage("Invalid username or password.");
+      } else {
+        setErrorMessage("Login failed. Please try again.");
       }
     }
   };
@@ -73,6 +82,9 @@ const Login: React.FC = () => {
           <Form.Item style={{ marginBottom: 4 }}>
             <Link href="/register">Don&apos;t have an account yet? Register Here</Link>
           </Form.Item>
+          {errorMessage && (
+            <Alert type="error" title={errorMessage} showIcon style={{ marginBottom: 16 }} />
+          )}
           <Form.Item>
             <Button type="primary" htmlType="submit" className="button_standard">
               Login

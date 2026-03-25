@@ -244,3 +244,18 @@ a:hover {
 .ant-table-thead > tr > th::before {
   background-color: transparent !important;
 }
+
+/* Ant Design Alert error override — matches Catppuccin Mocha dark theme */
+.ant-alert-error {
+  background-color: var(--ctp-mantle) !important;
+  border-color: var(--ctp-red) !important;
+  color: var(--ctp-red) !important;
+}
+
+.ant-alert-error .ant-alert-icon {
+  color: var(--ctp-red) !important;
+}
+
+.ant-alert-error .ant-alert-message {
+  color: var(--ctp-red) !important;
+}
