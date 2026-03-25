@@ -5,7 +5,6 @@ export class ApiService {
   private baseURL: string;
   private defaultHeaders: HeadersInit;
 
-// Added Auth Header functionality
   constructor(token?: string) {
     this.baseURL = getApiDomain();
     this.defaultHeaders = {
@@ -16,7 +15,6 @@ export class ApiService {
     };
   }
 
-// Basically centralized error handling for all Post, Get and Put requests
   /**
    * Helper function to check the response, parse JSON,
    * and throw an error if the response is not OK.
