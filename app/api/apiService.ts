@@ -5,14 +5,18 @@ export class ApiService {
   private baseURL: string;
   private defaultHeaders: HeadersInit;
 
-  constructor() {
+// Added Auth Header functionality
+  constructor(token?: string) {
     this.baseURL = getApiDomain();
     this.defaultHeaders = {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
+      "Authorization": token ? `Bearer ${token}` : "",
+
     };
   }
 
+// Basically centralized error handling for all Post, Get and Put requests
   /**
    * Helper function to check the response, parse JSON,
    * and throw an error if the response is not OK.

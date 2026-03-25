@@ -1,15 +1,16 @@
+/*Used a LOT of !important tags, as I wanted to use clean css instead of Ant Designs predefined stuff if possible*/
+
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-} */
-
+}
 
 html,
 body {
@@ -31,8 +32,54 @@ body {
   margin: 0;
 }
 
+.h1_homepage {
+  color: rgb(200,0,0,100) !important;
+  margin-bottom: -32px !important;
+  padding-bottom: 0px !important;
+  line-height: 1 !important;
+}
+
+.h3_homepage {
+  color: rgb(200,0,0,100) !important;
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+  line-height: 1 !important;
+
+}
+
+.Home_Card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: rgb(13, 0, 0) !important;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+}
+
+.Login_Button_Homepage {
+  background-color: transparent !important;
+  color: rgb(200,0,0,100) !important;
+  width: 20%;
+  padding: 5px 0px;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+  box-shadow: none !important;
+  border-style: solid !important;
+}
+
+.Login_Button_Homepage:hover {
+  color: rgb(0,0,0,100) !important;
+  background-color: rgba(200, 0, 0, 100) !important;
+  transition: all 0.2s ease;
+}
+
 a {
-  color: inherit;
+  color: rgb(200, 0, 0) !important;
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgb(255, 0, 0) !important;
   text-decoration: none;
 }
 
@@ -47,17 +94,145 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+  background-color: rgb(21, 21, 21);
 }
 
-.login-button {
+.button_standard {
   width: 100%;
+  color: rgb(200,0,0,100) !important;
+  background-color: rgba(182, 0, 0, 0) !important;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+  box-shadow: none !important;
+
+}
+
+.button_standard:hover {
+  color: rgb(0,0,0,100) !important;
+  background-color: rgba(200, 0, 0, 100) !important;
+  transition: all 0.2s ease;
+}
+
+.logout_button {
+  margin-top: 0.5rem;
+  width: 15%;
+  padding: 5px 0px;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+  box-shadow: none !important;
+  border-style: solid !important;
+}
+
+.button-wide {
+  margin-top: 0.5rem;
+  width: 30%;
+  padding: 5px 0px;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+  box-shadow: none !important;
+  border-style: solid !important;
+}
+
+.button-ChangeUser {
+  margin-top: 0.5rem;
+  width: 30%;
+  box-shadow: none !important;
 }
 
 .card-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+  background-color: rgb(0, 0, 0) !important;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+}
+
+.User_Card {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 8rem !important;
+  background-color: rgb(13, 0, 0) !important;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+}
+
+.small_explainer {
+  font-size:12px;
+  color: rgb(159, 157, 157) !important;
+  margin-bottom: 0;
+}
+
+.User_Name {
+  font-size: 80px;
+  margin-top: -30px;
+}
+
+.User_Username {
+  font-size: 40px;
+  margin-top: -10px;
+  margin-bottom: 2rem;
+}
+
+.User_Bio {
+  font-size: 16px;
+  margin-bottom: 2rem;
+}
+
+.User_status-online {
+  font-size: 14px;
+  color: rgb(5, 208, 5);
+}
+
+.User_status-offline {
+  font-size: 14px;
+  color: red;
+}
+
+.User_CreationDate {
+  font-size: 14px;
+  color: rgb(159, 157, 157) !important;
+}
+
+.User_Overview {
+  display: block;
+  margin-bottom: 1rem !important;
+}
+
+.dashboard-container {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 8rem !important;
+  background-color: rgb(13, 0, 0) !important;
+  border-color: rgb(200,0,0,100) !important;
+  border-width: 2px !important;
+}
+
+/* Had to cheat since ant design didnt really allow for changes in their table design otherwise 
+This is so the styling works, both for table row and table data cell*/
+
+.ant-table-thead {
+  background-color: #0d0000 !important;
+}
+
+.ant-table-tbody > tr > td {
+  background-color: rgb(26, 0, 0) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: rgb(200, 0, 0) !important;
+}
+
+.ant-card-head {
+  border-bottom-color: rgb(200, 0, 0) !important;
+}
+
+.ant-table-thead > tr > th::before { 
+  background-color: transparent !important;
 }
