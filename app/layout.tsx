@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
 
+// Geist fonts exposed as CSS variables, applied via className on <body>
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,65 +17,64 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student XX-XXX-XXX",
-  description: "sopra-fs26-template-client",
+  title: "Mappd",
+  description: "Mappd — SoPra FS26 Group 01",
 };
 
+// root layout: wraps every page in the Ant Design theme and registry
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        {/* ConfigProvider applies the Catppuccin Mocha theme globally to all Ant Design components */}
         <ConfigProvider
           theme={{
             algorithm: theme.defaultAlgorithm,
             token: {
-              // general theme options are set in token, meaning all primary elements (button, menu, ...) will have this color
-              colorPrimary: "#22426b", // selected input field boarder will have this color as well
+              colorPrimary: "#cba6f7",   // mauve
               borderRadius: 8,
-              colorText: "#fff",
+              colorText: "#cdd6f4",      // text
               fontSize: 16,
-
-              // Alias Token
-              colorBgContainer: "#16181D",
+              colorBgContainer: "#1e1e2e", // base
             },
-            // if a component type needs special styling, setting here will override default options set in token
             components: {
               Button: {
-                colorPrimary: "#75bd9d", // this will color all buttons in #75bd9d, overriding the default primaryColor #22426b set in token line 35
-                algorithm: true, // enable algorithm (redundant with line 33 but here for demo purposes)
+                colorPrimary: "#cba6f7",
+                algorithm: true,
                 controlHeight: 38,
               },
               Input: {
-                colorBorder: "gray", // color boarder selected is not overridden but instead is set by primary color in line 35
-                colorTextPlaceholder: "#888888",
-                algorithm: false, // disable algorithm (line 32)
+                colorBorder: "#585b70",          // surface2
+                colorTextPlaceholder: "#a6adc8", // subtext0
+                algorithm: false,
               },
               Form: {
-                labelColor: "#fff",
-                algorithm: theme.defaultAlgorithm, // specify a specifc algorithm instead of true/false
+                labelColor: "#cdd6f4",
+                algorithm: theme.defaultAlgorithm,
               },
               Card: {
-                colorBgContainer: "rgb(13, 0, 0)",
+                colorBgContainer: "#181825", // mantle
               },
               Table: {
-                headerBg: "#0d0000",
-                headerColor: "white",
-                rowHoverBg: "rgb(200,0,0,100)",
-                colorBgContainer: "rgb(232, 232, 232)",
-                colorText: "white",
-                borderColor: "rgb(200,0,0,100)",
+                headerBg: "#181825",          // mantle
+                headerColor: "#cdd6f4",       // text
+                rowHoverBg: "#313244",        // surface0
+                colorBgContainer: "#1e1e2e", // base
+                colorText: "#cdd6f4",         // text
+                borderColor: "#45475a",       // surface1
               },
               Pagination: {
-                colorPrimary: "rgb(200,0,0)",
-                colorBgContainer: "rgb(13, 0, 0)",
-              }
+                colorPrimary: "#cba6f7",     // mauve
+                colorBgContainer: "#181825", // mantle
+              },
             },
           }}
         >
+          {/* AntdRegistry prevents style flicker on first render in Next.js App Router */}
           <AntdRegistry>
             <AntdApp>{children}</AntdApp>
           </AntdRegistry>
