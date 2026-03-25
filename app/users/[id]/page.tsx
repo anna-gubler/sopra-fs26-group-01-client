@@ -1,63 +1,51 @@
-// your code here for S2 to display a single user profile after having clicked on it
-// each user has their own slug /[id] (/1, /2, /3, ...) and is displayed using this file
-// try to leverage the component library from antd by utilizing "Card" to display the individual user
-// import { Card } from "antd"; // similar to /app/users/page.tsx
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useApi } from "@/hooks/useApi"; 
+import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Card } from "antd";
-// For components that need React hooks and browser APIs,
-// SSR (server side rendering) has to be disabled.
-// Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
-
 
 const Profile: React.FC = () => {
   const params = useParams();
-  const id = params.id;
+  const id = params.id; // profile id from the URL
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: loggedInId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
+  const isOwnProfile = String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
-// Logout Handling / Redirect User to Login page / set user status to offline
-const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
-const handleLogout = async () => {
-  try {
-    await apiService.put(`/logout/${token}`, {});
-  } catch {
-    // user may not exist on server (e.g. after restart), still log out locally
-  }
-  clearToken();
-  router.push("/login");
-};
-
-// Check if user is signed in/has token. If not, redirect to login
-// This is technically redundant since implementing the header authentication, but it was still faster and felt more UX friendly
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    router.push("/login");
-  }
-}, []); 
-
-// User Identification
-const { value: loggedInId } = useLocalStorage<string>("id", "");
-const UserIdentification = String(loggedInId) === String(id);
-
-// Added Header to keep track of the token, returning a 403. Keeing the redirect above though, as it's faster in handling the redirection
-  useEffect(() => {
-  const getUser = async () => {
+  // log out locally even if the server call fails
+  const handleLogout = async () => {
     try {
-      const result = await apiService.get<User>("/users/" + id);
-      setUser(result);
-    } catch (error) {
-      if ((error as { status?: number }).status === 403) {
+      await apiService.post("/auth/logout", {});
+    } catch {
+      // still log out locally if the server is unreachable
+    }
+    clearToken();
+    router.push("/login");
+  };
+
+  // redirect to login if no token is present
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
       router.push("/login");
+    }
+  }, []);
+
+  // fetch the profile data for the user with this id
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const result = await apiService.get<User>("/users/" + id);
+        setUser(result);
+      } catch (error) {
+        if ((error as { status?: number }).status === 403) {
+          router.push("/login");
         }
       }
     };
@@ -65,9 +53,12 @@ const UserIdentification = String(loggedInId) === String(id);
   }, [apiService]);
 
   if (!user) return null;
-  const dateFormat = user.creationDate ? new Date(user.creationDate).toLocaleDateString("de-DE") : ""
-  
-  // Used conditional to show or hide logout and edit buttons on other user profiles
+
+  // format creation date as DD.MM.YYYY (German locale)
+  const dateFormat = user.creationDate
+    ? new Date(user.creationDate).toLocaleDateString("de-DE")
+    : "";
+
   return (
     <div className="card-container">
       <Card className="User_Card">
@@ -76,16 +67,23 @@ const UserIdentification = String(loggedInId) === String(id);
         <p className="User_Name">{user.name}</p>
         <p className="small_explainer">Username</p>
         <p className="User_Username">{user.username}</p>
-        <h3 className="H3_User_Profile">BIO</h3>
+        <h3>BIO</h3>
         <p className="User_Bio">{user.bio}</p>
-        <p className={user.status === "ONLINE" ? "User_status-online" : "User_status-offline"}>{user.status}</p>
+        <p className={user.status === "ONLINE" ? "User_status-online" : "User_status-offline"}>
+          {user.status}
+        </p>
         <p className="User_CreationDate">User Since: {dateFormat}</p>
-        {UserIdentification && (<>
-        <Link className="button_standard button-ChangeUser" href={`/users/${id}/edit`}>Change your Password →</Link>
-        <br></br>
-        <button className="button_standard logout_button" onClick={handleLogout}>Log Out</button>
-        </>
-        )}  
+        {isOwnProfile && (
+          <>
+            <Link className="button_standard button-ChangeUser" href={`/users/${id}/edit`}>
+              Change your Password →
+            </Link>
+            <br />
+            <button className="button_standard logout_button" onClick={handleLogout}>
+              Log Out
+            </button>
+          </>
+        )}
       </Card>
     </div>
   );
