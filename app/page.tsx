@@ -14,16 +14,16 @@ const nodeColors: Record<string, string> = {
 };
 
 const mapNodes = [
-  { id: 0, cx: 155, cy: 43,  color: "purple" },
-  { id: 1, cx: 340, cy: 43,  color: "purple" },
-  { id: 2, cx: 80,  cy: 133, color: "pink" },
-  { id: 3, cx: 245, cy: 133, color: "purple" },
-  { id: 4, cx: 400, cy: 133, color: "pink" },
-  { id: 5, cx: 40,  cy: 220, color: "cyan", active: true, label: "● SKILL 1  20%" },
-  { id: 6, cx: 120, cy: 220, color: "cyan" },
-  { id: 7, cx: 210, cy: 220, color: "cyan" },
-  { id: 8, cx: 310, cy: 220, color: "cyan" },
-  { id: 9, cx: 400, cy: 220, color: "cyan" },
+  { id: 0, cx: 210, cy: 43,  color: "purple" },
+  { id: 1, cx: 374, cy: 43,  color: "purple" },
+  { id: 2, cx: 117, cy: 133, color: "pink" },
+  { id: 3, cx: 304, cy: 133, color: "purple" },
+  { id: 4, cx: 445, cy: 133, color: "pink" },
+  { id: 5, cx: 70,  cy: 220, color: "cyan", active: true, label: "● SKILL 1  20%" },
+  { id: 6, cx: 165, cy: 220, color: "cyan" },
+  { id: 7, cx: 258, cy: 220, color: "cyan" },
+  { id: 8, cx: 350, cy: 220, color: "cyan" },
+  { id: 9, cx: 445, cy: 220, color: "cyan" },
 ];
 
 const mapConnections = [
@@ -86,7 +86,7 @@ function SkillMapPreview() {
 
       {/* SVG skill map */}
       <div style={{ padding: "4px 12px 14px" }}>
-        <svg viewBox="0 0 460 260" style={{ width: "100%", height: "auto" }}>
+        <svg viewBox="0 -15 570 290" style={{ width: "100%", height: "auto" }}>
           <defs>
             <filter id="glow-cyan">
               <feGaussianBlur stdDeviation="4" result="blur" />
@@ -114,7 +114,7 @@ function SkillMapPreview() {
 
           {/* week labels */}
           {[{ y: 43, label: "Week 3" }, { y: 133, label: "Week 2" }, { y: 220, label: "Week 1" }].map(({ y, label }) => (
-            <text key={label} x="455" y={y + 4} textAnchor="end" fill="hsl(262, 20%, 55%)" fontSize="9.5">
+            <text key={label} x="565" y={y + 4} textAnchor="end" fill="hsl(262, 20%, 55%)" fontSize="9.5">
               {label}
             </text>
           ))}
@@ -223,7 +223,7 @@ const features = [
     icon: Users,
     title: "Live Collaboration",
     description: "Run real-time sessions where students signal understanding and lecturers see aggregated heatmaps.",
-    iconColor: "hsl(263, 70%, 58%)",
+    iconColor: "hsl(330, 70%, 56%)",
   },
   {
     icon: BarChart2,
