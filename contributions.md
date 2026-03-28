@@ -42,7 +42,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | 26.03.2026   | [https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/4e71aaef6f78c371f5fe667347de515dee9f0760] (last commit of branch) | [efactored and cleaned up everything user related in backend, including API and tests] | [Give a solid basis to work on and make sure the design follows the specs. Effort about 12h.]  |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
