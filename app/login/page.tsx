@@ -29,17 +29,19 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+    if (!username || !password) {
+      setErrorMessage("Please enter both username and password.");
+      return;
+    }
     try {
       const response = await apiService.post<AuthResponse>("/auth/login", { username, password });
       // store credentials returned by the server
       if (response.token) setToken(response.token);
       if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
-      router.push("/dashboard");
+      router.push("/users/me");
     } catch (error) {
       const status = (error as ApplicationError).status;
-      if (status === 400) {
-        setErrorMessage("Please enter both username and password.");
-      } else if (status === 401) {
+      if (status === 400 || status === 401) {
         setErrorMessage("Invalid username or password.");
       } else {
         setErrorMessage("Login failed. Please try again.");

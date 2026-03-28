@@ -39,7 +39,7 @@ const Register: React.FC = () => {
       // store credentials returned by the server
       if (response.token) setToken(response.token);
       if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
-      router.push("/dashboard");
+      router.push("/users/me");
     } catch (error) {
       const status = (error as ApplicationError).status;
       if (status === 400) {
