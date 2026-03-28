@@ -241,6 +241,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 16px;
 }
 
 .input-group label {
@@ -432,7 +433,7 @@ button {
 
 .User_Username {
   font-size: 40px;
-  margin-top: -10px;
+  margin-top: 4px;
   margin-bottom: 2rem;
 }
 
@@ -459,6 +460,17 @@ button {
 .User_Overview {
   display: block;
   margin-bottom: 1rem;
+}
+
+.profile-home-icon {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-bright);
+  text-decoration: none;
 }
 
 /* user list (dashboard) */
