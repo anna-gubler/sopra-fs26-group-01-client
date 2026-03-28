@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Alert, Button, Form, Input } from "antd";
 import { ApplicationError } from "@/types/error";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { BookOpen, Eye, EyeOff } from "lucide-react";
 
 // shape of the auth response returned by POST /auth/login
 interface AuthResponse {
@@ -14,32 +15,25 @@ interface AuthResponse {
   id: number | null;
 }
 
-// values collected from the login form
-interface LoginFormValues {
-  username: string;
-  password: string;
-}
-
 const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const [form] = Form.useForm();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
-  const handleLogin = async (values: LoginFormValues) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMessage("");
     try {
-      const response = await apiService.post<AuthResponse>("/auth/login", values);
+      const response = await apiService.post<AuthResponse>("/auth/login", { username, password });
       // store credentials returned by the server
-      if (response.token) {
-        setToken(response.token);
-      }
-      if (response.id) {
-        setId(String(response.id)); // id is a Java Long, convert to string for localStorage
-      }
+      if (response.token) setToken(response.token);
+      if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
       router.push("/dashboard");
     } catch (error) {
       const status = (error as ApplicationError).status;
@@ -54,44 +48,87 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <div>
-        <h1 style={{ marginBottom: 10 }}>LOG IN</h1>
-        <Form
-          form={form}
-          name="login"
-          size="large"
-          variant="outlined"
-          onFinish={handleLogin}
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            label="Username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input placeholder="Enter username" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password placeholder="Enter password" />
-          </Form.Item>
-          <Form.Item style={{ marginBottom: 4 }}>
-            <Link href="/register">Don&apos;t have an account yet? Register Here</Link>
-          </Form.Item>
-          {errorMessage && (
-            <Alert type="error" title={errorMessage} showIcon style={{ marginBottom: 16 }} />
-          )}
-          <Form.Item>
-            <Button type="primary" htmlType="submit" className="button_standard">
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
+    <div className="auth-page">
+      <motion.div
+        className="auth-card"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* logo */}
+        <div className="auth-logo">
+          <div className="logo-icon">
+            <BookOpen size={22} color="white" />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+            Mappd
+          </span>
+        </div>
+
+        {/* heading */}
+        <div className="auth-heading">
+          <h2>Welcome back</h2>
+          <p>Sign in to continue your learning journey</p>
+        </div>
+
+        {/* form */}
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              className="auth-input"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label htmlFor="password">Password</label>
+              <span style={{ fontSize: 12, color: "var(--primary-light)", cursor: "pointer" }}>
+                Forgot password?
+              </span>
+            </div>
+            <div className="password-field">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="auth-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {errorMessage && <div className="alert-error">{errorMessage}</div>}
+
+          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+            Sign In
+          </button>
+        </form>
+
+        {/* footer */}
+        <p className="auth-footer-text">
+          Don&apos;t have an account?{" "}
+          <Link href="/register">Create one</Link>
+        </p>
+        <p className="auth-footer-text" style={{ marginTop: -16 }}>
+          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        </p>
+      </motion.div>
     </div>
   );
 };
