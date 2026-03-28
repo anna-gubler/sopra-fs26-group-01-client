@@ -5,22 +5,12 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { App, Button, Card, Table } from "antd";
-import type { TableProps } from "antd";
-
-// columns definition for the Ant Design table
-const columns: TableProps<User>["columns"] = [
-  { title: "Name", dataIndex: "name", key: "name" },
-  { title: "Username", dataIndex: "username", key: "username" },
-  { title: "Status", dataIndex: "status", key: "status" },
-  { title: "User ID", dataIndex: "id", key: "id" },
-];
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { message } = App.useApp();
   const [users, setUsers] = useState<User[] | null>(null);
+  const [fetchError, setFetchError] = useState<string>("");
   const { clear: clearToken } = useLocalStorage<string>("token", "");
 
   // log out locally even if the server call fails
@@ -46,13 +36,13 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users: User[] = await apiService.get<User[]>("/users");
-        setUsers(users);
+        const data: User[] = await apiService.get<User[]>("/users");
+        setUsers(data);
       } catch (error) {
         if ((error as { status?: number }).status === 403) {
           router.push("/login");
         } else if (error instanceof Error) {
-          message.error("Something went wrong while fetching users.");
+          setFetchError("Something went wrong while fetching users.");
         }
       }
     };
@@ -61,24 +51,39 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="card-container">
-      <Card title="All Users:" loading={!users} className="dashboard-container">
-        {users && (
+      <div className="dashboard-container">
+        <h2 style={{ marginBottom: 16 }}>All Users</h2>
+        {fetchError && <div className="alert-error">{fetchError}</div>}
+        {!users ? (
+          <p style={{ color: "var(--ctp-subtext0)" }}>Loading...</p>
+        ) : (
           <>
-            <Table<User>
-              columns={columns}
-              dataSource={users}
-              rowKey="id"
-              onRow={(row) => ({
-                onClick: () => router.push(`/users/${row.id}`),
-                style: { cursor: "pointer" },
-              })}
-            />
-            <Button className="button_standard" onClick={handleLogout} type="primary">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Status</th>
+                  <th>User ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} onClick={() => router.push(`/users/${user.id}`)}>
+                    <td>{user.name}</td>
+                    <td>{user.username}</td>
+                    <td>{user.status}</td>
+                    <td>{user.id}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="button_standard" onClick={handleLogout}>
               Logout
-            </Button>
+            </button>
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

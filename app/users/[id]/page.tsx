@@ -6,7 +6,6 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Card } from "antd";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -61,7 +60,7 @@ const Profile: React.FC = () => {
 
   return (
     <div className="card-container">
-      <Card className="User_Card">
+      <div className="User_Card">
         <Link className="User_Overview" href="/users">← View all users</Link>
         <p className="small_explainer">Name</p>
         <p className="User_Name">{user.name}</p>
@@ -84,7 +83,7 @@ const Profile: React.FC = () => {
             </button>
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

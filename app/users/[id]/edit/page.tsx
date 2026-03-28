@@ -6,7 +6,6 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Card, Input, Form, Button } from "antd";
 
 const EditProfile: React.FC = () => {
   const params = useParams();
@@ -14,13 +13,14 @@ const EditProfile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [form] = Form.useForm();
+  const [password, setPassword] = useState("");
   const { clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
 
   // update password via PUT /users/me, then log the user out
-  const handleChangePassword = async (values: { password: string }) => {
-    await apiService.put("/users/me", { password: values.password });
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await apiService.put("/users/me", { password });
     await apiService.post("/auth/logout", {});
     clearToken();
     router.push("/login");
@@ -60,30 +60,27 @@ const EditProfile: React.FC = () => {
 
   return (
     <div className="card-container">
-      <Card className="User_Card">
+      <div className="User_Card">
         <Link className="User_Overview" href={`/users/${id}`}>← Back</Link>
         <h3>Adjust User Information</h3>
         <br />
-        <Form
-          form={form}
-          name="edit"
-          size="large"
-          variant="outlined"
-          onFinish={handleChangePassword}
-          layout="vertical"
-        >
-          <Form.Item
-            name="password"
-            label="New Password"
-            rules={[{ required: true, message: "Please input your new password!" }]}
-          >
-            <Input.Password placeholder="Enter new password" />
-          </Form.Item>
-          <Button className="button_standard button-wide" htmlType="submit">
+        <form onSubmit={handleChangePassword}>
+          <div className="form-item">
+            <label htmlFor="password">New Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="button_standard button-wide" type="submit">
             Confirm Password Change
-          </Button>
-        </Form>
-      </Card>
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
