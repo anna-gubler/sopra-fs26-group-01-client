@@ -1,139 +1,149 @@
-// Almost identical duplicate of login/page.tsx
-// Same structure, just more fields to add. Redirects to the same page as login, but requires creation of user
-// instead of just checking if the user exists
+"use client";
 
-// Disables SSR -> Allows APIs and React Hooks 
-"use client"; 
-
-
-import { useRouter } from "next/navigation"; // use NextJS router for navigation -> Allows all my redirects
-import { useApi } from "@/hooks/useApi"; //ApiService Instance so I can call/use f.e AuthHeader
-import useLocalStorage from "@/hooks/useLocalStorage"; // Data persistance
-import { User } from "@/types/user";
-import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { ApplicationError } from "@/types/error";
 import Link from "next/link";
-import FormItem from "antd/es/form/FormItem";
+import { motion } from "framer-motion";
+import { BookOpen, Eye, EyeOff } from "lucide-react";
 
-// Optionally, you can import a CSS module or file for additional styling:
-// import styles from "@/styles/page.module.css";
-
-// Defines Form Data - used for handleLogin
-interface FormFieldProps {
-  label: string;
-  value: string;
+// shape of the auth response returned by POST /auth/register
+interface AuthResponse {
+  token: string | null;
+  id: number | null;
 }
 
-// Same as login
 const Register: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const [form] = Form.useForm();
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
-  const {
-    // value: token, // is commented out because we do not need the token value
-    set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
-    // clear: clearToken, // is commented out because we do not need to clear the token when logging in
-  } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
-  // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [bio, setBio] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  // persist token and user id in localStorage for use across pages
+  const { set: setToken } = useLocalStorage<string>("token", "");
+  const { set: setId } = useLocalStorage<string>("id", "");
 
-  // Same as in Login. Need ID for user creation
-  const {
-    set: setId,
-  } = useLocalStorage<string>("id", "");
-
-  const handleRegister = async (values: FormFieldProps) => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
     try {
-      // Call the API service and let it handle JSON serialization and error handling
-      const response = await apiService.post<User>("/users", values);
-
-      // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
-      if (response.token) {
-        setToken(response.token);
-      }
-
-      // ID setting
-      if (response.id) {
-        setId(response.id);
-      }
-
-      // Navigate to the user overview
-      router.push("/users/" + response.id);
+      const response = await apiService.post<AuthResponse>("/auth/register", {
+        username,
+        password,
+        ...(bio && { bio }),
+      });
+      // store credentials returned by the server
+      if (response.token) setToken(response.token);
+      if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
+      router.push("/users/me");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
+      const status = (error as ApplicationError).status;
+      if (status === 400) {
+        setErrorMessage("Please fill in all required fields.");
+      } else if (status === 409) {
+        setErrorMessage("This username is already taken.");
       } else {
-        console.error("An unknown error occurred during login.");
+        setErrorMessage("Registration failed. Please try again.");
       }
     }
   };
 
-  // left the classname as "Login Container", as styling is identical in my use case.
-  // added Bio, Password, otherwise same structure as login
   return (
-    <div className="login-container">
-      <div>
-      <h1 style = {{ marginBottom: 10 }}>
-        REGISTER
-      </h1>
-      <Form
-        form={form}
-        name="register"
-        size="large"
-        variant="outlined"
-        onFinish={handleRegister}
-        layout="vertical"
+    <div className="auth-page">
+      <motion.div
+        className="auth-card"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <Form.Item
-          name="name"
-          label="Name"
-          rules={[{ required: true, message: "Please input your Name!" }]}
-          >
-            <Input placeholder="Enter name"/>
-        </Form.Item>
-        <Form.Item
-          name="username"
-          label="Username"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input placeholder="Enter username" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password placeholder="Enter password" />
-        </Form.Item>
-        <Form.Item
-          name="bio"
-          label="Bio"
-          rules={[{message: "Please add your bio!" }]}
-          >
-            <Input.TextArea placeholder="Add bio" />
-        </Form.Item>
-{/*         <Form.Item
-        name="starSign"
-        label="Starsign"
-        rules={[{message: "Please input your Starsign"}]}>
-          <Input placeholder="Enter Starsign" />
-        </Form.Item> */}
-        <Form.Item style={{ marginBottom: 4 }}>
-          <Link href="/login">Already have an account? Log in Here</Link>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="button_standard">
-            Register
-          </Button>
-        </Form.Item>
-      </Form>
-      </div>
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="logo-icon">
+            <BookOpen size={22} color="white" />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+            Mappd
+          </span>
+        </div>
+
+        {/* heading */}
+        <div className="auth-heading">
+          <h2>Create your account</h2>
+          <p>Start mapping your skills today</p>
+        </div>
+
+        {/* form */}
+        <form className="auth-form" onSubmit={handleRegister}>
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              className="auth-input"
+              placeholder="Choose a username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-field">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="auth-input"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="bio">Bio <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(optional)</span></label>
+            <textarea
+              id="bio"
+              className="auth-input"
+              placeholder="Tell us a bit about yourself"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={3}
+              style={{ resize: "vertical" }}
+            />
+          </div>
+
+          {errorMessage && <div className="alert-error">{errorMessage}</div>}
+
+          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+            Create Account
+          </button>
+        </form>
+
+        {/* footer */}
+        <p className="auth-footer-text">
+          Already have an account?{" "}
+          <Link href="/login">Sign in</Link>
+        </p>
+        <p className="auth-footer-text" style={{ marginTop: -16 }}>
+          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        </p>
+      </motion.div>
     </div>
   );
 };
 
 export default Register;
-
-
-

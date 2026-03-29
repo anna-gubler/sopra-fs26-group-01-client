@@ -1,11 +1,11 @@
 import { getApiDomain } from "@/utils/domain";
 import { ApplicationError } from "@/types/error";
+import { SkillMap } from "@/types/skillmap";
 
 export class ApiService {
   private baseURL: string;
   private defaultHeaders: HeadersInit;
 
-// Added Auth Header functionality
   constructor(token?: string) {
     this.baseURL = getApiDomain();
     this.defaultHeaders = {
@@ -16,7 +16,6 @@ export class ApiService {
     };
   }
 
-// Basically centralized error handling for all Post, Get and Put requests
   /**
    * Helper function to check the response, parse JSON,
    * and throw an error if the response is not OK.
@@ -114,6 +113,25 @@ export class ApiService {
     );
   }
 
+    /**
+   * Patch request.
+   * @param endpoint - The API endpoint (e.g. "/users/123").
+   * @param data - The payload to update.
+   * @returns JSON data of type T.
+   */
+  public async patch<T>(endpoint: string, data: unknown): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: this.defaultHeaders,
+      body: JSON.stringify(data),
+    });
+    return this.processResponse<T>(
+      res,
+      "An error occurred while updating the data.\n",
+    );
+  }
+
   /**
    * DELETE request.
    * @param endpoint - The API endpoint (e.g. "/users/123").
@@ -129,5 +147,16 @@ export class ApiService {
       res,
       "An error occurred while deleting the data.\n",
     );
+  }
+  public async getSkillMaps(): Promise<SkillMap[]> {
+    return this.get<SkillMap[]>("/skillmaps");
+  }
+
+  public async createSkillMap(data: { title: string; description: string; numberOfLevels: number; isPublic: boolean }): Promise<SkillMap> {
+    return this.post<SkillMap>("/skillmaps", data);
+  }
+
+  public async updateSkillMap(id: number, data: { title?: string; description?: string; numberOfLevels?: number; isPublic?: boolean }): Promise<SkillMap> {
+    return this.patch<SkillMap>(`/skillmaps/${id}`, data);
   }
 }

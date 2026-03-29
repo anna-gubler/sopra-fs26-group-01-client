@@ -1,106 +1,136 @@
-// Disables SSR -> Allows APIs and React Hooks 
-"use client"; 
+"use client";
 
-
-import { useRouter } from "next/navigation"; // use NextJS router for navigation -> Allows all my redirects
-import { useApi } from "@/hooks/useApi"; //ApiService Instance so I can call/use f.e AuthHeader
-import useLocalStorage from "@/hooks/useLocalStorage"; // Data persistance
-import { User } from "@/types/user"; 
-import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { ApplicationError } from "@/types/error";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { BookOpen, Eye, EyeOff } from "lucide-react";
 
-// Optionally, you can import a CSS module or file for additional styling:
-// import styles from "@/styles/page.module.css";
-
-// Defines Form Data - used for handleLogin
-interface FormFieldProps {
-  label: string;
-  value: string;
+// shape of the auth response returned by POST /auth/login
+interface AuthResponse {
+  token: string | null;
+  id: number | null;
 }
 
-// Redirect, Post Request and Ant Design Form
 const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const [form] = Form.useForm();
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
-  const {
-    set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
-    // clear: clearToken, // is commented out because we do not need to clear the token when logging in
-  } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
-  // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  // persist token and user id in localStorage for use across pages
+  const { set: setToken } = useLocalStorage<string>("token", "");
+  const { set: setId } = useLocalStorage<string>("id", "");
 
-  // Same structure as above, same use case. Need ID for Login Routing
-  const {
-    set: setId,
-  } = useLocalStorage<string>("id", "");
-
-  const handleLogin = async (values: FormFieldProps) => { // Async -> Marks func as asynchronous
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    if (!username || !password) {
+      setErrorMessage("Please enter both username and password.");
+      return;
+    }
     try {
-      // Call the API service and let it handle JSON serialization and error handling
-      const response = await apiService.post<User>("/login", values); // Await (works due to async) waits for server response
-
-      // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
-      if (response.token) {
-        setToken(response.token);
-      }
-      // Response ID used for routing to the correct user upon login
-      if (response.id) {
-        setId(response.id);
-      }
-
-      // Navigate to the user overview
-      router.push("/users/" + response.id);
+      const response = await apiService.post<AuthResponse>("/auth/login", { username, password });
+      // store credentials returned by the server
+      if (response.token) setToken(response.token);
+      if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
+      router.push("/users/me");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
+      const status = (error as ApplicationError).status;
+      if (status === 400 || status === 401) {
+        setErrorMessage("Invalid username or password.");
       } else {
-        console.error("An unknown error occurred during login.");
+        setErrorMessage("Login failed. Please try again.");
       }
     }
   };
-  
-// Added Password and removed Name at Login 
+
   return (
-    <div className="login-container">
-      <div>
-      <h1 style = {{ marginBottom: 10 }}>
-        LOG IN
-      </h1>
-      <Form
-        form={form}
-        name="login"
-        size="large"
-        variant="outlined"
-        onFinish={handleLogin}
-        layout="vertical"
+    <div className="auth-page">
+      <motion.div
+        className="auth-card"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <Form.Item
-          name="username"
-          label="Username"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input placeholder="Enter username" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password placeholder="Enter password" />
-        </Form.Item>
-        <Form.Item style={{ marginBottom: 4 }}>
-          <Link href="/register">Don&apos;t have an account yet? Register Here</Link>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="button_standard">
-            Login
-          </Button>
-        </Form.Item>
-      </Form>
-      </div>
+        {/* logo */}
+        <div className="auth-logo">
+          <div className="logo-icon">
+            <BookOpen size={22} color="white" />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+            Mappd
+          </span>
+        </div>
+
+        {/* heading */}
+        <div className="auth-heading">
+          <h2>Welcome back</h2>
+          <p>Sign in to continue your learning journey</p>
+        </div>
+
+        {/* form */}
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              className="auth-input"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label htmlFor="password">Password</label>
+              <span style={{ fontSize: 12, color: "var(--primary-light)", cursor: "pointer" }}>
+                Forgot password?
+              </span>
+            </div>
+            <div className="password-field">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="auth-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {errorMessage && <div className="alert-error">{errorMessage}</div>}
+
+          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+            Sign In
+          </button>
+        </form>
+
+        {/* footer */}
+        <p className="auth-footer-text">
+          Don&apos;t have an account?{" "}
+          <Link href="/register">Create one</Link>
+        </p>
+        <p className="auth-footer-text" style={{ marginTop: -16 }}>
+          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        </p>
+      </motion.div>
     </div>
   );
 };
