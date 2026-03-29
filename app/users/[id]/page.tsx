@@ -119,11 +119,18 @@ const Profile: React.FC = () => {
           </div>
           <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>Mappd</span>
         </Link>
-        {isOwnProfile && (
-          <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }} onClick={handleLogout}>
-            Log Out
-          </button>
-        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link href="/skillmaps" style={{ textDecoration: "none" }}>
+            <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }}>
+              See your Skill Maps
+            </button>
+          </Link>
+          {isOwnProfile && (
+            <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }} onClick={handleLogout}>
+              Log Out
+            </button>
+          )}
+        </div>
       </nav>
 
       {/* profile card */}
