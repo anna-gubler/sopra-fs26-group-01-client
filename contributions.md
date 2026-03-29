@@ -45,7 +45,8 @@ reason).
 |                    | 29.03.2026   | [Commit Frontend] (https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/7986ffa654e5e2a476d95d108bd3ef89eaac62c2) | Added Skillmap page using react flow, styling according to design | Visual base for nodes & interaction. Skeleton of Skillmap needs to be there in order to function. Currently, using mock data only. Total effort around 3.4h |
 | **@sebdahub** | 26.03.2026   | [https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/4e71aaef6f78c371f5fe667347de515dee9f0760] (last commit of branch) | refactored and cleaned up everything user related in backend, including API and tests | Give a solid basis to work on and make sure the design follows the specs. Effort about 12h.  |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@haslam** | 29.03.2026 | [Commit 1](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/ee6dbd2e9e8ebc19642b7150d0ee93f014ac576a)(latest commit to that branch) | Added seed and style fields to User entity, set avatar defaults on registration, implemented PUT /users/me/avatar endpoint with DTO and mapper (#47, #48) | Implements backend avatar generation logic for S3, enabling frontend to display and update user avatars |
+|                    | 29.03.2026 | [Commit 2](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/a7d0dd5d8448779cf6e5253227a6579733efb8f0) | Added SkillMapController tests for all endpoints and fixed getUserByToken to checkToken in SkillMapService (#43) | Ensures skillmap endpoints are tested and fixes S1/S2 integration issue |
 
 ---
 
