@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { ApplicationError } from "@/types/error";
 import { SkillMap } from "@/types/skillmap";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -20,6 +21,12 @@ const EditSkillMapPage: React.FC = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchMap = async () => {
       try {
         const map = await api.get<SkillMap>(`/skillmaps/${id}`);
@@ -28,7 +35,12 @@ const EditSkillMapPage: React.FC = () => {
         setNumberOfLevels(map.numberOfLevels);
         setIsPublic(map.isPublic);
       } catch (err) {
-        if (err instanceof Error) setError(err.message);
+        const status = (err as ApplicationError).status;
+        if (status === 403) {
+          setError("You don't have permission to do that.");
+        } else {
+          setError("Failed to load skill map. Please try again.");
+        }
       }
     };
     fetchMap();
@@ -41,7 +53,12 @@ const EditSkillMapPage: React.FC = () => {
       await api.updateSkillMap(id, { title, description, numberOfLevels, isPublic });
       router.push("/skillmaps");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
+      const status = (err as ApplicationError).status;
+      if (status === 403) {
+        setError("You don't have permission to do that.");
+      } else {
+        setError("Failed to save skill map. Please try again.");
+      }
     }
   };
 

@@ -554,7 +554,136 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
-/* ── Skill Maps Page ─────────────────────────────── */
+/*  Skill Maps Page  */
+
+.sm-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 24px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 32px;
+}
+
+.sm-nav-logo {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-space-grotesk), Arial, sans-serif;
+  color: var(--text-bright);
+}
+
+.sm-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sm-nav-icon {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.sm-nav-icon:hover {
+  color: var(--text-bright);
+  background-color: var(--bg-elevated);
+}
+
+.sm-nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.sm-nav-username {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-bright);
+}
+
+.sm-welcome {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.sm-welcome-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.sm-welcome-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.sm-welcome-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.sm-join-area {
+  margin-left: auto;
+}
+
+.sm-join-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sm-join-form .btn-ghost {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sm-join-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--text-bright);
+  outline: none;
+  width: 160px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.sm-join-input:focus {
+  border-color: var(--primary);
+}
+
+.sm-join-input::placeholder {
+  color: var(--text-muted);
+}
 
 .sm-page {
   min-height: 100vh;

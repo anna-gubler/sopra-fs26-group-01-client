@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { ApplicationError } from "@/types/error";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
@@ -16,6 +17,12 @@ const NewSkillMapPage: React.FC = () => {
   const [isPublic, setIsPublic] = useState(true);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -23,7 +30,12 @@ const NewSkillMapPage: React.FC = () => {
       await api.createSkillMap({ title, description, numberOfLevels, isPublic });
       router.push("/skillmaps");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
+      const status = (err as ApplicationError).status;
+      if (status === 403) {
+        setError("You don't have permission to do that.");
+      } else {
+        setError("Failed to create skill map. Please try again.");
+      }
     }
   };
 

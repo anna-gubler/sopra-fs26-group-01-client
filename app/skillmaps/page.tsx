@@ -4,18 +4,48 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { SkillMap } from "@/types/skillmap";
+import { User } from "@/types/user";
+import { Inbox, Bell, Settings, BookOpen } from "lucide-react";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
   const api = useApi();
   const [skillMaps, setSkillMaps] = useState<SkillMap[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const [joinError, setJoinError] = useState("");
 
   useEffect(() => {
-    const fetchSkillMaps = async () => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setJoinError("");
+    try {
+      await api.post("/skillmaps/join", { inviteCode });
+      setInviteCode("");
+      setShowJoinInput(false);
+      const maps = await api.getSkillMaps();
+      setSkillMaps(maps);
+    } catch (err) {
+      if (err instanceof Error) setJoinError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const maps = await api.getSkillMaps();
+        const [maps, me] = await Promise.all([
+          api.getSkillMaps(),
+          api.get<User>("/users/me"),
+        ]);
         setSkillMaps(maps);
+        setUser(me);
       } catch (error) {
         if (error instanceof Error) {
           alert(`Failed to load skill maps:\n${error.message}`);
@@ -25,7 +55,7 @@ const SkillMapsPage: React.FC = () => {
       }
     };
 
-    fetchSkillMaps();
+    fetchData();
   }, [api]);
 
   if (loading) {
@@ -34,6 +64,52 @@ const SkillMapsPage: React.FC = () => {
 
   return (
     <div className="sm-page">
+
+      {/* Navbar */}
+      <nav className="sm-nav">
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, var(--primary), var(--secondary))", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <BookOpen size={16} color="white" />
+          </div>
+          <span className="sm-nav-logo">Mappd</span>
+        </div>
+        <div className="sm-nav-right">
+          <button className="sm-nav-icon"><Inbox size={20} /></button>
+          <button className="sm-nav-icon"><Bell size={20} /></button>
+          <button className="sm-nav-icon"><Settings size={20} /></button>
+          <div className="sm-nav-avatar" onClick={() => router.push("/users/me")}>
+            <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
+          </div>
+          <span className="sm-nav-username">{user?.username ?? ""}</span>
+        </div>
+      </nav>
+
+      {/* Welcome */}
+      <div className="sm-welcome">
+        <div className="sm-welcome-avatar">{user?.username?.[0]?.toUpperCase() ?? "?"}</div>
+        <div>
+          <div className="sm-welcome-title">Welcome back, {user?.username}!</div>
+          <div className="sm-welcome-sub">{user?.bio || "No bio yet"}</div>
+        </div>
+        <div className="sm-join-area">
+          <form className="sm-join-form" onSubmit={handleJoin}>
+            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); setJoinError(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
+            {showJoinInput && (
+              <input
+                className="sm-join-input"
+                type="text"
+                placeholder="Invite code"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                required
+                autoFocus
+              />
+            )}
+            {showJoinInput && <button type="submit" className="btn-gradient">Join</button>}
+          </form>
+          {joinError && <div className="alert-error" style={{ marginTop: 8 }}>{joinError}</div>}
+        </div>
+      </div>
 
       {/* Stats Row */}
       <div className="sm-stats-row">
