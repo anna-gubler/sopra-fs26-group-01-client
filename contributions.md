@@ -38,11 +38,11 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@anna-gubler** | 25.03.2026   | [Link to Commit 1](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/2b26058395444599aa7a8462a07820459e5c97eb) | Created Entity Skill, with service, controller, dto and mappings (#33, #35). | Basic compontent of our Skill Map. |
+|                    | 26.03.2026   | [Link to Commit 2](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/02c88374e2f6747e3614ce3de204e35d77b6dba9) | Created SkillMap Entity with service and controller (#51, #52, #53, #54, #55). | Skill Map is the foundational element of our project. |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | 26.03.2026   | [https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/4e71aaef6f78c371f5fe667347de515dee9f0760] (last commit of branch) | [efactored and cleaned up everything user related in backend, including API and tests] | [Give a solid basis to work on and make sure the design follows the specs. Effort about 12h.]  |
+| **@sebdahub** | 26.03.2026   | [https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/4e71aaef6f78c371f5fe667347de515dee9f0760] (last commit of branch) | refactored and cleaned up everything user related in backend, including API and tests | Give a solid basis to work on and make sure the design follows the specs. Effort about 12h.  |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
