@@ -12,7 +12,7 @@
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@xyflow/react": "^12.10.1",
+    "@xyflow/react": "^12.10.2",
     "antd": "^6.0.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
