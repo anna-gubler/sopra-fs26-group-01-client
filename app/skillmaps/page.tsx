@@ -14,20 +14,8 @@ const SkillMapsPage: React.FC = () => {
   useEffect(() => {
     const fetchSkillMaps = async () => {
       try {
-        // TODO: replace with api.getSkillMaps() once backend is ready
-        const mockMaps: SkillMap[] = [
-          {
-            id: 1,
-            title: "Software Engineering | FS26",
-            description: "by Prof. Dr. Thomas Fritz",
-            numberOfLevels: 4,
-            isPublic: true,
-            inviteCode: "abc123",
-            createdAt: "",
-            updatedAt: "",
-          },
-        ];
-        setSkillMaps(mockMaps);
+        const maps = await api.getSkillMaps();
+        setSkillMaps(maps);
       } catch (error) {
         if (error instanceof Error) {
           alert(`Failed to load skill maps:\n${error.message}`);
@@ -90,7 +78,7 @@ const SkillMapsPage: React.FC = () => {
               <span className="sm-continue">Continue Learning &gt;</span>
               <button
                 className="sm-edit-btn"
-                onClick={(e) => { e.stopPropagation(); /* TODO: open edit modal */ }}
+                onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
               >
                 Edit
               </button>
@@ -99,7 +87,7 @@ const SkillMapsPage: React.FC = () => {
         ))}
 
         {/* Create new map placeholder card */}
-        <div className="sm-card sm-card-new" onClick={() => {/* TODO: open create modal */}}>
+        <div className="sm-card sm-card-new" onClick={() => router.push("/skillmaps/new")}>
           <span className="sm-card-new-icon">+</span>
           <span className="sm-card-new-label">Create New Map</span>
         </div>
