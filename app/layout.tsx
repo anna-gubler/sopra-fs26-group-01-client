@@ -1,83 +1,33 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { App as AntdApp, ConfigProvider, theme } from "antd";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "@/styles/globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Student XX-XXX-XXX",
-  description: "sopra-fs26-template-client",
+  title: "Mappd",
+  description: "Map your skills. Track your mastery.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ConfigProvider
-          theme={{
-            algorithm: theme.defaultAlgorithm,
-            token: {
-              // general theme options are set in token, meaning all primary elements (button, menu, ...) will have this color
-              colorPrimary: "#22426b", // selected input field boarder will have this color as well
-              borderRadius: 8,
-              colorText: "#fff",
-              fontSize: 16,
-
-              // Alias Token
-              colorBgContainer: "#16181D",
-            },
-            // if a component type needs special styling, setting here will override default options set in token
-            components: {
-              Button: {
-                colorPrimary: "#75bd9d", // this will color all buttons in #75bd9d, overriding the default primaryColor #22426b set in token line 35
-                algorithm: true, // enable algorithm (redundant with line 33 but here for demo purposes)
-                controlHeight: 38,
-              },
-              Input: {
-                colorBorder: "gray", // color boarder selected is not overridden but instead is set by primary color in line 35
-                colorTextPlaceholder: "#888888",
-                algorithm: false, // disable algorithm (line 32)
-              },
-              Form: {
-                labelColor: "#fff",
-                algorithm: theme.defaultAlgorithm, // specify a specifc algorithm instead of true/false
-              },
-              Card: {
-                colorBgContainer: "rgb(13, 0, 0)",
-              },
-              Table: {
-                headerBg: "#0d0000",
-                headerColor: "white",
-                rowHoverBg: "rgb(200,0,0,100)",
-                colorBgContainer: "rgb(232, 232, 232)",
-                colorText: "white",
-                borderColor: "rgb(200,0,0,100)",
-              },
-              Pagination: {
-                colorPrimary: "rgb(200,0,0)",
-                colorBgContainer: "rgb(13, 0, 0)",
-              }
-            },
-          }}
-        >
-          <AntdRegistry>
-            <AntdApp>{children}</AntdApp>
-          </AntdRegistry>
-        </ConfigProvider>
+      <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
+        {children}
       </body>
     </html>
   );
