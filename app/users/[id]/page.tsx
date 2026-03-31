@@ -93,118 +93,77 @@ const Profile: React.FC = () => {
     : "";
 
   return (
-    <div style={{ background: "var(--bg-deep)", minHeight: "100vh", color: "var(--text-bright)" }}>
+    <div className="page-deep">
 
       {/* dot grid overlay */}
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        backgroundImage:
-          "linear-gradient(hsla(263,70%,58%,0.07) 1px, transparent 1px), linear-gradient(to right, hsla(263,70%,58%,0.07) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
+      <div className="grid-overlay" />
 
       {/* navbar */}
       <nav className="glass-nav">
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "var(--text-bright)" }}>
-          <div style={{
-            width: 32, height: 32,
-            background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-            borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+        <Link href="/" className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>Mappd</span>
+          <span className="logo-text">Mappd</span>
         </Link>
         {isOwnProfile && (
-          <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }} onClick={handleLogout}>
+          <button className="btn-ghost btn-sm" onClick={handleLogout}>
             Log Out
           </button>
         )}
       </nav>
 
       {/* profile card */}
-      <div style={{
-        position: "relative",
-        zIndex: 1,
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "100px 24px 60px",
-      }}>
+      <div className="page-content-center">
         <motion.div
+          className="page-card page-card--md"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-color)",
-            borderRadius: 20,
-            padding: "40px 48px",
-            width: "100%",
-            maxWidth: 560,
-          }}
         >
           {/* avatar + username */}
-          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 32 }}>
-            <div style={{
-              width: 64, height: 64,
-              background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-              borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 26, fontWeight: 700, color: "white",
-              flexShrink: 0,
-            }}>
+          <div className="profile-header">
+            <div className="profile-avatar">
               {user.username?.[0]?.toUpperCase()}
             </div>
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 2 }}>Username</p>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-bright)", lineHeight: 1.1 }}>
-                {user.username}
-              </h1>
+              <p className="profile-label">Username</p>
+              <h1 className="profile-username">{user.username}</h1>
             </div>
           </div>
 
           {/* divider */}
-          <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: 24 }} />
+          <div className="profile-divider" />
 
           {/* bio */}
-          <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Bio</p>
-            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              {user.bio || <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>No bio yet.</span>}
+          <div className="profile-section">
+            <p className="profile-section-label">Bio</p>
+            <p className="profile-section-text">
+              {user.bio || <span className="profile-empty">No bio yet.</span>}
             </p>
           </div>
 
           {/* status + joined */}
-          <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+          <div className="profile-meta-row">
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Status</p>
-              <span style={{
-                fontSize: 13, fontWeight: 600,
-                color: user.status === "ONLINE" ? "var(--accent)" : "hsl(351, 80%, 60%)",
-              }}>
+              <p className="profile-meta-label">Status</p>
+              <span className={user.status === "ONLINE" ? "profile-status-online" : "profile-status-offline"}>
                 ● {user.status}
               </span>
             </div>
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Member Since</p>
-              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{dateFormat}</span>
+              <p className="profile-meta-label">Member Since</p>
+              <span className="profile-meta-value">{dateFormat}</span>
             </div>
           </div>
 
           {/* own profile actions */}
           {isOwnProfile && (
             <>
-              <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: 24 }} />
+              <div className="profile-divider" />
               {!showPasswordForm && (
                 <button
-                  className="btn-ghost"
-                  style={{ width: "100%", justifyContent: "center" }}
+                  className="btn-ghost btn-full"
                   onClick={() => { setShowPasswordForm(true); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                 >
                   Change Password
@@ -247,7 +206,7 @@ const Profile: React.FC = () => {
                       </button>
                     </div>
                     {newPassword && oldPassword && newPassword === oldPassword && (
-                      <span style={{ fontSize: 12, color: "hsl(351, 80%, 60%)" }}>New password must be different from your old password.</span>
+                      <span className="field-error">New password must be different from your old password.</span>
                     )}
                   </div>
                   <div className="input-group">
@@ -267,17 +226,16 @@ const Profile: React.FC = () => {
                       </button>
                     </div>
                     {confirmPassword && newPassword && confirmPassword !== newPassword && (
-                      <span style={{ fontSize: 12, color: "hsl(351, 80%, 60%)" }}>Passwords do not match.</span>
+                      <span className="field-error">Passwords do not match.</span>
                     )}
                   </div>
                   {passwordError && <div className="alert-error">{passwordError}</div>}
-                  <button className="btn-gradient" style={{ width: "100%", justifyContent: "center", marginTop: 12 }} type="submit">
+                  <button className="btn-gradient btn-full mt-12" type="submit">
                     Confirm Password Change
                   </button>
                   <button
                     type="button"
-                    className="btn-ghost"
-                    style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
+                    className="btn-ghost btn-full mt-8"
                     onClick={() => { setShowPasswordForm(false); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                   >
                     Cancel

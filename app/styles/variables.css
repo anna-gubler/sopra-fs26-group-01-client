@@ -1,0 +1,53 @@
+/* Mappd design profile */
+
+:root {
+  /* backgrounds */
+  --bg-deep:     hsl(249, 40%, 8%);
+  --bg-surface:  hsl(252, 35%, 11%);
+  --bg-elevated: hsl(255, 28%, 15%);
+
+  /* text */
+  --text-bright:    hsl(260, 60%, 98%);
+  --text-secondary: hsl(263, 53%, 80%);
+  --text-muted:     hsl(262, 20%, 55%);
+
+  /* primary: purple */
+  --primary:       hsl(263, 70%, 58%);
+  --primary-light: hsl(263, 83%, 78%);
+
+  /* secondary: pink */
+  --secondary: hsl(330, 70%, 56%);
+
+  /* accent: cyan/teal */
+  --accent: hsl(160, 60%, 52%);
+
+  /* collaboration mode */
+  --color-amber:  hsl(42, 95%, 55%);
+  --color-orange: hsl(25, 95%, 60%);
+
+  /* borders + glow */
+  --border-color: hsl(258, 24%, 22%);
+  --glow:         0 0 20px hsla(263, 70%, 58%, 0.4);
+
+  /* further colours Cattpuccin */
+  --ctp-crust:    var(--bg-deep);
+  --ctp-mantle:   var(--bg-surface);
+  --ctp-base:     var(--bg-elevated);
+  --ctp-surface0: hsl(258, 24%, 20%);
+  --ctp-surface1: var(--border-color);
+  --ctp-surface2: hsl(258, 24%, 26%);
+  --ctp-text:     var(--text-bright);
+  --ctp-subtext0: var(--text-muted);
+  --ctp-mauve:    var(--primary);
+  --ctp-lavender: var(--primary-light);
+  --ctp-blue:     hsl(225, 83%, 72%);
+  --ctp-green:    var(--accent);
+  --ctp-red:      hsl(351, 80%, 60%);
+  --color-pink:   var(--secondary);
+
+  /* skill node status */
+  --node-inactive: var(--border-color);
+  --node-progress: var(--primary);
+  --node-pink:     var(--secondary);
+  --node-done:     var(--accent);
+}

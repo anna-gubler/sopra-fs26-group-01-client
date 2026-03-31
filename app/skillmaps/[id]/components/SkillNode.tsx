@@ -29,27 +29,20 @@ const SkillNode: React.FC<NodeProps> = ({ data }) => {
   const glow = glowColor[status];
 
   return (
-    <div style={{
-      background: "var(--bg-surface)",
-      border: `1.5px solid ${color}`,
-      borderRadius: 8,
-      padding: "8px 14px",
-      width: 160,
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      color: "var(--text-bright)",
-      fontSize: 12,
-      fontFamily: "var(--font-inter), sans-serif",
-      boxShadow: `0 0 10px ${glow}, inset 0 0 8px ${glow}`,
-    }}>
-      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0 }} />
-      <span style={{ flex: 1 }}>{label}</span>
+    <div
+      className="skill-node"
+      style={{
+        "--skill-node-color": color,
+        "--skill-node-glow": glow,
+      } as React.CSSProperties}
+    >
+      <Handle type="target" position={Position.Top} className="skill-node-handle" />
+      <span className="skill-node__dot" />
+      <span className="skill-node__label">{label}</span>
       {progress !== undefined && (
-        <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 8, flexShrink: 0 }}>{progress}%</span>
+        <span className="skill-node__progress">{progress}%</span>
       )}
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} className="skill-node-handle" />
     </div>
   );
 };

@@ -36,57 +36,43 @@ const mapConnections = [
 function SkillMapPreview() {
   return (
     <motion.div
+      className="preview-card"
       initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.7, delay: 0.3 }}
-      style={{
-        background: "var(--bg-surface)",
-        border: "1px solid var(--border-color)",
-        borderRadius: 16,
-        overflow: "hidden",
-        maxWidth: 520,
-        width: "100%",
-        flexShrink: 0,
-      }}
     >
       {/* course header */}
-      <div style={{
-        padding: "14px 20px",
-        borderBottom: "1px solid var(--border-color)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-      }}>
+      <div className="preview-card-header">
         <div>
-          <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-bright)" }}>
+          <div className="preview-card-title">
             Software Engineering | FS26
           </div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+          <div className="preview-card-author">
             by Prof. Dr. Thomas Fritz
           </div>
         </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>127 Students</div>
-          <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600, marginTop: 2 }}>● LIVE</div>
+        <div className="preview-card-stats">
+          <div className="preview-card-students">127 Students</div>
+          <div className="preview-card-live">● LIVE</div>
         </div>
       </div>
 
       {/* progress bar */}
-      <div style={{ padding: "10px 20px 4px" }}>
-        <div style={{ background: "var(--bg-elevated)", height: 5, borderRadius: 3, overflow: "hidden" }}>
+      <div className="preview-progress-wrap">
+        <div className="preview-progress-bar">
           <motion.div
-            style={{ background: "var(--accent)", height: "100%", borderRadius: 3 }}
+            className="preview-progress-fill"
             initial={{ width: 0 }}
             animate={{ width: "28%" }}
             transition={{ duration: 1.2, delay: 0.8 }}
           />
         </div>
-        <div style={{ fontSize: 11, color: "var(--accent)", marginTop: 4, fontWeight: 600 }}>28%</div>
+        <div className="preview-progress-label">28%</div>
       </div>
 
       {/* SVG skill map */}
-      <div style={{ padding: "4px 12px 14px" }}>
-        <svg viewBox="0 -15 570 290" style={{ width: "100%", height: "auto" }}>
+      <div className="preview-svg-wrap">
+        <svg viewBox="0 -15 570 290">
           <defs>
             <filter id="glow-cyan">
               <feGaussianBlur stdDeviation="4" result="blur" />
@@ -174,37 +160,22 @@ function FeatureCard({
 }) {
   return (
     <motion.div
+      className="feature-card"
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      style={{
-        background: "var(--bg-surface)",
-        border: "1px solid var(--border-color)",
-        borderRadius: 12,
-        padding: 28,
-        display: "flex",
-        flexDirection: "column",
-        gap: 14,
-      }}
     >
-      <div style={{
-        width: 44,
-        height: 44,
-        borderRadius: 10,
-        background: `${iconColor}22`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: `1px solid ${iconColor}44`,
-      }}>
+      <div
+        className="feature-card-icon"
+        style={{
+          "--feature-icon-bg": `${iconColor}22`,
+          "--feature-icon-border": `${iconColor}44`,
+        } as React.CSSProperties}
+      >
         <Icon size={20} color={iconColor} />
       </div>
       <div>
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-bright)", marginBottom: 8 }}>
-          {title}
-        </h3>
-        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
-          {description}
-        </p>
+        <h3 className="feature-card-title">{title}</h3>
+        <p className="feature-card-description">{description}</p>
       </div>
     </motion.div>
   );
@@ -248,86 +219,52 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div style={{ background: "var(--bg-deep)", minHeight: "100vh", color: "var(--text-bright)" }}>
+    <div className="page-deep">
 
       {/* dot grid overlay */}
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        backgroundImage:
-          "linear-gradient(hsla(263,70%,58%,0.07) 1px, transparent 1px), linear-gradient(to right, hsla(263,70%,58%,0.07) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
+      <div className="grid-overlay" />
 
       {/* navigation bar */}
       <nav className="glass-nav">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 32, height: 32,
-            background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-            borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+        <div className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>Mappd</span>
+          <span className="logo-text">Mappd</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/login" className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }}>
+        <div className="nav-buttons">
+          <Link href="/login" className="btn-ghost btn-sm">
             Log in
           </Link>
-          <Link href="/register" className="btn-gradient" style={{ padding: "8px 18px", fontSize: 14 }}>
+          <Link href="/register" className="btn-gradient btn-sm">
             Get Started
           </Link>
         </div>
       </nav>
 
-      {/* hero styling */}
-      <section style={{
-        position: "relative",
-        zIndex: 1,
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        padding: "80px 48px 60px",
-        gap: 60,
-        maxWidth: 1200,
-        margin: "0 auto",
-      }}>
+      {/* hero */}
+      <section className="landing-hero">
         {/* left column */}
         <motion.div
-          style={{ flex: 1, minWidth: 0 }}
+          className="landing-hero-left"
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
         >
           <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-            <span className="hero-badge" style={{ marginBottom: 24, display: "inline-flex" }}>
+            <span className="hero-badge">
               ● Live Collaboration Ready
             </span>
           </motion.div>
-          <motion.h1 variants={fadeUp} transition={{ duration: 0.5 }} style={{
-            fontSize: "clamp(40px, 5vw, 64px)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            marginBottom: 20,
-          }}>
+          <motion.h1 className="hero-heading" variants={fadeUp} transition={{ duration: 0.5 }}>
             Map Skills.<br />
             <span className="gradient-text">Track Mastery.</span>
           </motion.h1>
-          <motion.p variants={fadeUp} transition={{ duration: 0.5 }} style={{
-            fontSize: 18,
-            color: "var(--text-muted)",
-            lineHeight: 1.7,
-            maxWidth: 480,
-            marginBottom: 36,
-          }}>
+          <motion.p className="hero-description" variants={fadeUp} transition={{ duration: 0.5 }}>
             An interactive skill-mapping platform for educators and students.
             Visualize course competencies, track understanding, and collaborate in real-time.
           </motion.p>
-          <motion.div variants={fadeUp} transition={{ duration: 0.5 }} style={{ display: "flex", gap: 12 }}>
+          <motion.div className="hero-buttons" variants={fadeUp} transition={{ duration: 0.5 }}>
             <button className="btn-gradient" onClick={() => router.push("/register")}>
               Start Mapping
             </button>
@@ -338,38 +275,28 @@ export default function Home() {
         </motion.div>
 
         {/* right column, animated skill map */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", justifyContent: "center" }}>
+        <div className="landing-hero-right">
           <SkillMapPreview />
         </div>
       </section>
 
       {/* features */}
-      <section style={{
-        position: "relative",
-        zIndex: 1,
-        padding: "80px 48px",
-        maxWidth: 1200,
-        margin: "0 auto",
-      }}>
+      <section className="landing-features">
         <motion.div
+          className="landing-features-intro"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          style={{ textAlign: "center", marginBottom: 56 }}
         >
-          <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 14 }}>
+          <h2 className="landing-features-heading">
             Everything you need to learn smarter
           </h2>
-          <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 520, margin: "0 auto" }}>
+          <p className="landing-features-description">
             Designed for university courses, Mappd bridges the gap between curriculum design and student understanding.
           </p>
         </motion.div>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: 20,
-        }}>
+        <div className="landing-features-grid">
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -385,37 +312,21 @@ export default function Home() {
       </section>
 
       {/* bottom CTA */}
-      <section style={{
-        position: "relative",
-        zIndex: 1,
-        padding: "80px 48px 100px",
-        maxWidth: 1200,
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "center",
-      }}>
+      <section className="landing-cta">
         <motion.div
+          className="landing-cta-card"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-color)",
-            borderRadius: 20,
-            padding: "60px 40px",
-            textAlign: "center",
-            maxWidth: 680,
-            width: "100%",
-          }}
         >
-          <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 16 }}>
+          <h2 className="landing-cta-heading">
             <span className="gradient-text">Ready to map your learning?</span>
           </h2>
-          <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.7, marginBottom: 32 }}>
+          <p className="landing-cta-description">
             Join us and use Mappd to create visual, interactive skill trees for your courses.
           </p>
-          <button className="btn-gradient" style={{ fontSize: 16, padding: "14px 32px" }} onClick={() => router.push("/register")}>
+          <button className="btn-gradient btn-cta" onClick={() => router.push("/register")}>
             Create Your First Map
           </button>
         </motion.div>

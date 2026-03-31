@@ -47,13 +47,15 @@ const SkillMapEditorPage: React.FC = () => {
     api.get<User>("/users/me").then(setUser).catch(() => {});
   }, [api]);
 
+
+  // TODO: ADD PUBLISH BUTTON
   return (
-    <div style={{ display: "flex", flexDirection: "column", width: "100vw", height: "100vh", background: "var(--bg-deep)" }}>
+    <div className="sm-map-page">
 
       {/* Navbar */}
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 32px", height: 64, borderBottom: "1px solid var(--border-color)", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, var(--primary), var(--secondary))", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <nav className="sm-map-nav">
+        <div className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
           <span className="sm-nav-logo">Mappd</span>
@@ -70,7 +72,7 @@ const SkillMapEditorPage: React.FC = () => {
       </nav>
 
       {/* Graph */}
-      <div style={{ flex: 1 }}>
+      <div className="sm-map-graph">
         <ReactFlow
           nodes={nodes}
           edges={edges}

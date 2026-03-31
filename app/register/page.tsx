@@ -65,7 +65,7 @@ const Register: React.FC = () => {
           <div className="logo-icon">
             <BookOpen size={22} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+          <span className="logo-text">
             Mappd
           </span>
         </div>
@@ -114,21 +114,20 @@ const Register: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label htmlFor="bio">Bio <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="bio">Bio <span className="label-optional">(optional)</span></label>
             <textarea
               id="bio"
-              className="auth-input"
+              className="auth-input textarea-resize-v"
               placeholder="Tell us a bit about yourself"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              style={{ resize: "vertical" }}
             />
           </div>
 
           {errorMessage && <div className="alert-error">{errorMessage}</div>}
 
-          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+          <button type="submit" className="btn-gradient btn-full">
             Create Account
           </button>
         </form>
@@ -138,8 +137,8 @@ const Register: React.FC = () => {
           Already have an account?{" "}
           <Link href="/login">Sign in</Link>
         </p>
-        <p className="auth-footer-text" style={{ marginTop: -16 }}>
-          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        <p className="auth-footer-text auth-footer-text-tight">
+          <Link href="/" className="auth-back-link">← Back to home</Link>
         </p>
       </motion.div>
     </div>

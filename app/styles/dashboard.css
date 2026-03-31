@@ -1,0 +1,13 @@
+/* user list (dashboard) */
+
+.dashboard-container {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 8rem;
+  padding: 24px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}

@@ -62,7 +62,7 @@ const Login: React.FC = () => {
           <div className="logo-icon">
             <BookOpen size={22} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+          <span className="logo-text">
             Mappd
           </span>
         </div>
@@ -89,9 +89,9 @@ const Login: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className="label-row">
               <label htmlFor="password">Password</label>
-              <span style={{ fontSize: 12, color: "var(--primary-light)", cursor: "pointer" }}>
+              <span className="label-hint-link">
                 Forgot password?
               </span>
             </div>
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
 
           {errorMessage && <div className="alert-error">{errorMessage}</div>}
 
-          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+          <button type="submit" className="btn-gradient btn-full">
             Sign In
           </button>
         </form>
@@ -127,8 +127,8 @@ const Login: React.FC = () => {
           Don&apos;t have an account?{" "}
           <Link href="/register">Create one</Link>
         </p>
-        <p className="auth-footer-text" style={{ marginTop: -16 }}>
-          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        <p className="auth-footer-text auth-footer-text-tight">
+          <Link href="/" className="auth-back-link">← Back to home</Link>
         </p>
       </motion.div>
     </div>

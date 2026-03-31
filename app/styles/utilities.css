@@ -1,0 +1,12 @@
+/* utility */
+
+/* spacing helpers */
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

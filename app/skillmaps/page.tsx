@@ -17,11 +17,11 @@ const SkillMapsPage: React.FC = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [joinError, setJoinError] = useState("");
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (!localStorage.getItem("token")) {
       router.push("/login");
     }
-  }, []);
+  }, []); */
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +67,8 @@ const SkillMapsPage: React.FC = () => {
 
       {/* Navbar */}
       <nav className="sm-nav">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, var(--primary), var(--secondary))", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
           <span className="sm-nav-logo">Mappd</span>
@@ -107,7 +107,7 @@ const SkillMapsPage: React.FC = () => {
             )}
             {showJoinInput && <button type="submit" className="btn-gradient">Join</button>}
           </form>
-          {joinError && <div className="alert-error" style={{ marginTop: 8 }}>{joinError}</div>}
+          {joinError && <div className="alert-error alert-error-mt">{joinError}</div>}
         </div>
       </div>
 
@@ -146,7 +146,7 @@ const SkillMapsPage: React.FC = () => {
             </div>
 
             <div className="sm-progress-bar">
-              <div className="sm-progress-fill" style={{ width: "0%" }} />
+              <div className="sm-progress-fill" />
             </div>
             <div className="sm-progress-label">0/XX skills completed</div>
 

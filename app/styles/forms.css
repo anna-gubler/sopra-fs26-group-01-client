@@ -1,0 +1,92 @@
+/* form elements (functional pages) */
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+  background-color: var(--bg-surface);
+  color: var(--text-bright);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 16px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  border-color: var(--primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* form card heading */
+.form-heading {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* label row with inline hint (e.g. "Password" + "Forgot?") */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* muted optional text inside a label */
+.label-optional {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* small inline hint link (e.g. "Forgot password?") */
+.label-hint-link {
+  font-size: 12px;
+  color: var(--primary-light);
+  cursor: pointer;
+}
+
+/* inline field validation error */
+.field-error {
+  font-size: 12px;
+  color: hsl(351, 80%, 60%);
+}
+
+/* textarea that can be resized vertically */
+.textarea-resize-v {
+  resize: vertical;
+}
+
+/* input-group in horizontal (checkbox) layout */
+.input-group--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}

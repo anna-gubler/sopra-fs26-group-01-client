@@ -1,0 +1,41 @@
+/* SkillNode component */
+
+.skill-node {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--skill-node-color, var(--border-color));
+  border-radius: 8px;
+  padding: 8px 14px;
+  width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-bright);
+  font-size: 12px;
+  font-family: var(--font-inter), sans-serif;
+  box-shadow:
+    0 0 10px var(--skill-node-glow, transparent),
+    inset 0 0 8px var(--skill-node-glow, transparent);
+}
+
+.skill-node-handle {
+  opacity: 0;
+}
+
+.skill-node__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--skill-node-color, var(--border-color));
+  flex-shrink: 0;
+}
+
+.skill-node__label {
+  flex: 1;
+}
+
+.skill-node__progress {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 8px;
+  flex-shrink: 0;
+}
