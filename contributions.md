@@ -62,8 +62,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | 03.04.2026   | [[S1/be-user-entity-refactors](https://github.com/anna-gubler/sopra-fs26-group-01-server/tree/S1/be-user-entity-refactors)] | [deleted GET /users, added interceptor, added OpenAPI swagger, several small refactors like changing getUserByUsername from type User to type Optional
-] | [Self-explanatory] |
+| **@sebdahub** | 03.04.2026   | [[S1/be-user-entity-refactors](https://github.com/anna-gubler/sopra-fs26-group-01-server/tree/S1/be-user-entity-refactors)] | [deleted GET /users, added interceptor, added OpenAPI swagger, several small refactors like changing getUserByUsername from type User to type Optional] | [Self-explanatory] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
