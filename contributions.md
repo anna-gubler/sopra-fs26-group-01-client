@@ -62,7 +62,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | 03.04.2026   | [S1/be-user-entity-refactors] | [All refactors of S1 -> branch description] | [Self-explanatory] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
