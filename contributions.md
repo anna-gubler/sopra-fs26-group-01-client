@@ -56,7 +56,7 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 03.04.3036   | [S7/be-skillmap-join](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/f04dd89) | Added integration tests for POST /skillmaps/join and GET /skillmaps. Added controller tests for all POST /skillmaps/join errors. | I had already implemented #77, #78, #79 last week, only #80, the tests, were missing for User Story 7 Backend. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
