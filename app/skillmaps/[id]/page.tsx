@@ -40,6 +40,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [translateExtent, setTranslateExtent] = useState<[[number, number], [number, number]]>([[-400, -400], [2000, 2000]]);
 
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
@@ -87,6 +88,16 @@ const SkillMapEditorPage: React.FC = () => {
 
         setNodes(skillNodes);
         setEdges(skillEdges);
+
+        if (skillNodes.length > 0) {
+          const PADDING = 400;
+          const xs = skillNodes.map((n) => n.position.x);
+          const ys = skillNodes.map((n) => n.position.y);
+          setTranslateExtent([
+            [Math.min(...xs) - PADDING, Math.min(...ys) - PADDING],
+            [Math.max(...xs) + PADDING, Math.max(...ys) + PADDING],
+          ]);
+        }
       } catch {
         // keep empty graph on error
       } finally {
@@ -180,10 +191,14 @@ const SkillMapEditorPage: React.FC = () => {
           fitView
           fitViewOptions={{ padding: 0.3 }}
           nodesConnectable={false}
-          panOnDrag={false}
+          panOnDrag={true}
+          panOnScroll={true}
           zoomOnScroll={false}
-          zoomOnPinch={false}
+          zoomOnPinch={true}
           zoomOnDoubleClick={false}
+          minZoom={0.4}
+          maxZoom={1.2}
+          translateExtent={translateExtent}
           proOptions={{ hideAttribution: true }}
         >
           {skillMap && (
