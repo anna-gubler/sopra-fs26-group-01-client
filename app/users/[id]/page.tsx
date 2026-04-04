@@ -26,7 +26,7 @@ const Profile: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
@@ -74,6 +74,7 @@ const Profile: React.FC = () => {
 
   // fetch the profile data for the user with this id
   useEffect(() => {
+    if (!token) return; // wait for token to be available before fetching
     const fetchUser = async () => {
       try {
         const result = await getUser(apiService, id as string);
@@ -85,7 +86,7 @@ const Profile: React.FC = () => {
       }
     };
     fetchUser();
-  }, [apiService]);
+  }, [apiService, token]);
 
   if (!user) return null;
 
