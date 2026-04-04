@@ -394,3 +394,19 @@
   background: hsla(351, 80%, 60%, 0.15);
   border-color: hsl(351, 80%, 60%);
 }
+
+.delete-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: hsla(351, 80%, 60%, 0.06);
+  border: 1px solid hsla(351, 80%, 60%, 0.2);
+}
+
+.delete-confirm p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}

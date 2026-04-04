@@ -29,6 +29,7 @@ const Profile: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [oldPasswordError, setOldPasswordError] = useState("");
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
@@ -75,7 +76,7 @@ const Profile: React.FC = () => {
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
       if (status === 401) {
-        toast.error("Old password is incorrect.");
+        setOldPasswordError("Old password is incorrect.");
       } else if (status === 409) {
         toast.error("New password must be different from your old password.");
       } else if (status === 400) {
@@ -214,7 +215,7 @@ const Profile: React.FC = () => {
                   </button>
                   <button
                     className="btn-ghost btn-full mt-8"
-                    onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                    onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); setOldPasswordError(""); }}
                   >
                     Change Password
                   </button>
@@ -271,13 +272,16 @@ const Profile: React.FC = () => {
                         className="auth-input"
                         placeholder="Enter old password"
                         value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
+                        onChange={(e) => { setOldPassword(e.target.value); setOldPasswordError(""); }}
                         required
                       />
                       <button type="button" className="toggle-password" onClick={() => setShowOldPassword(!showOldPassword)}>
                         {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
+                    {oldPasswordError && (
+                      <span className="field-error">{oldPasswordError}</span>
+                    )}
                   </div>
                   <div className="input-group">
                     <label htmlFor="new-password">New Password</label>
@@ -325,7 +329,7 @@ const Profile: React.FC = () => {
                   <button
                     type="button"
                     className="btn-ghost btn-full mt-8"
-                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); setOldPasswordError(""); }}
                   >
                     Cancel
                   </button>
