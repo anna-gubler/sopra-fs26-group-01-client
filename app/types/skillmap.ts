@@ -10,3 +10,11 @@ export interface SkillMap {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SkillMapMembership {
+  id: number;
+  userId: number;
+  skillMapId: number;
+  role: "OWNER" | "STUDENT";
+  joinedAt: string;
+}

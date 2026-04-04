@@ -351,3 +351,46 @@
 .sm-map-graph {
   flex: 1;
 }
+
+/* Skill modal */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: hsla(249, 40%, 4%, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 32px;
+  width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.btn-delete {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(351, 80%, 65%);
+  background: hsla(351, 80%, 60%, 0.08);
+  border: 1px solid hsla(351, 80%, 60%, 0.3);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  margin-top: 4px;
+  font-family: inherit;
+}
+
+.btn-delete:hover {
+  background: hsla(351, 80%, 60%, 0.15);
+  border-color: hsl(351, 80%, 60%);
+}
