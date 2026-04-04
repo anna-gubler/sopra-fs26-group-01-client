@@ -20,11 +20,6 @@ const EditSkillMapPage: React.FC = () => {
   const [numberOfLevels, setNumberOfLevels] = useState(1);
   const [isPublic, setIsPublic] = useState(true);
 
-  // useEffect(() => {
-  //   if (!localStorage.getItem("token")) {
-  //     router.push("/login");
-  //   }
-  // }, []);
 
   useEffect(() => {
     const fetchMap = async () => {
@@ -61,7 +56,6 @@ const EditSkillMapPage: React.FC = () => {
     }
   };
 
-  // Todo: ADD TOGGLE FOR PUBLIC
   return (
     <div className="page-deep">
       <div className="grid-overlay" />

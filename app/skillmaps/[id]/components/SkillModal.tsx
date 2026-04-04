@@ -68,13 +68,14 @@ const SkillModal: React.FC<Props> = ({
   };
 
   return (
-    <div className={styles["modal-backdrop"]} onClick={onClose}>
-      <div className={styles["modal"]} onClick={(e) => e.stopPropagation()}>
+    <div className={styles["modal-backdrop"]} role="button" tabIndex={0} onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div className={styles["modal"]} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
         <h2 className="form-heading">{skill ? "Edit Skill" : "Add Skill"}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Name</label>
+            <label htmlFor="skill-name">Name</label>
             <input
+              id="skill-name"
               className="auth-input"
               type="text"
               value={name}
@@ -84,8 +85,9 @@ const SkillModal: React.FC<Props> = ({
             />
           </div>
           <div className="input-group">
-            <label>Description</label>
+            <label htmlFor="skill-description">Description</label>
             <textarea
+              id="skill-description"
               className="auth-input"
               rows={3}
               value={description}
@@ -94,8 +96,9 @@ const SkillModal: React.FC<Props> = ({
           </div>
           {!skill && (
             <div className="input-group">
-              <label>Level</label>
+              <label htmlFor="skill-level">Level</label>
               <select
+                id="skill-level"
                 className="auth-input"
                 value={level}
                 onChange={(e) => setLevel(Number(e.target.value))}
@@ -107,8 +110,9 @@ const SkillModal: React.FC<Props> = ({
             </div>
           )}
           <div className="input-group">
-            <label>Difficulty</label>
+            <label htmlFor="skill-difficulty">Difficulty</label>
             <select
+              id="skill-difficulty"
               className="auth-input"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
@@ -120,8 +124,9 @@ const SkillModal: React.FC<Props> = ({
             </select>
           </div>
           <div className="input-group">
-            <label>Resources</label>
+            <label htmlFor="skill-resources">Resources</label>
             <textarea
+              id="skill-resources"
               className="auth-input"
               rows={2}
               value={resources}

@@ -128,7 +128,7 @@ const SkillMapEditorPage: React.FC = () => {
   return (
     <div className={styles["sm-map-page"]}>
       <nav className={styles["sm-map-nav"]}>
-        <div className="nav-logo" style={{ cursor: "pointer" }} onClick={() => router.push("/skillmaps")}>
+        <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
@@ -159,7 +159,10 @@ const SkillMapEditorPage: React.FC = () => {
           )}
           <div
             className={styles["sm-nav-avatar"]}
+            role="button"
+            tabIndex={0}
             onClick={() => router.push("/users/me")}
+            onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}
           >
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>

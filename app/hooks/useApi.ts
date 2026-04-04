@@ -5,7 +5,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 // Read token synchronously from localStorage so ApiService has it on first render,
 // before useLocalStorage's useEffect has a chance to run.
 const getStoredToken = (): string => {
-  if (typeof window === "undefined") return "";
+  if (typeof globalThis.window === "undefined") return "";
   try {
     const stored = localStorage.getItem("token");
     return stored ? (JSON.parse(stored) as string) : "";

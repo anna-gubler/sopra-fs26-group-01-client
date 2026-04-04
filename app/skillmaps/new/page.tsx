@@ -10,20 +10,13 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 
-//TODO: Public to no, no option to change
 const NewSkillMapPage: React.FC = () => {
   const router = useRouter();
   const api = useApi();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState(1);
-  const [isPublic, setIsPublic] = useState(false)
-
-/*   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      router.push("/login");
-    }
-  }, []); */
+  const [isPublic] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -7,10 +7,9 @@ import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
-import { Inbox, Bell, Settings, BookOpen } from "lucide-react";
+import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
-import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 const SkillMapsPage: React.FC = () => {
@@ -24,11 +23,6 @@ const SkillMapsPage: React.FC = () => {
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
 
-/*   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      router.push("/login");
-    }
-  }, []); */
 
   const handleLogout = async () => {
     try {
@@ -94,7 +88,7 @@ const SkillMapsPage: React.FC = () => {
           <button className={styles['sm-nav-icon']}><Inbox size={20} /></button>
           <button className={styles['sm-nav-icon']}><Bell size={20} /></button>
           <button className={styles['sm-nav-icon']}><Settings size={20} /></button>
-          <div className={styles['sm-nav-avatar']} onClick={() => router.push("/users/me")}>
+          <div className={styles['sm-nav-avatar']} role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
@@ -149,7 +143,7 @@ const SkillMapsPage: React.FC = () => {
 
       <div className={styles['sm-grid']}>
         {skillMaps.map((map) => (
-          <div key={map.id} className={styles['sm-card']} onClick={() => router.push(`/skillmaps/${map.id}`)}>
+          <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
                 <div className={styles['sm-card-title']}>{map.title}</div>
@@ -180,7 +174,7 @@ const SkillMapsPage: React.FC = () => {
         ))}
 
         {/* Create new map placeholder card */}
-        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} onClick={() => router.push("/skillmaps/new")}>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
