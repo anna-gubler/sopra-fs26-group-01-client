@@ -1,0 +1,182 @@
+/* user profile page */
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-deep);
+}
+
+.User_Card {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 8rem;
+  padding: 24px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.small_explainer {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+.User_Name {
+  font-size: 80px;
+  margin-top: -30px;
+}
+
+.User_Username {
+  font-size: 40px;
+  margin-top: 4px;
+  margin-bottom: 2rem;
+}
+
+.User_Bio {
+  font-size: 16px;
+  margin-bottom: 2rem;
+}
+
+.User_status-online {
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.User_status-offline {
+  font-size: 14px;
+  color: hsl(351, 80%, 60%);
+}
+
+.User_CreationDate {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.User_Overview {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.profile-home-icon {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-bright);
+  text-decoration: none;
+}
+
+/* profile card header: avatar + username side by side */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* 64×64 gradient avatar circle */
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* small muted label above a value (e.g. "Username") */
+.profile-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+/* prominent username heading */
+.profile-username {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.1;
+}
+
+/* horizontal rule divider */
+.profile-divider {
+  border-top: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+/* content section wrapper */
+.profile-section {
+  margin-bottom: 20px;
+}
+
+/* uppercase section label */
+.profile-section-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* section body text */
+.profile-section-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* muted italic placeholder */
+.profile-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* row containing status + joined date */
+.profile-meta-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* uppercase meta label */
+.profile-meta-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* generic meta value */
+.profile-meta-value {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* online status indicator */
+.profile-status-online {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* offline status indicator */
+.profile-status-offline {
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(351, 80%, 60%);
+}

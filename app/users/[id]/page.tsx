@@ -3,11 +3,15 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
+import { getUser, updateMe } from "@/api/userApi";
+import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import styles from "@/styles/profile.module.css";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -22,38 +26,36 @@ const Profile: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
-  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
   // update password via PUT /users/me, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError("");
     if (newPassword === oldPassword) {
-      setPasswordError("New password must be different from your old password.");
+      toast.error("New password must be different from your old password.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
+      toast.error("New passwords do not match.");
       return;
     }
     try {
-      await apiService.put("/users/me", { password: newPassword });
-      await apiService.post("/auth/logout", {});
+      await updateMe(apiService, { password: newPassword } as Parameters<typeof updateMe>[1]);
+      await logout(apiService);
       clearToken();
       clearId();
       router.push("/login");
     } catch {
-      setPasswordError("Incorrect old password or request failed. Please try again.");
+      toast.error("Incorrect old password or request failed. Please try again.");
     }
   };
 
   // log out locally even if the server call fails
   const handleLogout = async () => {
     try {
-      await apiService.post("/auth/logout", {});
+      await logout(apiService);
     } catch {
       // still log out locally if the server is unreachable
     }
@@ -72,9 +74,10 @@ const Profile: React.FC = () => {
 
   // fetch the profile data for the user with this id
   useEffect(() => {
-    const getUser = async () => {
+    if (!token) return; // wait for token to be available before fetching
+    const fetchUser = async () => {
       try {
-        const result = await apiService.get<User>("/users/" + id);
+        const result = await getUser(apiService, id as string);
         setUser(result);
       } catch (error) {
         if ((error as { status?: number }).status === 403) {
@@ -82,8 +85,8 @@ const Profile: React.FC = () => {
         }
       }
     };
-    getUser();
-  }, [apiService]);
+    fetchUser();
+  }, [apiService, token]);
 
   if (!user) return null;
 
@@ -93,31 +96,18 @@ const Profile: React.FC = () => {
     : "";
 
   return (
-    <div style={{ background: "var(--bg-deep)", minHeight: "100vh", color: "var(--text-bright)" }}>
+    <div className="page-deep">
 
       {/* dot grid overlay */}
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        backgroundImage:
-          "linear-gradient(hsla(263,70%,58%,0.07) 1px, transparent 1px), linear-gradient(to right, hsla(263,70%,58%,0.07) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
+      <div className="grid-overlay" />
 
       {/* navbar */}
       <nav className="glass-nav">
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "var(--text-bright)" }}>
-          <div style={{
-            width: 32, height: 32,
-            background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-            borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+        <Link href="/" className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>Mappd</span>
+          <span className="logo-text">Mappd</span>
         </Link>
         <div style={{ display: "flex", gap: 8 }}>
           <Link href="/skillmaps" style={{ textDecoration: "none" }}>
@@ -126,7 +116,7 @@ const Profile: React.FC = () => {
             </button>
           </Link>
           {isOwnProfile && (
-            <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }} onClick={handleLogout}>
+            <button className="btn-ghost btn-sm" style={{ padding: "8px 18px", fontSize: 14 }} onClick={handleLogout}>
               Log Out
             </button>
           )}
@@ -134,85 +124,57 @@ const Profile: React.FC = () => {
       </nav>
 
       {/* profile card */}
-      <div style={{
-        position: "relative",
-        zIndex: 1,
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "100px 24px 60px",
-      }}>
+      <div className="page-content-center">
         <motion.div
+          className="page-card page-card--md"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-color)",
-            borderRadius: 20,
-            padding: "40px 48px",
-            width: "100%",
-            maxWidth: 560,
-          }}
         >
           {/* avatar + username */}
-          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 32 }}>
-            <div style={{
-              width: 64, height: 64,
-              background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-              borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 26, fontWeight: 700, color: "white",
-              flexShrink: 0,
-            }}>
+          <div className={styles['profile-header']}>
+            <div className={styles['profile-avatar']}>
               {user.username?.[0]?.toUpperCase()}
             </div>
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 2 }}>Username</p>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-bright)", lineHeight: 1.1 }}>
-                {user.username}
-              </h1>
+              <p className={styles['profile-label']}>Username</p>
+              <h1 className={styles['profile-username']}>{user.username}</h1>
             </div>
           </div>
 
           {/* divider */}
-          <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: 24 }} />
+          <div className={styles['profile-divider']} />
 
           {/* bio */}
-          <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Bio</p>
-            <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              {user.bio || <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>No bio yet.</span>}
+          <div className={styles['profile-section']}>
+            <p className={styles['profile-section-label']}>Bio</p>
+            <p className={styles['profile-section-text']}>
+              {user.bio || <span className={styles['profile-empty']}>No bio yet.</span>}
             </p>
           </div>
 
           {/* status + joined */}
-          <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+          <div className={styles['profile-meta-row']}>
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Status</p>
-              <span style={{
-                fontSize: 13, fontWeight: 600,
-                color: user.status === "ONLINE" ? "var(--accent)" : "hsl(351, 80%, 60%)",
-              }}>
+              <p className={styles['profile-meta-label']}>Status</p>
+              <span className={user.status === "ONLINE" ? styles['profile-status-online'] : styles['profile-status-offline']}>
                 ● {user.status}
               </span>
             </div>
             <div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>Member Since</p>
-              <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{dateFormat}</span>
+              <p className={styles['profile-meta-label']}>Member Since</p>
+              <span className={styles['profile-meta-value']}>{dateFormat}</span>
             </div>
           </div>
 
           {/* own profile actions */}
           {isOwnProfile && (
             <>
-              <div style={{ borderTop: "1px solid var(--border-color)", marginBottom: 24 }} />
+              <div className={styles['profile-divider']} />
               {!showPasswordForm && (
                 <button
-                  className="btn-ghost"
-                  style={{ width: "100%", justifyContent: "center" }}
-                  onClick={() => { setShowPasswordForm(true); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                  className="btn-ghost btn-full"
+                  onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                 >
                   Change Password
                 </button>
@@ -254,7 +216,7 @@ const Profile: React.FC = () => {
                       </button>
                     </div>
                     {newPassword && oldPassword && newPassword === oldPassword && (
-                      <span style={{ fontSize: 12, color: "hsl(351, 80%, 60%)" }}>New password must be different from your old password.</span>
+                      <span className="field-error">New password must be different from your old password.</span>
                     )}
                   </div>
                   <div className="input-group">
@@ -274,18 +236,16 @@ const Profile: React.FC = () => {
                       </button>
                     </div>
                     {confirmPassword && newPassword && confirmPassword !== newPassword && (
-                      <span style={{ fontSize: 12, color: "hsl(351, 80%, 60%)" }}>Passwords do not match.</span>
+                      <span className="field-error">Passwords do not match.</span>
                     )}
                   </div>
-                  {passwordError && <div className="alert-error">{passwordError}</div>}
-                  <button className="btn-gradient" style={{ width: "100%", justifyContent: "center", marginTop: 12 }} type="submit">
+                  <button className="btn-gradient btn-full mt-12" type="submit">
                     Confirm Password Change
                   </button>
                   <button
                     type="button"
-                    className="btn-ghost"
-                    style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
-                    onClick={() => { setShowPasswordForm(false); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                    className="btn-ghost btn-full mt-8"
+                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                   >
                     Cancel
                   </button>

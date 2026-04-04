@@ -1,0 +1,15 @@
+/* glassmorphic navbar */
+
+.glass-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  backdrop-filter: blur(12px);
+  background: hsla(249, 40%, 8%, 0.75);
+  border-bottom: 1px solid var(--border-color);
+}

@@ -1,0 +1,133 @@
+/* landing page buttons */
+
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--text-bright);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: var(--glow);
+  transition: opacity 0.2s, transform 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  color: var(--text-bright);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-bright);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+
+/* shared button styles (functional pages) */
+
+.button_standard {
+  width: 100%;
+  color: var(--bg-deep);
+  background-color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.button_standard:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+.logout_button {
+  margin-top: 0.5rem;
+  width: 15%;
+  padding: 5px 0px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  color: var(--bg-deep);
+  background-color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.logout_button:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+.button-wide {
+  margin-top: 0.5rem;
+  width: 30%;
+  padding: 5px 16px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  color: var(--bg-deep);
+  background-color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.button-wide:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+.button-ChangeUser {
+  display: inline-block;
+  margin-top: 0.5rem;
+  width: 30%;
+  padding: 5px 12px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  color: var(--bg-deep) !important;
+  background-color: var(--primary);
+  text-align: center;
+  cursor: pointer;
+}
+
+.button-ChangeUser:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+/* modifier: full-width centered (applied on top of btn-gradient / btn-ghost) */
+.btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
+/* modifier: smaller padding for compact nav contexts */
+.btn-sm {
+  padding: 8px 18px;
+  font-size: 14px;
+}

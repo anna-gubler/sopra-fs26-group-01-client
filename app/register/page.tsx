@@ -3,17 +3,15 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { register } from "@/api/authApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ApplicationError } from "@/types/error";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
+import styles from "@/styles/auth.module.css";
 
-// shape of the auth response returned by POST /auth/register
-interface AuthResponse {
-  token: string | null;
-  id: number | null;
-}
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -22,16 +20,14 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState("");
   const [bio, setBio] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
     try {
-      const response = await apiService.post<AuthResponse>("/auth/register", {
+      const response = await register(apiService, {
         username,
         password,
         ...(bio && { bio }),
@@ -43,35 +39,35 @@ const Register: React.FC = () => {
     } catch (error) {
       const status = (error as ApplicationError).status;
       if (status === 400) {
-        setErrorMessage("Please fill in all required fields.");
+        toast.error("Please fill in all required fields.");
       } else if (status === 409) {
-        setErrorMessage("This username is already taken.");
+        toast.error("This username is already taken.");
       } else {
-        setErrorMessage("Registration failed. Please try again.");
+        toast.error("Registration failed. Please try again.");
       }
     }
   };
 
   return (
-    <div className="auth-page">
+    <div className={styles['auth-page']}>
       <motion.div
-        className="auth-card"
+        className={styles['auth-card']}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Logo */}
-        <div className="auth-logo">
-          <div className="logo-icon">
+        <div className={styles['auth-logo']}>
+          <div className={styles['logo-icon']}>
             <BookOpen size={22} color="white" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, fontFamily: "var(--font-space-grotesk)" }}>
+          <span className="logo-text">
             Mappd
           </span>
         </div>
 
         {/* heading */}
-        <div className="auth-heading">
+        <div className={styles['auth-heading']}>
           <h2>Create your account</h2>
           <p>Start mapping your skills today</p>
         </div>
@@ -114,32 +110,29 @@ const Register: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label htmlFor="bio">Bio <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="bio">Bio <span className="label-optional">(optional)</span></label>
             <textarea
               id="bio"
-              className="auth-input"
+              className="auth-input textarea-resize-v"
               placeholder="Tell us a bit about yourself"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              style={{ resize: "vertical" }}
             />
           </div>
 
-          {errorMessage && <div className="alert-error">{errorMessage}</div>}
-
-          <button type="submit" className="btn-gradient" style={{ width: "100%", justifyContent: "center" }}>
+          <button type="submit" className="btn-gradient btn-full">
             Create Account
           </button>
         </form>
 
         {/* footer */}
-        <p className="auth-footer-text">
+        <p className={styles['auth-footer-text']}>
           Already have an account?{" "}
           <Link href="/login">Sign in</Link>
         </p>
-        <p className="auth-footer-text" style={{ marginTop: -16 }}>
-          <Link href="/" style={{ color: "var(--text-muted)", fontSize: 13 }}>← Back to home</Link>
+        <p className={`${styles['auth-footer-text']} ${styles['auth-footer-text-tight']}`}>
+          <Link href="/" className={styles['auth-back-link']}>← Back to home</Link>
         </p>
       </motion.div>
     </div>

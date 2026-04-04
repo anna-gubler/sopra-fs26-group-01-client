@@ -1,6 +1,5 @@
 import { getApiDomain } from "@/utils/domain";
 import { ApplicationError } from "@/types/error";
-import { SkillMap } from "@/types/skillmap";
 
 export class ApiService {
   private baseURL: string;
@@ -147,16 +146,5 @@ export class ApiService {
       res,
       "An error occurred while deleting the data.\n",
     );
-  }
-  public async getSkillMaps(): Promise<SkillMap[]> {
-    return this.get<SkillMap[]>("/skillmaps");
-  }
-
-  public async createSkillMap(data: { title: string; description: string; numberOfLevels: number; isPublic: boolean }): Promise<SkillMap> {
-    return this.post<SkillMap>("/skillmaps", data);
-  }
-
-  public async updateSkillMap(id: number, data: { title?: string; description?: string; numberOfLevels?: number; isPublic?: boolean }): Promise<SkillMap> {
-    return this.patch<SkillMap>(`/skillmaps/${id}`, data);
   }
 }

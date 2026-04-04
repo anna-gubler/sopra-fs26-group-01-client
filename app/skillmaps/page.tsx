@@ -3,9 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
+import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
 import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
+import toast from "react-hot-toast";
+import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 const SkillMapsPage: React.FC = () => {
@@ -18,13 +22,7 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
-  const [joinError, setJoinError] = useState("");
 
-  useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      router.push("/login");
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -39,15 +37,14 @@ const SkillMapsPage: React.FC = () => {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setJoinError("");
     try {
-      await api.post("/skillmaps/join", { inviteCode });
+      await joinSkillMap(api, inviteCode);
       setInviteCode("");
       setShowJoinInput(false);
-      const maps = await api.getSkillMaps();
+      const maps = await getSkillMaps(api);
       setSkillMaps(maps);
     } catch (err) {
-      if (err instanceof Error) setJoinError(err.message);
+      if (err instanceof Error) toast.error(err.message);
     }
   };
 
@@ -55,14 +52,14 @@ const SkillMapsPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [maps, me] = await Promise.all([
-          api.getSkillMaps(),
-          api.get<User>("/users/me"),
+          getSkillMaps(api),
+          getMe(api),
         ]);
         setSkillMaps(maps);
         setUser(me);
       } catch (error) {
         if (error instanceof Error) {
-          alert(`Failed to load skill maps:\n${error.message}`);
+          toast.error(`Failed to load skill maps: ${error.message}`);
         }
       } finally {
         setLoading(false);
@@ -73,45 +70,45 @@ const SkillMapsPage: React.FC = () => {
   }, [api]);
 
   if (loading) {
-    return <div className="sm-loading">Loading...</div>;
+    return <div className={styles['sm-loading']}>Loading...</div>;
   }
 
   return (
-    <div className="sm-page">
+    <div className={styles['sm-page']}>
 
       {/* Navbar */}
-      <nav className="sm-nav">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, var(--primary), var(--secondary))", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <nav className={styles['sm-nav']}>
+        <div className="nav-logo">
+          <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span className="sm-nav-logo">Mappd</span>
+          <span className={styles['sm-nav-logo']}>Mappd</span>
         </div>
-        <div className="sm-nav-right">
-          <button className="sm-nav-icon"><Inbox size={20} /></button>
-          <button className="sm-nav-icon"><Bell size={20} /></button>
-          <button className="sm-nav-icon"><Settings size={20} /></button>
-          <div className="sm-nav-avatar" onClick={() => router.push("/users/me")}>
+        <div className={styles['sm-nav-right']}>
+          <button className={styles['sm-nav-icon']}><Inbox size={20} /></button>
+          <button className={styles['sm-nav-icon']}><Bell size={20} /></button>
+          <button className={styles['sm-nav-icon']}><Settings size={20} /></button>
+          <div className={styles['sm-nav-avatar']} role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
-          <span className="sm-nav-username">{user?.username ?? ""}</span>
+          <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
           <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
       </nav>
 
       {/* Welcome */}
-      <div className="sm-welcome">
-        <div className="sm-welcome-avatar">{user?.username?.[0]?.toUpperCase() ?? "?"}</div>
+      <div className={styles['sm-welcome']}>
+        <div className={styles['sm-welcome-avatar']}>{user?.username?.[0]?.toUpperCase() ?? "?"}</div>
         <div>
-          <div className="sm-welcome-title">Welcome back, {user?.username}!</div>
-          <div className="sm-welcome-sub">{user?.bio || "No bio yet"}</div>
+          <div className={styles['sm-welcome-title']}>Welcome back, {user?.username}!</div>
+          <div className={styles['sm-welcome-sub']}>{user?.bio || "No bio yet"}</div>
         </div>
-        <div className="sm-join-area">
-          <form className="sm-join-form" onSubmit={handleJoin}>
-            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); setJoinError(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
+        <div className={styles['sm-join-area']}>
+          <form className={styles['sm-join-form']} onSubmit={handleJoin}>
+            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
             {showJoinInput && (
               <input
-                className="sm-join-input"
+                className={styles['sm-join-input']}
                 type="text"
                 placeholder="Invite code"
                 value={inviteCode}
@@ -122,53 +119,52 @@ const SkillMapsPage: React.FC = () => {
             )}
             {showJoinInput && <button type="submit" className="btn-gradient">Join</button>}
           </form>
-          {joinError && <div className="alert-error" style={{ marginTop: 8 }}>{joinError}</div>}
         </div>
       </div>
 
       {/* Stats Row */}
-      <div className="sm-stats-row">
-        <div className="sm-stat-card">
-          <span className="sm-stat-label">SKILLS COMPLETED</span>
-          <span className="sm-stat-value green">XX/XX</span>
+      <div className={styles['sm-stats-row']}>
+        <div className={styles['sm-stat-card']}>
+          <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
+          <span className={`${styles['sm-stat-value']} ${styles.green}`}>XX/XX</span>
         </div>
-        <div className="sm-stat-card">
-          <span className="sm-stat-label">SKILLS IN PROGRESS</span>
-          <span className="sm-stat-value orange">XX/XX</span>
+        <div className={styles['sm-stat-card']}>
+          <span className={styles['sm-stat-label']}>SKILLS IN PROGRESS</span>
+          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>XX/XX</span>
         </div>
-        <div className="sm-stat-card">
-          <span className="sm-stat-label">MAPS JOINED</span>
-          <span className="sm-stat-value orange">{skillMaps.length}</span>
+        <div className={styles['sm-stat-card']}>
+          <span className={styles['sm-stat-label']}>MAPS JOINED</span>
+          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>{skillMaps.length}</span>
         </div>
       </div>
 
       {/* Maps Section */}
-      <div className="sm-section-title">MY MAPS</div>
+      <div className={styles['sm-section-title']}>MY MAPS</div>
 
-      <div className="sm-grid">
+      <div className={styles['sm-grid']}>
         {skillMaps.map((map) => (
-          <div key={map.id} className="sm-card" onClick={() => router.push(`/skillmaps/${map.id}`)}>
-            <div className="sm-card-top">
+          <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+            <div className={styles['sm-card-top']}>
               <div>
-                <div className="sm-card-title">{map.title}</div>
-                <div className="sm-card-subtitle">{map.description}</div>
+                <div className={styles['sm-card-title']}>{map.title}</div>
+                <div className={styles['sm-card-subtitle']}>{map.description}</div>
               </div>
             </div>
 
-            <div className="sm-card-meta">
+            <div className={styles['sm-card-meta']}>
               <span>📖 XX Skills</span>
               <span>👤 XX Students</span>
             </div>
 
-            <div className="sm-progress-bar">
-              <div className="sm-progress-fill" style={{ width: "0%" }} />
+            <div className={styles['sm-progress-bar']}>
+              <div className={styles['sm-progress-fill']} />
             </div>
-            <div className="sm-progress-label">0/XX skills completed</div>
+            <div className={styles['sm-progress-label']}>0/XX skills completed</div>
 
-            <div className="sm-card-footer">
-              <span className="sm-continue">Continue Learning &gt;</span>
+            <div className={styles['sm-card-footer']}>
+              <span className={styles['sm-continue']}>Continue Learning &gt;</span>
               <button
-                className="sm-edit-btn"
+                className={styles['sm-edit-btn']}
                 onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
               >
                 Edit
@@ -178,9 +174,9 @@ const SkillMapsPage: React.FC = () => {
         ))}
 
         {/* Create new map placeholder card */}
-        <div className="sm-card sm-card-new" onClick={() => router.push("/skillmaps/new")}>
-          <span className="sm-card-new-icon">+</span>
-          <span className="sm-card-new-label">Create New Map</span>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
+          <span className={styles['sm-card-new-icon']}>+</span>
+          <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
       </div>
     </div>

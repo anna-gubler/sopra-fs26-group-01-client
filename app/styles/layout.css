@@ -1,0 +1,77 @@
+/* shared layout patterns */
+
+/* page wrapper with deep background */
+.page-deep {
+  background: var(--bg-deep);
+  min-height: 100vh;
+  color: var(--text-bright);
+}
+
+/* fixed dot grid overlay */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(hsla(263, 70%, 58%, 0.07) 1px, transparent 1px),
+    linear-gradient(to right, hsla(263, 70%, 58%, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* vertically/horizontally centered content column */
+.page-content-center {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px 60px;
+}
+
+/* floating modal card */
+.page-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 40px 48px;
+  width: 100%;
+}
+
+.page-card--sm { max-width: 520px; }
+.page-card--md { max-width: 560px; }
+
+/* navbar logo link / container */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-bright);
+}
+
+/* 32×32 gradient icon box used in navbars */
+.nav-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* brand name span */
+.logo-text {
+  font-weight: 700;
+  font-size: 18px;
+  font-family: var(--font-space-grotesk), Arial, sans-serif;
+}
+
+/* navbar button group */
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
