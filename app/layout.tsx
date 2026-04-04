@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "@/styles/globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
         {children}
+        <Toaster position="top-right" />
       </body>
     </html>
   );

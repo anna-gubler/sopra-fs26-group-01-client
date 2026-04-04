@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Network, Users, BarChart2, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import styles from "@/styles/landing.module.css";
 
 // skill map node data
 
@@ -36,42 +37,42 @@ const mapConnections = [
 function SkillMapPreview() {
   return (
     <motion.div
-      className="preview-card"
+      className={styles['preview-card']}
       initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.7, delay: 0.3 }}
     >
       {/* course header */}
-      <div className="preview-card-header">
+      <div className={styles['preview-card-header']}>
         <div>
-          <div className="preview-card-title">
+          <div className={styles['preview-card-title']}>
             Software Engineering | FS26
           </div>
-          <div className="preview-card-author">
+          <div className={styles['preview-card-author']}>
             by Prof. Dr. Thomas Fritz
           </div>
         </div>
-        <div className="preview-card-stats">
-          <div className="preview-card-students">127 Students</div>
-          <div className="preview-card-live">● LIVE</div>
+        <div className={styles['preview-card-stats']}>
+          <div className={styles['preview-card-students']}>127 Students</div>
+          <div className={styles['preview-card-live']}>● LIVE</div>
         </div>
       </div>
 
       {/* progress bar */}
-      <div className="preview-progress-wrap">
-        <div className="preview-progress-bar">
+      <div className={styles['preview-progress-wrap']}>
+        <div className={styles['preview-progress-bar']}>
           <motion.div
-            className="preview-progress-fill"
+            className={styles['preview-progress-fill']}
             initial={{ width: 0 }}
             animate={{ width: "28%" }}
             transition={{ duration: 1.2, delay: 0.8 }}
           />
         </div>
-        <div className="preview-progress-label">28%</div>
+        <div className={styles['preview-progress-label']}>28%</div>
       </div>
 
       {/* SVG skill map */}
-      <div className="preview-svg-wrap">
+      <div className={styles['preview-svg-wrap']}>
         <svg viewBox="0 -15 570 290">
           <defs>
             <filter id="glow-cyan">
@@ -160,12 +161,12 @@ function FeatureCard({
 }) {
   return (
     <motion.div
-      className="feature-card"
+      className={styles['feature-card']}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
       <div
-        className="feature-card-icon"
+        className={styles['feature-card-icon']}
         style={{
           "--feature-icon-bg": `${iconColor}22`,
           "--feature-icon-border": `${iconColor}44`,
@@ -174,8 +175,8 @@ function FeatureCard({
         <Icon size={20} color={iconColor} />
       </div>
       <div>
-        <h3 className="feature-card-title">{title}</h3>
-        <p className="feature-card-description">{description}</p>
+        <h3 className={styles['feature-card-title']}>{title}</h3>
+        <p className={styles['feature-card-description']}>{description}</p>
       </div>
     </motion.div>
   );
@@ -243,28 +244,28 @@ export default function Home() {
       </nav>
 
       {/* hero */}
-      <section className="landing-hero">
+      <section className={styles['landing-hero']}>
         {/* left column */}
         <motion.div
-          className="landing-hero-left"
+          className={styles['landing-hero-left']}
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
         >
           <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-            <span className="hero-badge">
+            <span className={styles['hero-badge']}>
               ● Live Collaboration Ready
             </span>
           </motion.div>
-          <motion.h1 className="hero-heading" variants={fadeUp} transition={{ duration: 0.5 }}>
+          <motion.h1 className={styles['hero-heading']} variants={fadeUp} transition={{ duration: 0.5 }}>
             Map Skills.<br />
             <span className="gradient-text">Track Mastery.</span>
           </motion.h1>
-          <motion.p className="hero-description" variants={fadeUp} transition={{ duration: 0.5 }}>
+          <motion.p className={styles['hero-description']} variants={fadeUp} transition={{ duration: 0.5 }}>
             An interactive skill-mapping platform for educators and students.
             Visualize course competencies, track understanding, and collaborate in real-time.
           </motion.p>
-          <motion.div className="hero-buttons" variants={fadeUp} transition={{ duration: 0.5 }}>
+          <motion.div className={styles['hero-buttons']} variants={fadeUp} transition={{ duration: 0.5 }}>
             <button className="btn-gradient" onClick={() => router.push("/register")}>
               Start Mapping
             </button>
@@ -275,28 +276,28 @@ export default function Home() {
         </motion.div>
 
         {/* right column, animated skill map */}
-        <div className="landing-hero-right">
+        <div className={styles['landing-hero-right']}>
           <SkillMapPreview />
         </div>
       </section>
 
       {/* features */}
-      <section className="landing-features">
+      <section className={styles['landing-features']}>
         <motion.div
-          className="landing-features-intro"
+          className={styles['landing-features-intro']}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="landing-features-heading">
+          <h2 className={styles['landing-features-heading']}>
             Everything you need to learn smarter
           </h2>
-          <p className="landing-features-description">
+          <p className={styles['landing-features-description']}>
             Designed for university courses, Mappd bridges the gap between curriculum design and student understanding.
           </p>
         </motion.div>
-        <div className="landing-features-grid">
+        <div className={styles['landing-features-grid']}>
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -312,21 +313,21 @@ export default function Home() {
       </section>
 
       {/* bottom CTA */}
-      <section className="landing-cta">
+      <section className={styles['landing-cta']}>
         <motion.div
-          className="landing-cta-card"
+          className={styles['landing-cta-card']}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="landing-cta-heading">
+          <h2 className={styles['landing-cta-heading']}>
             <span className="gradient-text">Ready to map your learning?</span>
           </h2>
-          <p className="landing-cta-description">
+          <p className={styles['landing-cta-description']}>
             Join us and use Mappd to create visual, interactive skill trees for your courses.
           </p>
-          <button className="btn-gradient btn-cta" onClick={() => router.push("/register")}>
+          <button className={`btn-gradient ${styles['btn-cta']}`} onClick={() => router.push("/register")}>
             Create Your First Map
           </button>
         </motion.div>

@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { createSkillMap } from "@/api/skillmapApi";
 import { ApplicationError } from "@/types/error";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 
@@ -16,7 +18,6 @@ const NewSkillMapPage: React.FC = () => {
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState(1);
   const [isPublic, setIsPublic] = useState(false)
-  const [error, setError] = useState("");
 
 /*   useEffect(() => {
     if (!localStorage.getItem("token")) {
@@ -26,16 +27,15 @@ const NewSkillMapPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     try {
-      await api.createSkillMap({ title, description, numberOfLevels, isPublic });
+      await createSkillMap(api, { title, description, numberOfLevels, isPublic });
       router.push("/skillmaps");
     } catch (err) {
       const status = (err as ApplicationError).status;
       if (status === 403) {
-        setError("You don't have permission to do that.");
+        toast.error("You don't have permission to do that.");
       } else {
-        setError("Failed to create skill map. Please try again.");
+        toast.error("Failed to create skill map. Please try again.");
       }
     }
   };
@@ -72,7 +72,6 @@ const NewSkillMapPage: React.FC = () => {
               <label>Number of Levels</label>
               <input className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
             </div>
-            {error && <div className="alert-error">{error}</div>}
             <button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>
           </form>

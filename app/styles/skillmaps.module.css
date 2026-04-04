@@ -103,7 +103,8 @@
   gap: 8px;
 }
 
-.sm-join-form .btn-ghost {
+/* btn-ghost is a global class — use :global to target it from within this module */
+.sm-join-form :global(.btn-ghost) {
   white-space: nowrap;
   flex-shrink: 0;
 }

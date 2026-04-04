@@ -3,11 +3,15 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
+import { getUser, updateMe } from "@/api/userApi";
+import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import styles from "@/styles/profile.module.css";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -22,7 +26,6 @@ const Profile: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
   const { clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
@@ -30,30 +33,29 @@ const Profile: React.FC = () => {
   // update password via PUT /users/me, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError("");
     if (newPassword === oldPassword) {
-      setPasswordError("New password must be different from your old password.");
+      toast.error("New password must be different from your old password.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
+      toast.error("New passwords do not match.");
       return;
     }
     try {
-      await apiService.put("/users/me", { password: newPassword });
-      await apiService.post("/auth/logout", {});
+      await updateMe(apiService, { password: newPassword } as Parameters<typeof updateMe>[1]);
+      await logout(apiService);
       clearToken();
       clearId();
       router.push("/login");
     } catch {
-      setPasswordError("Incorrect old password or request failed. Please try again.");
+      toast.error("Incorrect old password or request failed. Please try again.");
     }
   };
 
   // log out locally even if the server call fails
   const handleLogout = async () => {
     try {
-      await apiService.post("/auth/logout", {});
+      await logout(apiService);
     } catch {
       // still log out locally if the server is unreachable
     }
@@ -72,9 +74,9 @@ const Profile: React.FC = () => {
 
   // fetch the profile data for the user with this id
   useEffect(() => {
-    const getUser = async () => {
+    const fetchUser = async () => {
       try {
-        const result = await apiService.get<User>("/users/" + id);
+        const result = await getUser(apiService, id as string);
         setUser(result);
       } catch (error) {
         if ((error as { status?: number }).status === 403) {
@@ -82,7 +84,7 @@ const Profile: React.FC = () => {
         }
       }
     };
-    getUser();
+    fetchUser();
   }, [apiService]);
 
   if (!user) return null;
@@ -122,49 +124,49 @@ const Profile: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           {/* avatar + username */}
-          <div className="profile-header">
-            <div className="profile-avatar">
+          <div className={styles['profile-header']}>
+            <div className={styles['profile-avatar']}>
               {user.username?.[0]?.toUpperCase()}
             </div>
             <div>
-              <p className="profile-label">Username</p>
-              <h1 className="profile-username">{user.username}</h1>
+              <p className={styles['profile-label']}>Username</p>
+              <h1 className={styles['profile-username']}>{user.username}</h1>
             </div>
           </div>
 
           {/* divider */}
-          <div className="profile-divider" />
+          <div className={styles['profile-divider']} />
 
           {/* bio */}
-          <div className="profile-section">
-            <p className="profile-section-label">Bio</p>
-            <p className="profile-section-text">
-              {user.bio || <span className="profile-empty">No bio yet.</span>}
+          <div className={styles['profile-section']}>
+            <p className={styles['profile-section-label']}>Bio</p>
+            <p className={styles['profile-section-text']}>
+              {user.bio || <span className={styles['profile-empty']}>No bio yet.</span>}
             </p>
           </div>
 
           {/* status + joined */}
-          <div className="profile-meta-row">
+          <div className={styles['profile-meta-row']}>
             <div>
-              <p className="profile-meta-label">Status</p>
-              <span className={user.status === "ONLINE" ? "profile-status-online" : "profile-status-offline"}>
+              <p className={styles['profile-meta-label']}>Status</p>
+              <span className={user.status === "ONLINE" ? styles['profile-status-online'] : styles['profile-status-offline']}>
                 ● {user.status}
               </span>
             </div>
             <div>
-              <p className="profile-meta-label">Member Since</p>
-              <span className="profile-meta-value">{dateFormat}</span>
+              <p className={styles['profile-meta-label']}>Member Since</p>
+              <span className={styles['profile-meta-value']}>{dateFormat}</span>
             </div>
           </div>
 
           {/* own profile actions */}
           {isOwnProfile && (
             <>
-              <div className="profile-divider" />
+              <div className={styles['profile-divider']} />
               {!showPasswordForm && (
                 <button
                   className="btn-ghost btn-full"
-                  onClick={() => { setShowPasswordForm(true); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                  onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                 >
                   Change Password
                 </button>
@@ -229,14 +231,13 @@ const Profile: React.FC = () => {
                       <span className="field-error">Passwords do not match.</span>
                     )}
                   </div>
-                  {passwordError && <div className="alert-error">{passwordError}</div>}
                   <button className="btn-gradient btn-full mt-12" type="submit">
                     Confirm Password Change
                   </button>
                   <button
                     type="button"
                     className="btn-ghost btn-full mt-8"
-                    onClick={() => { setShowPasswordForm(false); setPasswordError(""); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
                   >
                     Cancel
                   </button>

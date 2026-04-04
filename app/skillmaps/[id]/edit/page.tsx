@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { getSkillMap, updateSkillMap } from "@/api/skillmapApi";
 import { ApplicationError } from "@/types/error";
-import { SkillMap } from "@/types/skillmap";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
+import toast from "react-hot-toast";
 
 const EditSkillMapPage: React.FC = () => {
   const router = useRouter();
@@ -18,7 +19,6 @@ const EditSkillMapPage: React.FC = () => {
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState(1);
   const [isPublic, setIsPublic] = useState(true);
-  const [error, setError] = useState("");
 
   // useEffect(() => {
   //   if (!localStorage.getItem("token")) {
@@ -29,7 +29,7 @@ const EditSkillMapPage: React.FC = () => {
   useEffect(() => {
     const fetchMap = async () => {
       try {
-        const map = await api.get<SkillMap>(`/skillmaps/${id}`);
+        const map = await getSkillMap(api, id);
         setTitle(map.title);
         setDescription(map.description);
         setNumberOfLevels(map.numberOfLevels);
@@ -37,9 +37,9 @@ const EditSkillMapPage: React.FC = () => {
       } catch (err) {
         const status = (err as ApplicationError).status;
         if (status === 403) {
-          setError("You don't have permission to do that.");
+          toast.error("You don't have permission to do that.");
         } else {
-          setError("Failed to load skill map. Please try again.");
+          toast.error("Failed to load skill map. Please try again.");
         }
       }
     };
@@ -48,16 +48,15 @@ const EditSkillMapPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     try {
-      await api.updateSkillMap(id, { title, description, numberOfLevels, isPublic });
+      await updateSkillMap(api, id, { title, description, numberOfLevels, isPublic });
       router.push("/skillmaps");
     } catch (err) {
       const status = (err as ApplicationError).status;
       if (status === 403) {
-        setError("You don't have permission to do that.");
+        toast.error("You don't have permission to do that.");
       } else {
-        setError("Failed to save skill map. Please try again.");
+        toast.error("Failed to save skill map. Please try again.");
       }
     }
   };
@@ -99,7 +98,6 @@ const EditSkillMapPage: React.FC = () => {
               <input type="checkbox" id="isPublic" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
               <label htmlFor="isPublic">Public</label>
             </div>
-            {error && <div className="alert-error">{error}</div>}
             <button type="submit" className="btn-gradient btn-full">Save</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>
           </form>

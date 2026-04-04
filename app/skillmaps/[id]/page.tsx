@@ -6,9 +6,11 @@ import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BookOpen, Inbox, Bell, Settings } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
+import { getMe } from "@/api/userApi";
 import { User } from "@/types/user";
 import SkillNode from "./components/SkillNode";
 import GradientEdge from "./components/GradientEdge";
+import styles from "@/styles/skillmaps.module.css";
 
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
@@ -44,35 +46,35 @@ const SkillMapEditorPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    api.get<User>("/users/me").then(setUser).catch(() => {});
+    getMe(api).then(setUser).catch(() => {});
   }, [api]);
 
 
   // TODO: ADD PUBLISH BUTTON
   return (
-    <div className="sm-map-page">
+    <div className={styles['sm-map-page']}>
 
       {/* Navbar */}
-      <nav className="sm-map-nav">
+      <nav className={styles['sm-map-nav']}>
         <div className="nav-logo">
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span className="sm-nav-logo">Mappd</span>
+          <span className={styles['sm-nav-logo']}>Mappd</span>
         </div>
-        <div className="sm-nav-right">
-          <button className="sm-nav-icon"><Inbox size={20} /></button>
-          <button className="sm-nav-icon"><Bell size={20} /></button>
-          <button className="sm-nav-icon"><Settings size={20} /></button>
-          <div className="sm-nav-avatar" onClick={() => router.push("/users/me")}>
+        <div className={styles['sm-nav-right']}>
+          <button className={styles['sm-nav-icon']}><Inbox size={20} /></button>
+          <button className={styles['sm-nav-icon']}><Bell size={20} /></button>
+          <button className={styles['sm-nav-icon']}><Settings size={20} /></button>
+          <div className={styles['sm-nav-avatar']} onClick={() => router.push("/users/me")}>
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
-          <span className="sm-nav-username">{user?.username ?? ""}</span>
+          <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
         </div>
       </nav>
 
       {/* Graph */}
-      <div className="sm-map-graph">
+      <div className={styles['sm-map-graph']}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
