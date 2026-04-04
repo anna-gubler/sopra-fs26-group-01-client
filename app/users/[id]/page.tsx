@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
-import { getUser, updateMe } from "@/api/userApi";
+import { getUser, changePassword } from "@/api/userApi";
 import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
@@ -30,7 +30,7 @@ const Profile: React.FC = () => {
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
-  // update password via PUT /users/me, then log out
+  // update password via PATCH /users/me/password, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword === oldPassword) {
@@ -42,13 +42,22 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      await updateMe(apiService, { password: newPassword } as Parameters<typeof updateMe>[1]);
+      await changePassword(apiService, oldPassword, newPassword, confirmPassword);
       await logout(apiService);
       clearToken();
       clearId();
       router.push("/login");
-    } catch {
-      toast.error("Incorrect old password or request failed. Please try again.");
+    } catch (err: unknown) {
+      const status = (err as { status?: number }).status;
+      if (status === 401) {
+        toast.error("Old password is incorrect.");
+      } else if (status === 409) {
+        toast.error("New password must be different from your old password.");
+      } else if (status === 400) {
+        toast.error("New passwords do not match.");
+      } else {
+        toast.error("Password change failed. Please try again.");
+      }
     }
   };
 
