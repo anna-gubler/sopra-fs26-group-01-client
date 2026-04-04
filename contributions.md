@@ -36,15 +36,17 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 25.03.2026   | [Commit Frontend](https://github.com/anna-gubler/sopra-fs26-group-01-client/compare/d68fe82...fedce43) | Frontend: Cleaned up frontend and fixed auth endpoints to match REST specs (#1, #2), applied Catppuccin Mocha colour scheme & styled in Ant design | Ensures client correctly integrates with backend and establishes the visual design foundation |
+|                    | 26.03.2026   | [Commit Backend](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/8e75271) | Backend: Implemented iSkillMapMembership entity and all remaining skillmap endpoints (#39, #40, #41, #42) | Completes the central SkillMap backend needed for the frontend to manage maps and memberships |
+|                    | 28. - 29.03.2026   | [Commit Frontend](https://github.com/anna-gubler/sopra-fs26-group-01-client/compare/fedce43...51e692f) & [Commit Backend](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/1d70487) | Frontend: Full UI redesign with dark theme, animated landing page, fixed login redirect and logout state (#1, #2, #3, #4). Backend: Implemented POST /skillmaps/join and fixed spec compliance issues in skillmap validation (#36, #39) | Design based on our mockups, resolves auth flow bugs, and completes the skillmap join flow |
+| **@anna-gubler** | 25.03.2026   | [Link to Commit 1](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/2b26058395444599aa7a8462a07820459e5c97eb) | Created Entity Skill, with service, controller, dto and mappings (#33, #35). | Basic compontent of our Skill Map. |
+|                    | 26.03.2026   | [Link to Commit 2](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/02c88374e2f6747e3614ce3de204e35d77b6dba9) | Created SkillMap Entity with service and controller (#51, #52, #53, #54, #55). | Skill Map is the foundational element of our project. |
+| **@elsithewizzard** | 29.03.2026   | [Commit Frontend] (https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/769faf317146bb68f4b41dbcc0ccc887c9937d6c) | Added base frontend skillmap logic, Merged S1 Design & resolved CSS conflicts, built skillmap overview page, skill map create page & skill map edit page, added join map button | Initial front end setup, required for continued working on logic and design. Total effort around 7h |
+|                    | 29.03.2026   | [Commit Frontend] (https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/7986ffa654e5e2a476d95d108bd3ef89eaac62c2) | Added Skillmap page using react flow, styling according to design | Visual base for nodes & interaction. Skeleton of Skillmap needs to be there in order to function. Currently, using mock data only. Total effort around 3.4h |
+| **@sebdahub** | 26.03.2026   | [https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/4e71aaef6f78c371f5fe667347de515dee9f0760] (last commit of branch) | refactored and cleaned up everything user related in backend, including API and tests | Give a solid basis to work on and make sure the design follows the specs. Effort about 12h.  |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@haslam** | 29.03.2026 | [Commit 1](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/ee6dbd2e9e8ebc19642b7150d0ee93f014ac576a)(latest commit to that branch) | Added seed and style fields to User entity, set avatar defaults on registration, implemented PUT /users/me/avatar endpoint with DTO and mapper (#47, #48) | Implements backend avatar generation logic for S3, enabling frontend to display and update user avatars |
+|                    | 29.03.2026 | [Commit 2](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/a7d0dd5d8448779cf6e5253227a6579733efb8f0) | Added SkillMapController tests for all endpoints and fixed getUserByToken to checkToken in SkillMapService (#43) | Ensures skillmap endpoints are tested and fixes S1/S2 integration issue |
 
 ---
 
@@ -54,13 +56,13 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 03.04.3036   | [S7/be-skillmap-join](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/f04dd89) | Added integration tests for POST /skillmaps/join and GET /skillmaps. Added controller tests for all POST /skillmaps/join errors. | I had already implemented #77, #78, #79 last week, only #80, the tests, were missing for User Story 7 Backend. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@elsithewizzard** | 31.03.2026 | [Refactoring CSS, API Structure, Error Handling](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/f8c8273b54c78677f200f356c92fc16723f8bf4d) | Refactored CSS, API Struct and Errors according to Feedback from the 30.03 TA meeting. CSS in separate files for better performance and convention, error handling using hot toast, and API structure according to convention | Made everything (hopefully) run smoother in the long run, as well as clean up the front end [Refer to Branch for more commits](https://github.com/anna-gubler/sopra-fs26-group-01-client/commits/S4/Skillmap-Visualisation) |
+|                    | 04.04.2026 | [S4 #11 & #12](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/fa6c3b091941dd2cf978987a3f1672467367641f) | Finished Tasks #11 and #12, as well as adding a publish and edit button based on map ownership. Tasks #11 and #12 included visualisation of the map, as well as skill adding & editing | Base for building the skillmap. This way, we can connect endpoints and build our first version of a skillmap :) |
+| **@sebdahub** | 03.04.2026   | [[S1/be-user-entity-refactors](https://github.com/anna-gubler/sopra-fs26-group-01-server/tree/S1/be-user-entity-refactors)] | [deleted GET /users, added interceptor, added OpenAPI swagger, several small refactors like changing getUserByUsername from type User to type Optional] | [Self-explanatory] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 

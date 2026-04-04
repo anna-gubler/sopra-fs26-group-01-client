@@ -10,6 +10,8 @@ import { User } from "@/types/user";
 import { Inbox, Bell, Settings, BookOpen } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
+import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
@@ -17,6 +19,8 @@ const SkillMapsPage: React.FC = () => {
   const [skillMaps, setSkillMaps] = useState<SkillMap[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
 
@@ -25,6 +29,17 @@ const SkillMapsPage: React.FC = () => {
       router.push("/login");
     }
   }, []); */
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout", {});
+    } catch {
+      // still log out locally if the server is unreachable
+    }
+    clearToken();
+    clearId();
+    router.push("/login");
+  };
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +98,7 @@ const SkillMapsPage: React.FC = () => {
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
+          <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
       </nav>
 
