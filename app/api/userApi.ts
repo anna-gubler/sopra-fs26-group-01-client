@@ -12,3 +12,7 @@ export function getUser(api: ApiService, id: string | number): Promise<User> {
 export function updateMe(api: ApiService, data: Partial<User>): Promise<User> {
   return api.put<User>("/users/me", data);
 }
+
+export function updateAvatar(api: ApiService, style: string, seed?: string): Promise<User> {
+  return api.put<User>("/users/me/avatar", { style, seed });
+}
