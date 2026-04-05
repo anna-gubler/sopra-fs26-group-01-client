@@ -10,5 +10,14 @@ export function getUser(api: ApiService, id: string | number): Promise<User> {
 }
 
 export function updateMe(api: ApiService, data: Partial<User>): Promise<User> {
-  return api.put<User>("/users/me", data);
+  return api.patch<User>("/users/me", data);
+}
+
+export function changePassword(
+  api: ApiService,
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<void> {
+  return api.patch<void>("/users/me/password", { oldPassword, newPassword, confirmPassword });
 }

@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
-import { getUser, updateMe } from "@/api/userApi";
+import { getUser, updateMe, changePassword } from "@/api/userApi";
 import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
@@ -19,6 +19,9 @@ const Profile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editUsername, setEditUsername] = useState("");
+  const [editBio, setEditBio] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -26,11 +29,35 @@ const Profile: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [oldPasswordError, setOldPasswordError] = useState("");
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
-  // update password via PUT /users/me, then log out
+  const openEditForm = () => {
+    setEditUsername(user?.username ?? "");
+    setEditBio(user?.bio ?? "");
+    setShowEditForm(true);
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const updated = await updateMe(apiService, { username: editUsername, bio: editBio });
+      setUser(updated);
+      setShowEditForm(false);
+      toast.success("Profile updated.");
+    } catch (err: unknown) {
+      const status = (err as { status?: number }).status;
+      if (status === 409) {
+        toast.error("That username is already taken.");
+      } else {
+        toast.error("Failed to update profile. Please try again.");
+      }
+    }
+  };
+
+  // update password via PATCH /users/me/password, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword === oldPassword) {
@@ -42,13 +69,21 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      await updateMe(apiService, { password: newPassword } as Parameters<typeof updateMe>[1]);
-      await logout(apiService);
-      clearToken();
-      clearId();
-      router.push("/login");
-    } catch {
-      toast.error("Incorrect old password or request failed. Please try again.");
+      await changePassword(apiService, oldPassword, newPassword, confirmPassword);
+      setShowPasswordForm(false);
+      setOldPassword(""); setNewPassword(""); setConfirmPassword("");
+      toast.success("Password changed successfully.");
+    } catch (err: unknown) {
+      const status = (err as { status?: number }).status;
+      if (status === 401) {
+        setOldPasswordError("Old password is incorrect.");
+      } else if (status === 409) {
+        toast.error("New password must be different from your old password.");
+      } else if (status === 400) {
+        toast.error("New passwords do not match.");
+      } else {
+        toast.error("Password change failed. Please try again.");
+      }
     }
   };
 
@@ -171,15 +206,61 @@ const Profile: React.FC = () => {
           {isOwnProfile && (
             <>
               <div className={styles['profile-divider']} />
-              {!showPasswordForm && (
-                <button
-                  className="btn-ghost btn-full"
-                  onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
-                >
-                  Change Password
-                </button>
+
+              {/* no form open: show action buttons */}
+              {!showEditForm && !showPasswordForm && (
+                <>
+                  <button className="btn-ghost btn-full" onClick={openEditForm}>
+                    Edit Profile
+                  </button>
+                  <button
+                    className="btn-ghost btn-full mt-8"
+                    onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); setOldPasswordError(""); }}
+                  >
+                    Change Password
+                  </button>
+                </>
               )}
 
+              {/* edit profile form */}
+              {showEditForm && (
+                <form onSubmit={handleUpdateProfile}>
+                  <div className="input-group">
+                    <label htmlFor="edit-username">Username</label>
+                    <input
+                      id="edit-username"
+                      type="text"
+                      className="auth-input"
+                      value={editUsername}
+                      onChange={(e) => setEditUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="edit-bio">Bio</label>
+                    <textarea
+                      id="edit-bio"
+                      className="auth-input"
+                      rows={3}
+                      placeholder="Tell us about yourself"
+                      value={editBio}
+                      onChange={(e) => setEditBio(e.target.value)}
+                    />
+                  </div>
+                  <button className="btn-gradient btn-full mt-12" type="submit">
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost btn-full mt-8"
+                    onClick={() => setShowEditForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )}
+
+              {/* change password form */}
               {showPasswordForm && (
                 <form onSubmit={handleChangePassword}>
                   <div className="input-group">
@@ -191,13 +272,16 @@ const Profile: React.FC = () => {
                         className="auth-input"
                         placeholder="Enter old password"
                         value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
+                        onChange={(e) => { setOldPassword(e.target.value); setOldPasswordError(""); }}
                         required
                       />
                       <button type="button" className="toggle-password" onClick={() => setShowOldPassword(!showOldPassword)}>
                         {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
+                    {oldPasswordError && (
+                      <span className="field-error">{oldPasswordError}</span>
+                    )}
                   </div>
                   <div className="input-group">
                     <label htmlFor="new-password">New Password</label>
@@ -245,7 +329,7 @@ const Profile: React.FC = () => {
                   <button
                     type="button"
                     className="btn-ghost btn-full mt-8"
-                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); setOldPasswordError(""); }}
                   >
                     Cancel
                   </button>

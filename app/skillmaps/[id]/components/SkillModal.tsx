@@ -31,6 +31,7 @@ const SkillModal: React.FC<Props> = ({
   const [level, setLevel] = useState(1);
   const [difficulty, setDifficulty] = useState("");
   const [resources, setResources] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (skill) {
@@ -46,6 +47,7 @@ const SkillModal: React.FC<Props> = ({
       setDifficulty("");
       setResources("");
     }
+    setConfirmDelete(false);
   }, [skill, open]);
 
   if (!open) return null;
@@ -63,6 +65,10 @@ const SkillModal: React.FC<Props> = ({
 
   const handleDelete = async () => {
     if (!skill) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     await deleteSkill(api, skill.id);
     onSaved();
   };
@@ -140,10 +146,21 @@ const SkillModal: React.FC<Props> = ({
           <button type="button" className="btn-ghost btn-full" onClick={onClose}>
             Cancel
           </button>
-          {skill && (
+          {skill && !confirmDelete && (
             <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
               Delete Skill
             </button>
+          )}
+          {skill && confirmDelete && (
+            <div className={styles["delete-confirm"]}>
+              <p>Are you sure you want to delete &quot;{skill.name}&quot;?</p>
+              <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
+                Yes, delete
+              </button>
+              <button type="button" className="btn-ghost btn-full" onClick={() => setConfirmDelete(false)}>
+                Cancel
+              </button>
+            </div>
           )}
         </form>
       </div>
