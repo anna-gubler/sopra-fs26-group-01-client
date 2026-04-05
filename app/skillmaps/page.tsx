@@ -11,6 +11,9 @@ import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getAvatarUrl } from "@/utils/avatar";
+
+
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
@@ -82,14 +85,23 @@ const SkillMapsPage: React.FC = () => {
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span className={styles['sm-nav-logo']}>Mappd</span>
+          <span className="nav-logo-text">SkillMaps</span>
         </div>
         <div className={styles['sm-nav-right']}>
-          <button className={styles['sm-nav-icon']}><Inbox size={20} /></button>
-          <button className={styles['sm-nav-icon']}><Bell size={20} /></button>
-          <button className={styles['sm-nav-icon']}><Settings size={20} /></button>
-          <div className={styles['sm-nav-avatar']} role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
-            <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
+          <div role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
+            {user?.seed && user?.style ? (
+              <img
+                src = {getAvatarUrl(user.seed,user.style)}
+
+                alt={`${user.username}'s avatar`}
+
+                width = {32}
+                height = {32}
+              />
+              ) : (
+                  user?.username?.[0]?.toUpperCase()
+                  
+              )}
           </div>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
           <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
@@ -98,7 +110,19 @@ const SkillMapsPage: React.FC = () => {
 
       {/* Welcome */}
       <div className={styles['sm-welcome']}>
-        <div className={styles['sm-welcome-avatar']}>{user?.username?.[0]?.toUpperCase() ?? "?"}</div>
+        <div role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
+            {user?.seed && user?.style ? (
+              <img
+                src = {getAvatarUrl(user.seed,user.style)}
+                alt={`${user.username}'s avatar`}
+                width = {64}
+                height = {64}
+              />
+              ) : (
+                  user?.username?.[0]?.toUpperCase()
+                  
+              )}
+        </div>
         <div>
           <div className={styles['sm-welcome-title']}>Welcome back, {user?.username}!</div>
           <div className={styles['sm-welcome-sub']}>{user?.bio || "No bio yet"}</div>

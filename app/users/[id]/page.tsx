@@ -12,6 +12,7 @@ import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import styles from "@/styles/profile.module.css";
+import {  getAvatarUrl  } from "@/utils/avatar";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -134,7 +135,16 @@ const Profile: React.FC = () => {
           {/* avatar + username */}
           <div className={styles['profile-header']}>
             <div className={styles['profile-avatar']}>
-              {user.username?.[0]?.toUpperCase()}
+              {user.seed && user.style ? (
+                <img
+                  src = {getAvatarUrl(user.seed,user.style)}
+                  alt={`${user.username}'s avatar`}
+                  width = {64}
+                  height = {64}
+                />
+              ) : (
+                  user.username?.[0]?.toUpperCase()
+              )}
             </div>
             <div>
               <p className={styles['profile-label']}>Username</p>
