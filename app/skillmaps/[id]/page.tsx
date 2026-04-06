@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, addEdge, Connection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
@@ -121,6 +121,14 @@ const SkillMapEditorPage: React.FC = () => {
     setRefreshKey((k) => k + 1);
   };
 
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      setEdges((eds) => addEdge({ ...connection, type: "gradient" }, eds));
+    },
+    []
+  );
+
+
   if (loading) {
     return <div className={styles["sm-loading"]}>Loading...</div>;
   }
@@ -177,12 +185,14 @@ const SkillMapEditorPage: React.FC = () => {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           onNodeClick={handleNodeClick}
+          onConnect={handleConnect}
+
           fitView
           fitViewOptions={{ padding: 0.3 }}
-          nodesConnectable={false}
-          panOnDrag={false}
+          panOnDrag={true}
+          panOnScroll={true}
           zoomOnScroll={false}
-          zoomOnPinch={false}
+          zoomOnPinch={true}
           zoomOnDoubleClick={false}
           proOptions={{ hideAttribution: true }}
         >
