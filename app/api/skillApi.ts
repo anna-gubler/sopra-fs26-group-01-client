@@ -1,5 +1,5 @@
 import { ApiService } from "./apiService";
-import { Skill } from "@/types/skill";
+import { Skill, Dependency } from "@/types/skill";
 
 export function createSkill(
   api: ApiService,
@@ -19,4 +19,17 @@ export function updateSkill(
 
 export function deleteSkill(api: ApiService, skillId: number): Promise<void> {
   return api.delete<void>(`/skills/${skillId}`);
+}
+
+export function createDependency(
+  api: ApiService,
+  skillMapId: number,
+  fromSkillId: number,
+  toSkillId: number,
+): Promise<Dependency> {
+  return api.post<Dependency>(`/skillmaps/${skillMapId}/dependencies`, { fromSkillId, toSkillId });
+}
+
+export function deleteDependency(api: ApiService, dependencyId: number): Promise<void> {
+  return api.delete<void>(`/dependencies/${dependencyId}`);
 }

@@ -8,13 +8,15 @@ import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
+import { createDependency, deleteDependency } from "@/api/skillApi";
 import { User } from "@/types/user";
-import { Skill } from "@/types/skill";
+import { Skill, Dependency } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
 import SkillNode from "./components/SkillNode";
 import GradientEdge from "./components/GradientEdge";
 import LaneSeparators from "./components/LaneSeparators";
 import SkillModal from "./components/SkillModal";
+import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 
 const LANE_HEIGHT = 200;
@@ -32,6 +34,7 @@ const SkillMapEditorPage: React.FC = () => {
 
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [skillMap, setSkillMap] = useState<SkillMap | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -87,6 +90,7 @@ const SkillMapEditorPage: React.FC = () => {
 
         setNodes(skillNodes);
         setEdges(skillEdges);
+        setDependencies(graph.dependencies);
       } catch {
         // keep empty graph on error
       } finally {
@@ -122,10 +126,58 @@ const SkillMapEditorPage: React.FC = () => {
   };
 
   const handleConnect = useCallback(
-    (connection: Connection) => {
-      setEdges((eds) => addEdge({ ...connection, type: "gradient" }, eds));
+    async (connection: Connection) => {
+      const fromSkillId = Number(connection.source);
+      const toSkillId = Number(connection.target);
+      const newEdge: Edge = { ...connection, id: `e${fromSkillId}-${toSkillId}`, type: "gradient" };
+      setEdges((eds) => addEdge(newEdge, eds));
+      try {
+        const dep = await createDependency(api, id, fromSkillId, toSkillId);
+        setDependencies((deps) => [...deps, dep]);
+      } catch (err) {
+        toast.error(`Dependency error: ${(err as Error).message}`);
+        setEdges((eds) => eds.filter((e) => e.id !== newEdge.id));
+      }
     },
-    []
+    [api]
+  );
+
+  const handleEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      const dep = dependencies.find(
+        (d) => d.fromSkillId === Number(edge.source) && d.toSkillId === Number(edge.target)
+      );
+      if (!dep) return;
+
+      toast((t) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <span>Delete this connection?</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              className="btn-gradient"
+              onClick={async () => {
+                toast.dismiss(t.id);
+                setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+                setDependencies((deps) => deps.filter((d) => d.id !== dep.id));
+                try {
+                  await deleteDependency(api, dep.id);
+                } catch {
+                  setEdges((eds) => [...eds, edge]);
+                  setDependencies((deps) => [...deps, dep]);
+                  toast.error("Failed to delete connection.");
+                }
+              }}
+            >
+              Confirm
+            </button>
+            <button className="btn-ghost" onClick={() => toast.dismiss(t.id)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      ), { duration: Infinity });
+    },
+    [api, dependencies]
   );
 
 
@@ -186,6 +238,7 @@ const SkillMapEditorPage: React.FC = () => {
           edgeTypes={edgeTypes}
           onNodeClick={handleNodeClick}
           onConnect={handleConnect}
+          onEdgeClick={handleEdgeClick}
 
           fitView
           fitViewOptions={{ padding: 0.3 }}
