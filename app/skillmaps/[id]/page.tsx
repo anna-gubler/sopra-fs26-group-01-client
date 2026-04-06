@@ -68,6 +68,12 @@ const SkillMapEditorPage: React.FC = () => {
         setSkillMap(map);
         setSkills(graph.skills);
 
+        const difficultyStatus: Record<string, string> = {
+          easy: "done",
+          medium: "active",
+          hard: "secondary",
+        };
+
         const skillNodes: Node[] = graph.skills.map((skill) => ({
           id: String(skill.id),
           type: "skill",
@@ -77,7 +83,7 @@ const SkillMapEditorPage: React.FC = () => {
           },
           data: {
             label: skill.name,
-            status: skill.isUnlocked ? "active" : "default",
+            status: difficultyStatus[skill.difficulty] ?? "default",
           },
         }));
 
@@ -188,13 +194,16 @@ const SkillMapEditorPage: React.FC = () => {
       const fromSkillId = Number(connection.source);
       const toSkillId = Number(connection.target);
       const newEdge: Edge = { ...connection, id: `e${fromSkillId}-${toSkillId}`, type: "gradient" };
+      const provisional: Dependency = { id: -1, fromSkillId, toSkillId, createdAt: "", updatedAt: "" };
       setEdges((eds) => addEdge(newEdge, eds));
+      setDependencies((deps) => [...deps, provisional]);
       try {
         const dep = await createDependency(api, id, fromSkillId, toSkillId);
-        setDependencies((deps) => [...deps, dep]);
+        setDependencies((deps) => deps.map((d) => (d === provisional ? dep : d)));
       } catch (err) {
         toast.error(`Dependency error: ${(err as Error).message}`);
         setEdges((eds) => eds.filter((e) => e.id !== newEdge.id));
+        setDependencies((deps) => deps.filter((d) => d !== provisional));
       }
     },
     [api, id]
@@ -206,10 +215,11 @@ const SkillMapEditorPage: React.FC = () => {
         (d) => d.fromSkillId === Number(edge.source) && d.toSkillId === Number(edge.target)
       );
       if (!dep) return;
+      if (dep.id < 0) { toast("Connection is still being saved…"); return; }
 
       toast((t) => (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <span>Delete this connection?</span>
+          <span>Delete this dependency?</span>
           <div style={{ display: "flex", gap: 8 }}>
             <button
               className="btn-gradient"
@@ -233,7 +243,14 @@ const SkillMapEditorPage: React.FC = () => {
             </button>
           </div>
         </div>
-      ), { duration: Infinity });
+      ), {
+        duration: Infinity,
+        style: {
+          background: "var(--bg-elevated)",
+          color: "var(--text-bright)",
+          border: "1px solid var(--border-color)",
+        },
+      });
     },
     [api, dependencies]
   );
