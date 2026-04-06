@@ -75,7 +75,7 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 06.04.2026   |BE: [fix: auth & graph](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/e870dcd55c60265aebaeea7d6d970d353ffa381b) & FE: [feat: dependecy creation, deletion and interaction in skill map](https://github.com/anna-gubler/sopra-fs26-group-01-client/pull/76) | Fixed Bearer token stripping in DependencyController and wired dependencies into GET /skillmaps/{id}/graph; implemented edge creation/deletion with logical UI, difficulty-based node colors, and drag-to-reposition skills with optimistic UI updates. | Implementation of front-end User Story 5, closes tasks #15–#18: enabled full interactive skill map editing and visualisations. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
