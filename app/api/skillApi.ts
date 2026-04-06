@@ -12,7 +12,7 @@ export function createSkill(
 export function updateSkill(
   api: ApiService,
   skillId: number,
-  data: { name?: string; description?: string; difficulty?: string; resources?: string },
+  data: { name?: string; description?: string; difficulty?: string; resources?: string; positionX?: number; level?: number },
 ): Promise<Skill> {
   return api.patch<Skill>(`/skills/${skillId}`, data);
 }

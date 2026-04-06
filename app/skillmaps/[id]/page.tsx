@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ReactFlow, Background, Node, Edge, addEdge, Connection } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, addEdge, Connection, applyNodeChanges, NodeChange } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
-import { createDependency, deleteDependency } from "@/api/skillApi";
+import { createDependency, deleteDependency, updateSkill } from "@/api/skillApi";
 import { User } from "@/types/user";
 import { Skill, Dependency } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -125,6 +125,53 @@ const SkillMapEditorPage: React.FC = () => {
     setRefreshKey((k) => k + 1);
   };
 
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
+
+  const handleNodeDragStop = useCallback(
+    async (_: React.MouseEvent, node: Node) => {
+      const numLevels = skillMap?.numberOfLevels ?? 1;
+      const rawLevel = numLevels - (node.position.y - SKILL_Y_OFFSET) / LANE_HEIGHT;
+      const newLevel = Math.max(1, Math.min(numLevels, Math.round(rawLevel)));
+      const snappedY = (numLevels - newLevel) * LANE_HEIGHT + SKILL_Y_OFFSET;
+      const newPositionX = Math.round(node.position.x);
+
+      const originalSkill = skills.find((s) => s.id === Number(node.id));
+      if (!originalSkill) return;
+      if (originalSkill.positionX === newPositionX && originalSkill.level === newLevel) return;
+
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id ? { ...n, position: { x: newPositionX, y: snappedY } } : n
+        )
+      );
+      setSkills((prev) =>
+        prev.map((s) =>
+          s.id === Number(node.id) ? { ...s, positionX: newPositionX, level: newLevel } : s
+        )
+      );
+
+      try {
+        await updateSkill(api, Number(node.id), { positionX: newPositionX, level: newLevel });
+      } catch {
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === node.id
+              ? { ...n, position: { x: originalSkill.positionX, y: (numLevels - originalSkill.level) * LANE_HEIGHT + SKILL_Y_OFFSET } }
+              : n
+          )
+        );
+        setSkills((prev) =>
+          prev.map((s) => (s.id === Number(node.id) ? originalSkill : s))
+        );
+        toast.error("Failed to move skill.");
+      }
+    },
+    [api, skillMap, skills]
+  );
+
   const handleConnect = useCallback(
     async (connection: Connection) => {
       const fromSkillId = Number(connection.source);
@@ -236,7 +283,9 @@ const SkillMapEditorPage: React.FC = () => {
           edges={edges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
+          onNodesChange={onNodesChange}
           onNodeClick={handleNodeClick}
+          onNodeDragStop={handleNodeDragStop}
           onConnect={handleConnect}
           onEdgeClick={handleEdgeClick}
 
