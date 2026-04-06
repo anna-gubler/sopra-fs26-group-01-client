@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ReactFlow, Background, Node, Edge, addEdge, Connection, applyNodeChanges, NodeChange } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
@@ -172,6 +172,17 @@ const SkillMapEditorPage: React.FC = () => {
     [api, skillMap, skills]
   );
 
+  const isValidConnection: IsValidConnection = useCallback(
+    (connection) => {
+      if (connection.source === connection.target) return false;
+      const sourceSkill = skills.find((s) => String(s.id) === connection.source);
+      const targetSkill = skills.find((s) => String(s.id) === connection.target);
+      if (!sourceSkill || !targetSkill) return false;
+      return sourceSkill.level < targetSkill.level;
+    },
+    [skills]
+  );
+
   const handleConnect = useCallback(
     async (connection: Connection) => {
       const fromSkillId = Number(connection.source);
@@ -186,7 +197,7 @@ const SkillMapEditorPage: React.FC = () => {
         setEdges((eds) => eds.filter((e) => e.id !== newEdge.id));
       }
     },
-    [api]
+    [api, id]
   );
 
   const handleEdgeClick = useCallback(
@@ -287,6 +298,7 @@ const SkillMapEditorPage: React.FC = () => {
           onNodeClick={handleNodeClick}
           onNodeDragStop={handleNodeDragStop}
           onConnect={handleConnect}
+          isValidConnection={isValidConnection}
           onEdgeClick={handleEdgeClick}
 
           fitView
