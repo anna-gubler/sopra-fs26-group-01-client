@@ -1,5 +1,5 @@
 import { ApiService } from "./apiService";
-import { Skill } from "@/types/skill";
+import { Skill, Dependency } from "@/types/skill";
 
 export function getSkill(api: ApiService, skillId: number): Promise<Skill> {
   return api.get<Skill>(`/skills/${skillId}`);
@@ -16,11 +16,24 @@ export function createSkill(
 export function updateSkill(
   api: ApiService,
   skillId: number,
-  data: { name?: string; description?: string; difficulty?: string; resources?: string },
+  data: { name?: string; description?: string; difficulty?: string; resources?: string; positionX?: number; level?: number },
 ): Promise<Skill> {
   return api.patch<Skill>(`/skills/${skillId}`, data);
 }
 
 export function deleteSkill(api: ApiService, skillId: number): Promise<void> {
   return api.delete<void>(`/skills/${skillId}`);
+}
+
+export function createDependency(
+  api: ApiService,
+  skillMapId: number,
+  fromSkillId: number,
+  toSkillId: number,
+): Promise<Dependency> {
+  return api.post<Dependency>(`/skillmaps/${skillMapId}/dependencies`, { fromSkillId, toSkillId });
+}
+
+export function deleteDependency(api: ApiService, dependencyId: number): Promise<void> {
+  return api.delete<void>(`/dependencies/${dependencyId}`);
 }
