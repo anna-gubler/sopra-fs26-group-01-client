@@ -4,8 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
+import { BookOpen, ChevronLeft, Globe, LogOut, Pencil, Plus, Users } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
 import { createDependency, deleteDependency, updateSkill } from "@/api/skillApi";
@@ -32,6 +33,8 @@ const SkillMapEditorPage: React.FC = () => {
   const id = Number(params.id);
   const router = useRouter();
   const api = useApi();
+  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { clear: clearId } = useLocalStorage<string>("id", "");
 
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -112,12 +115,18 @@ const SkillMapEditorPage: React.FC = () => {
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
     const skill = skills.find((s) => String(s.id) === node.id);
     if (!skill) return;
-    if (isOwner) {
-      setEditingSkill(skill);
-      setModalOpen(true);
-    } else {
-      setSelectedSkill(skill);
+    setSelectedSkill(skill);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout", {});
+    } catch {
+      // still log out locally if server unreachable
     }
+    clearToken();
+    clearId();
+    router.push("/login");
   };
 
   const handleAddSkill = () => {
@@ -267,48 +276,77 @@ const SkillMapEditorPage: React.FC = () => {
 
   return (
     <div className={styles["sm-map-page"]}>
-      <nav className={styles["sm-map-nav"]}>
-        <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
-          <div className="nav-logo-icon">
-            <BookOpen size={16} color="white" />
-          </div>
-          <span className={styles["sm-nav-logo"]}>Mappd</span>
-        </div>
-        <div className={styles["sm-nav-right"]}>
-          <button className="btn-ghost" onClick={handleAddSkill}>
-            <Plus size={14} style={{ marginRight: 4 }} />
-            Add Skill
-          </button>
-          {isOwner && !skillMap?.isPublic && (
-            <button
-              className="btn-ghost"
-              onClick={async () => {
-                const updated = await updateSkillMap(api, id, { isPublic: true });
-                setSkillMap(updated);
-              }}
+      <header className={styles["sm-map-header"]}>
+        {/* Top bar */}
+        <div className={styles["sm-map-topbar"]}>
+          <div className={styles["sm-map-topbar-left"]}>
+            <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/")} onKeyDown={(e) => e.key === "Enter" && router.push("/")}>
+              <div className="nav-logo-icon"><BookOpen size={16} color="white" /></div>
+              <span className={styles["sm-nav-logo"]}>Mappd</span>
+            </div>
+            <div
+              className={styles["sm-map-nav-back"]}
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push("/skillmaps")}
+              onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}
             >
-              <Globe size={14} style={{ marginRight: 4 }} />
-              Publish
-            </button>
-          )}
-          {isOwner && skillMap?.isPublic && (
-            <button className="btn-ghost" onClick={() => router.push(`/skillmaps/${id}/edit`)}>
-              <Pencil size={14} style={{ marginRight: 4 }} />
-              Edit
-            </button>
-          )}
-          <div
-            className={styles["sm-nav-avatar"]}
-            role="button"
-            tabIndex={0}
-            onClick={() => router.push("/users/me")}
-            onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}
-          >
-            <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
+              <ChevronLeft size={14} />
+              <span>Dashboard</span>
+            </div>
           </div>
-          <span className={styles["sm-nav-username"]}>{user?.username ?? ""}</span>
+          <div className={styles["sm-map-topbar-right"]}>
+            <div
+              className={styles["sm-nav-avatar"]}
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push("/users/me")}
+              onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}
+            >
+              <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
+            </div>
+            <span className={styles["sm-nav-username"]}>{user?.username ?? ""}</span>
+            <button className={styles["sm-nav-icon"]} onClick={handleLogout} title="Log Out">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
-      </nav>
+
+        {/* Title bar */}
+        <div className={styles["sm-map-titlebar"]}>
+          <div className={styles["sm-map-titlebar-left"]}>
+            <h1 className={styles["sm-map-title"]}>{skillMap?.title ?? ""}</h1>
+          </div>
+          <div className={styles["sm-map-titlebar-right"]}>
+            <div className={styles["sm-map-titlebar-placeholder"]}>
+              <Users size={14} />
+              <span>— Students</span>
+            </div>
+            <div className={styles["sm-map-collab-badge"]}>
+              <span className={styles["sm-map-collab-dot"]} />
+              LIVE COLLABORATION
+            </div>
+            {isOwner && (
+              <button className="btn-ghost" onClick={handleAddSkill}>
+                <Plus size={14} style={{ marginRight: 4 }} />
+                Add Skill
+              </button>
+            )}
+            {isOwner && !skillMap?.isPublic && (
+              <button className="btn-ghost" onClick={async () => { const updated = await updateSkillMap(api, id, { isPublic: true }); setSkillMap(updated); }}>
+                <Globe size={14} style={{ marginRight: 4 }} />
+                Publish
+              </button>
+            )}
+            {isOwner && skillMap?.isPublic && (
+              <button className="btn-ghost" onClick={() => router.push(`/skillmaps/${id}/edit`)}>
+                <Pencil size={14} style={{ marginRight: 4 }} />
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
 
       <div className={styles["sm-map-graph"]} style={{ position: "relative" }}>
         <ReactFlow
@@ -362,6 +400,12 @@ const SkillMapEditorPage: React.FC = () => {
             .map((e) => skills.find((s) => String(s.id) === e.source))
             .filter((s): s is Skill => s !== undefined)}
           onClose={() => setSelectedSkill(null)}
+          isOwner={isOwner}
+          onEdit={() => {
+            setEditingSkill(selectedSkill);
+            setSelectedSkill(null);
+            setModalOpen(true);
+          }}
         />
       )}
     </div>

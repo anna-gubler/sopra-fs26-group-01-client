@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
@@ -9,59 +9,97 @@ type Props = {
   skill: Skill;
   dependencies: Skill[];
   onClose: () => void;
+  isOwner?: boolean;
+  onEdit?: () => void;
 };
 
-const difficultyLabel: Record<string, string> = {
-  easy: "Easy",
-  medium: "Medium",
-  hard: "Hard",
+const URL_REGEX = /https?:\/\/[^\s]+/g;
+
+function renderWithLinks(text: string) {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  for (const match of text.matchAll(URL_REGEX)) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    parts.push(
+      <a key={match.index} href={match[0]} target="_blank" rel="noopener noreferrer" className={styles["detail-panel-link"]}>
+        {match[0]}
+      </a>
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+const dotColor: Record<string, string> = {
+  easy:   "hsl(160, 60%, 52%)",
+  medium: "hsl(263, 70%, 58%)",
+  hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<Props> = ({ skill, dependencies, onClose }) => {
+const SkillDetailPanel: React.FC<Props> = ({ skill, dependencies, onClose, isOwner, onEdit }) => {
+  const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
+  const [notes, setNotes] = useState("");
+
   return (
     <div className={styles["detail-panel"]}>
+      <button className={styles["detail-panel-close"]} onClick={onClose} aria-label="Close panel">
+        <X size={18} />
+      </button>
+
       <div className={styles["detail-panel-header"]}>
-        <h2 className={styles["detail-panel-title"]}>{skill.name}</h2>
-        <button
-          className={styles["detail-panel-close"]}
-          onClick={onClose}
-          aria-label="Close panel"
-        >
-          <X size={18} />
-        </button>
+        <span className={styles["detail-panel-dot"]} style={{ background: color }} />
+        <h2 className={styles["detail-panel-title"]}>{skill.name.toUpperCase()}</h2>
       </div>
 
-      {skill.difficulty && (
-        <span className={`${styles["detail-panel-badge"]} ${styles[`badge-${skill.difficulty}`]}`}>
-          {difficultyLabel[skill.difficulty] ?? skill.difficulty}
-        </span>
-      )}
+      <p className={skill.description ? styles["detail-panel-description"] : styles["detail-panel-placeholder"]}>
+        {skill.description || "No description provided."}
+      </p>
 
-      {skill.description && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Description</h3>
-          <p className={styles["detail-panel-text"]}>{skill.description}</p>
-        </section>
-      )}
 
-      {skill.resources && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Resources</h3>
-          <p className={styles["detail-panel-text"]}>{skill.resources}</p>
-        </section>
-      )}
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Resources</h3>
+        {skill.resources ? (
+          <p className={styles["detail-panel-text"]}>{renderWithLinks(skill.resources)}</p>
+        ) : (
+          <p className={styles["detail-panel-placeholder"]}>No resources provided.</p>
+        )}
+      </section>
 
-      {dependencies.length > 0 && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Depends on</h3>
-          <ul className={styles["detail-panel-dep-list"]}>
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Prerequisites</h3>
+        {dependencies.length > 0 ? (
+          <div className={styles["detail-panel-pills"]}>
             {dependencies.map((dep) => (
-              <li key={dep.id} className={styles["detail-panel-dep-item"]}>
+              <span
+                key={dep.id}
+                className={styles["detail-panel-pill"]}
+                style={{ "--pill-color": dotColor[dep.difficulty] ?? "hsl(258, 24%, 40%)" } as React.CSSProperties}
+              >
                 {dep.name}
-              </li>
+              </span>
             ))}
-          </ul>
-        </section>
+          </div>
+        ) : (
+          <p className={styles["detail-panel-placeholder"]}>No prerequisites.</p>
+        )}
+      </section>
+
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Notes</h3>
+        <textarea
+          className={styles["detail-panel-notes"]}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          placeholder="Add your personal notes here..."
+        />
+      </section>
+
+      {isOwner && onEdit && (
+        <button className="btn-ghost" style={{ marginTop: "auto" }} onClick={onEdit}>
+          Edit Skill
+        </button>
       )}
     </div>
   );
