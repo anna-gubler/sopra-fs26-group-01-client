@@ -9,7 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
-import { createDependency, deleteDependency, updateSkill } from "@/api/skillApi";
+import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { User } from "@/types/user";
 import { Skill, Dependency } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -111,6 +111,13 @@ const SkillMapEditorPage: React.FC = () => {
 
     fetchGraph();
   }, [api, id, refreshKey]);
+
+  useEffect(() => {
+    if (!selectedSkill) return;
+    getSkill(api, selectedSkill.id)
+      .then((fresh) => setSelectedSkill(fresh))
+      .catch(() => {});
+  }, [selectedSkill?.id]);
 
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
     const skill = skills.find((s) => String(s.id) === node.id);
