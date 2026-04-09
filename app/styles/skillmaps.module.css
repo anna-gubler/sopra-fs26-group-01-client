@@ -375,6 +375,126 @@
   overflow-y: auto;
 }
 
+/* Skill Detail Panel */
+
+.detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-color);
+  padding: 24px;
+  overflow-y: auto;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail-panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.detail-panel-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.detail-panel-close:hover {
+  color: var(--text-bright);
+  background-color: var(--bg-elevated);
+}
+
+.detail-panel-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.badge-easy {
+  color: var(--accent);
+  background: hsla(160, 60%, 52%, 0.12);
+  border: 1px solid hsla(160, 60%, 52%, 0.3);
+}
+
+.badge-medium {
+  color: var(--color-amber);
+  background: hsla(42, 95%, 55%, 0.12);
+  border: 1px solid hsla(42, 95%, 55%, 0.3);
+}
+
+.badge-hard {
+  color: var(--secondary);
+  background: hsla(330, 70%, 56%, 0.12);
+  border: 1px solid hsla(330, 70%, 56%, 0.3);
+}
+
+.detail-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-panel-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.detail-panel-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.detail-panel-dep-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-panel-dep-item {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
 .btn-delete {
   width: 100%;
   padding: 10px;

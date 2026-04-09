@@ -15,6 +15,7 @@ import SkillNode from "./components/SkillNode";
 import GradientEdge from "./components/GradientEdge";
 import LaneSeparators from "./components/LaneSeparators";
 import SkillModal from "./components/SkillModal";
+import SkillDetailPanel from "./components/SkillDetailPanel";
 import styles from "@/styles/skillmaps.module.css";
 
 const LANE_HEIGHT = 200;
@@ -39,6 +40,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -99,9 +101,12 @@ const SkillMapEditorPage: React.FC = () => {
 
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
     const skill = skills.find((s) => String(s.id) === node.id);
-    if (skill) {
+    if (!skill) return;
+    if (isOwner) {
       setEditingSkill(skill);
       setModalOpen(true);
+    } else {
+      setSelectedSkill(skill);
     }
   };
 
@@ -170,7 +175,7 @@ const SkillMapEditorPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className={styles["sm-map-graph"]}>
+      <div className={styles["sm-map-graph"]} style={{ position: "relative" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -205,6 +210,17 @@ const SkillMapEditorPage: React.FC = () => {
           skillMapId={id}
           onClose={handleModalClose}
           onSaved={handleSaved}
+        />
+      )}
+
+      {selectedSkill && (
+        <SkillDetailPanel
+          skill={selectedSkill}
+          dependencies={edges
+            .filter((e) => e.target === String(selectedSkill.id))
+            .map((e) => skills.find((s) => String(s.id) === e.source))
+            .filter((s): s is Skill => s !== undefined)}
+          onClose={() => setSelectedSkill(null)}
         />
       )}
     </div>

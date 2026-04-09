@@ -1,6 +1,10 @@
 import { ApiService } from "./apiService";
 import { Skill } from "@/types/skill";
 
+export function getSkill(api: ApiService, skillId: number): Promise<Skill> {
+  return api.get<Skill>(`/skills/${skillId}`);
+}
+
 export function createSkill(
   api: ApiService,
   skillMapId: number,
