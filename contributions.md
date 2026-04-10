@@ -82,7 +82,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | 10.04.2026   | [S9: CollaborationSession (Websocket Setup)](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/b871c7e6917b9f0dca527974cce889aad9af31b3) | [Implemented start and end collaboration session (without testing)] | [enables us to build all collaboration session functionality on top of it] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
