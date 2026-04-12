@@ -21,8 +21,8 @@ const NewSkillMapPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createSkillMap(api, { title, description, numberOfLevels, isPublic });
-      router.push("/skillmaps");
+      const map = await createSkillMap(api, { title, description, numberOfLevels, isPublic });
+      router.push(`/skillmaps/${map.id}`);
     } catch (err) {
       const status = (err as ApplicationError).status;
       if (status === 403) {

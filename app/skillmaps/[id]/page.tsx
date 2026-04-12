@@ -7,7 +7,7 @@ import "@xyflow/react/dist/style.css";
 import { Globe, Pencil, Plus, Copy, ChevronLeft } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
 import { ApplicationError } from "@/types/error";
 import { User } from "@/types/user";
 import { Skill } from "@/types/skill";
@@ -39,8 +39,9 @@ const SkillMapEditorPage: React.FC = () => {
   const [skillMap, setSkillMap] = useState<SkillMap | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isOwner, setIsOwner] = useState(false);
+  const isOwner = skillMap?.ownerId === user?.id;
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmingPublish, setConfirmingPublish] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -48,14 +49,6 @@ const SkillMapEditorPage: React.FC = () => {
     getMe(api).then(setUser).catch(() => {});
   }, [api]);
 
-  useEffect(() => {
-    if (!user) return;
-    getSkillMapMembers(api, id)
-      .then((members) => {
-        setIsOwner(members.some((m) => m.userId === user.id && m.role === "OWNER"));
-      })
-      .catch(() => {});
-  }, [api, id, user]);
 
   useEffect(() => {
     const fetchGraph = async () => {
@@ -65,7 +58,7 @@ const SkillMapEditorPage: React.FC = () => {
           getSkillMapGraph(api, id),
         ]);
 
-        setSkillMap({ ...map, inviteCode: "a7b3", isPublic: true });
+        setSkillMap(map);
         setSkills(graph.skills);
 
         const skillNodes: Node[] = graph.skills.map((skill) => ({
@@ -150,21 +143,35 @@ const SkillMapEditorPage: React.FC = () => {
           Dashboard
         </button>
         <div className={styles["sm-nav-right"]}>
-          <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
-            <Plus size={14} />
-            Add Skill
-          </button>
-          {isOwner && !skillMap?.isPublic && (
-            <button
-              className={`btn-ghost ${styles["sm-nav-btn"]}`}
-              onClick={async () => {
-                const updated = await updateSkillMap(api, id, { isPublic: true });
-                setSkillMap(updated);
-              }}
-            >
+          {isOwner && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
+              <Plus size={14} />
+              Add Skill
+            </button>
+          )}
+          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
               <Globe size={14} />
               Publish
             </button>
+          )}
+          {isOwner && !skillMap?.isPublic && confirmingPublish && (
+            <>
+              <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
+                Cancel
+              </button>
+              <button
+                className={`btn-gradient ${styles["sm-nav-btn"]}`}
+                onClick={async () => {
+                  const updated = await updateSkillMap(api, id, { isPublic: true });
+                  setSkillMap(updated);
+                  setConfirmingPublish(false);
+                }}
+              >
+                <Globe size={14} />
+                Confirm Publish
+              </button>
+            </>
           )}
           {isOwner && skillMap?.isPublic && (
             <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>

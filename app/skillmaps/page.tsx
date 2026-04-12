@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, joinSkillMap, getSkillMapMembers } from "@/api/skillmapApi";
+import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
@@ -23,7 +23,6 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
-  const [ownedMapIds, setOwnedMapIds] = useState<Set<number>>(new Set());
 
   const handleLogout = async () => {
     try {
@@ -66,14 +65,6 @@ const SkillMapsPage: React.FC = () => {
           getSkillMaps(api),
           getMe(api),
         ]);
-        const membershipsPerMap = await Promise.all(maps.map((m) => getSkillMapMembers(api, m.id)));
-        const owned = new Set<number>();
-        maps.forEach((map, i) => {
-          if (membershipsPerMap[i].some((mem) => mem.userId === me.id && mem.role === "OWNER")) {
-            owned.add(map.id);
-          }
-        });
-        setOwnedMapIds(owned);
         setSkillMaps(maps);
         setUser(me);
       } catch (error) {
@@ -158,7 +149,7 @@ const SkillMapsPage: React.FC = () => {
       <div className={styles['sm-section-title']}>MY MAPS</div>
 
       <div className={styles['sm-grid']}>
-        {skillMaps.filter((m) => ownedMapIds.has(m.id)).map((map) => (
+        {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
           <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
@@ -196,11 +187,11 @@ const SkillMapsPage: React.FC = () => {
       </div>
 
       {/* Joined Maps Section */}
-      {skillMaps.some((m) => !ownedMapIds.has(m.id)) && (
+      {skillMaps.some((m) => m.ownerId !== user?.id) && (
         <>
           <div className={styles['sm-section-title']}>JOINED MAPS</div>
           <div className={styles['sm-grid']}>
-            {skillMaps.filter((m) => !ownedMapIds.has(m.id)).map((map) => (
+            {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
               <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
                 <div className={styles['sm-card-top']}>
                   <div>
