@@ -82,19 +82,27 @@
   margin-bottom: 32px;
 }
 
-/* 64×64 gradient avatar circle */
+/* 64×64 avatar container*/
 .profile-avatar {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
-  font-weight: 700;
-  color: white;
   flex-shrink: 0;
+}
+
+/*avatar image*/
+.profile-avatar-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*smaller avatar 32×32 */
+.profile-avatar--sm {
+  width: 32px;
+  height: 32px;
 }
 
 /* small muted label above a value (e.g. "Username") */
@@ -110,6 +118,27 @@
   font-weight: 700;
   color: var(--text-bright);
   line-height: 1.1;
+}
+
+/*avatar style options picker grid*/
+.avatar-picker-grid{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+/* individual avatar option in picker grid */
+.avatar-picker-option{
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+/* selected avatar style option */
+.avatar-picker-option--selected{
+  border: 2px solid var(--primary-light);
 }
 
 /* horizontal rule divider */
