@@ -16,7 +16,7 @@ const NewSkillMapPage: React.FC = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState(1);
-  const [isPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +64,10 @@ const NewSkillMapPage: React.FC = () => {
             <div className="input-group">
               <label>Number of Levels</label>
               <input className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
+            </div>
+            <div className="input-group input-group--row">
+              <label htmlFor="isPublic">Public</label>
+              <input type="checkbox" id="isPublic" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
             </div>
             <button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>

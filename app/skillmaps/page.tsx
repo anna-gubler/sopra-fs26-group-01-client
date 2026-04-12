@@ -151,6 +151,25 @@ const SkillMapsPage: React.FC = () => {
               </div>
             </div>
 
+            {map.isPublic && map.inviteCode && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                  Code: <strong style={{ color: "var(--text-bright)" }}>{map.inviteCode}</strong>
+                </span>
+                <button
+                  style={{ fontSize: "11px", padding: "2px 8px" }}
+                  className={styles['sm-edit-btn']}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(map.inviteCode!);
+                    toast.success("Invite code copied!");
+                  }}
+                >
+                  Copy
+                </button>
+                </div>
+            )}
+
             <div className={styles['sm-card-meta']}>
               <span>📖 XX Skills</span>
               <span>👤 XX Students</span>
