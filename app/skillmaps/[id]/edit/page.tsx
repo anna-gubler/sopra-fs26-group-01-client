@@ -45,7 +45,7 @@ const EditSkillMapPage: React.FC = () => {
     e.preventDefault();
     try {
       await updateSkillMap(api, id, { title, description, numberOfLevels, isPublic });
-      router.push("/skillmaps");
+      router.push(`/skillmaps/${id}`);
     } catch (err) {
       const status = (err as ApplicationError).status;
       if (status === 403) {
@@ -93,7 +93,7 @@ const EditSkillMapPage: React.FC = () => {
               <label htmlFor="isPublic">Public</label>
             </div>
             <button type="submit" className="btn-gradient btn-full">Save</button>
-            <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>
+            <button type="button" className="btn-ghost btn-full" onClick={() => router.push(`/skillmaps/${id}`)}>Cancel</button>
           </form>
         </motion.div>
       </div>

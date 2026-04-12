@@ -103,7 +103,7 @@ const Profile: React.FC = () => {
 
       {/* navbar */}
       <nav className="glass-nav">
-        <Link href="/" className="nav-logo">
+        <Link href="/skillmaps" className="nav-logo">
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>

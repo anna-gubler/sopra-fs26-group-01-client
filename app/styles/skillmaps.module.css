@@ -39,6 +39,10 @@
   background-color: var(--bg-elevated);
 }
 
+.sm-logout-btn {
+  margin-left: 12px;
+}
+
 .sm-nav-avatar {
   width: 32px;
   height: 32px;
@@ -195,6 +199,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--text-muted);
+  margin-top: 48px;
   margin-bottom: 16px;
 }
 
@@ -411,4 +416,17 @@
 .btn-delete:hover {
   background: hsla(351, 80%, 60%, 0.15);
   border-color: hsl(351, 80%, 60%);
+}
+
+.btn-delete-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-delete-row > * {
+  flex: 1;
+}
+
+.btn-delete-cancel {
+  justify-content: center;
 }

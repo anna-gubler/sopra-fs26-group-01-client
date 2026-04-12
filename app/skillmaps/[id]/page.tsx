@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, PanOnScrollMode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BookOpen, Globe, Pencil, Plus, Copy } from "lucide-react";
+import { Globe, Pencil, Plus, Copy, ChevronLeft } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
+import { ApplicationError } from "@/types/error";
 import { User } from "@/types/user";
 import { Skill } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -64,7 +65,7 @@ const SkillMapEditorPage: React.FC = () => {
           getSkillMapGraph(api, id),
         ]);
 
-        setSkillMap(map);
+        setSkillMap({ ...map, inviteCode: "a7b3", isPublic: true });
         setSkills(graph.skills);
 
         const skillNodes: Node[] = graph.skills.map((skill) => ({
@@ -89,8 +90,16 @@ const SkillMapEditorPage: React.FC = () => {
 
         setNodes(skillNodes);
         setEdges(skillEdges);
-      } catch {
-        // keep empty graph on error
+      } catch (err) {
+        const status = (err as ApplicationError).status;
+        if (status === 403) {
+          toast.error("You don't have access to this map.");
+        } else if (status === 404) {
+          toast.error("This map doesn't exist.");
+        } else {
+          toast.error("Failed to load map.");
+        }
+        router.push("/skillmaps");
       } finally {
         setLoading(false);
       }
@@ -123,6 +132,12 @@ const SkillMapEditorPage: React.FC = () => {
     setRefreshKey((k) => k + 1);
   };
 
+  const isScrollable = (skillMap?.numberOfLevels ?? 0) > 4;
+  const NAV_HEIGHT = 64;
+  const graphHeight = typeof window !== "undefined" ? window.innerHeight - NAV_HEIGHT : 600;
+  const contentHeight = (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT;
+  const bottomViewportY = graphHeight - contentHeight - 20;
+
   if (loading) {
     return <div className={styles["sm-loading"]}>Loading...</div>;
   }
@@ -130,12 +145,10 @@ const SkillMapEditorPage: React.FC = () => {
   return (
     <div className={styles["sm-map-page"]}>
       <nav className={styles["sm-map-nav"]}>
-        <div className={`nav-logo ${styles["sm-map-logo"]}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
-          <div className="nav-logo-icon">
-            <BookOpen size={16} color="white" />
-          </div>
-          <span className={styles["sm-nav-logo"]}>Mappd</span>
-        </div>
+        <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push("/skillmaps")}>
+          <ChevronLeft size={14} />
+          Dashboard
+        </button>
         <div className={styles["sm-nav-right"]}>
           <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
             <Plus size={14} />
@@ -163,8 +176,17 @@ const SkillMapEditorPage: React.FC = () => {
             <button
               className={`btn-ghost ${styles["sm-nav-btn"]}`}
               onClick={() => {
-                navigator.clipboard.writeText(skillMap.inviteCode);
-                toast.success("Invite code copied!");
+                navigator.clipboard.writeText(skillMap.inviteCode).then(() => {
+                  toast.success("Invite code copied!");
+                }).catch(() => {
+                  const el = document.createElement("textarea");
+                  el.value = skillMap.inviteCode;
+                  document.body.appendChild(el);
+                  el.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(el);
+                  toast.success("Invite code copied!");
+                });
               }}
             >
               <Copy size={14} />
@@ -186,18 +208,24 @@ const SkillMapEditorPage: React.FC = () => {
 
       <div className={styles["sm-map-graph"]}>
         <ReactFlow
+          key={refreshKey}
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           onNodeClick={handleNodeClick}
-          fitView
+          fitView={!isScrollable}
           fitViewOptions={{ padding: 0.3 }}
+          defaultViewport={isScrollable ? { x: 0, y: bottomViewportY, zoom: 1 } : undefined}
+          translateExtent={isScrollable ? [[-Infinity, -50], [Infinity, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
           nodesConnectable={false}
           panOnDrag={false}
+          panOnScroll={isScrollable}
+          panOnScrollMode={isScrollable ? PanOnScrollMode.Vertical : PanOnScrollMode.Free}
           zoomOnScroll={false}
           zoomOnPinch={false}
           zoomOnDoubleClick={false}
+          zoomActivationKeyCode={null}
           proOptions={{ hideAttribution: true }}
         >
           {skillMap && (
