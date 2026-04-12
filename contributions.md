@@ -84,7 +84,8 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@sebdahub** | 10.04.2026   | [S9: CollaborationSession (Websocket Setup)](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/b871c7e6917b9f0dca527974cce889aad9af31b3) | [Implemented start and end collaboration session (without testing)] | [enables us to build all collaboration session functionality on top of it] |
 |                    | 11.04.2026   | [S9: CollaborationSession Tests](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/9b2271613654d0933f49d8b10bff580ab7df763e) | [Implemented all tests for the features of S9] | [Self-explanatory] |
-| **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@hadaslam** | [12.04.2026]   | [FE: S6 implementation](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/990062f817a040821f5e8a5e0dca92c3a6d8b43d) | Added privacy toggle to map creation form and invite code display with copy button on public map cards. (backend already done, only few minor stweaks)| Allows entire map sharing function|
+|                   | 11.04.2026   | FE: [feat(#9): add all DiceBear styles to avatar picker and clean up styling](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/3fe8c13dd0c363c6d4cdcb78504428b248bbe11e) | Added all 31 DiceBear styles to avatar picker, cleaned up avatar styling in profile and skillmaps pages (& fixed minor bug in backend to make it compatible with frontend) | Users can now pick from all available DiceBear styles for avatar & tried to eliminate inline styling, but style classes did not work for img & img grid|
 
 ---
 
