@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
+import { BookOpen, Globe, Pencil, Plus, Copy } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
@@ -16,6 +16,8 @@ import GradientEdge from "./components/GradientEdge";
 import LaneSeparators from "./components/LaneSeparators";
 import SkillModal from "./components/SkillModal";
 import styles from "@/styles/skillmaps.module.css";
+import toast from "react-hot-toast";
+
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
@@ -128,33 +130,45 @@ const SkillMapEditorPage: React.FC = () => {
   return (
     <div className={styles["sm-map-page"]}>
       <nav className={styles["sm-map-nav"]}>
-        <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
+        <div className={`nav-logo ${styles["sm-map-logo"]}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
           <span className={styles["sm-nav-logo"]}>Mappd</span>
         </div>
         <div className={styles["sm-nav-right"]}>
-          <button className="btn-ghost" onClick={handleAddSkill}>
-            <Plus size={14} style={{ marginRight: 4 }} />
+          <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
+            <Plus size={14} />
             Add Skill
           </button>
           {isOwner && !skillMap?.isPublic && (
             <button
-              className="btn-ghost"
+              className={`btn-ghost ${styles["sm-nav-btn"]}`}
               onClick={async () => {
                 const updated = await updateSkillMap(api, id, { isPublic: true });
                 setSkillMap(updated);
               }}
             >
-              <Globe size={14} style={{ marginRight: 4 }} />
+              <Globe size={14} />
               Publish
             </button>
           )}
           {isOwner && skillMap?.isPublic && (
-            <button className="btn-ghost" onClick={() => router.push(`/skillmaps/${id}/edit`)}>
-              <Pencil size={14} style={{ marginRight: 4 }} />
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
+              <Pencil size={14} />
               Edit
+            </button>
+          )}
+          {isOwner && skillMap?.inviteCode && (
+            <button
+              className={`btn-ghost ${styles["sm-nav-btn"]}`}
+              onClick={() => {
+                navigator.clipboard.writeText(skillMap.inviteCode);
+                toast.success("Invite code copied!");
+              }}
+            >
+              <Copy size={14} />
+              {skillMap.inviteCode}
             </button>
           )}
           <div

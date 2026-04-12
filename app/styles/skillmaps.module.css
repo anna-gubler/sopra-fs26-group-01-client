@@ -60,6 +60,13 @@
   color: var(--text-bright);
 }
 
+.sm-invite-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
 .sm-welcome {
   display: flex;
   align-items: center;
@@ -346,6 +353,17 @@
   height: 64px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+}
+
+.sm-map-logo {
+  cursor: pointer;
+}
+
+.sm-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
 }
 
 .sm-map-graph {

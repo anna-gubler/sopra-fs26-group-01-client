@@ -11,6 +11,7 @@ import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ApplicationError } from "@/types/error";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
@@ -37,14 +38,27 @@ const SkillMapsPage: React.FC = () => {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    let code = inviteCode.trim();
     try {
-      await joinSkillMap(api, inviteCode);
+      const url = new URL(code);
+      code = url.searchParams.get("code") ?? code;
+    } catch {
+      // not a URL, use as-is
+    }
+    try {
+      await joinSkillMap(api, code);
       setInviteCode("");
       setShowJoinInput(false);
       const maps = await getSkillMaps(api);
       setSkillMaps(maps);
+      toast.success("Joined successfully!");
     } catch (err) {
-      if (err instanceof Error) toast.error(err.message);
+      if (err instanceof Error) {
+        const status = (err as ApplicationError).status;
+        if (status === 404) toast.error("Invalid invite code.");
+        else if (status === 409) toast.error("You're already a member of this map.");
+        else toast.error("Failed to join map.");
+      }
     }
   };
 
