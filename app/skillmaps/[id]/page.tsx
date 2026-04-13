@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, PanOnScrollMode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BookOpen, Globe, Pencil, Plus, Play, Square } from "lucide-react";
+import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useSessionStatus } from "@/hooks/useSessionStatus";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
 import { startSession, endSession } from "@/api/sessionApi";
+import { ApplicationError } from "@/types/error";
 import { User } from "@/types/user";
 import { Skill } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -20,6 +21,7 @@ import SkillModal from "./components/SkillModal";
 import CollabView from "./components/CollabView";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
+import toast from "react-hot-toast";
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
@@ -40,8 +42,9 @@ const SkillMapEditorPage: React.FC = () => {
   const [skillMap, setSkillMap] = useState<SkillMap | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isOwner, setIsOwner] = useState(false);
+  const isOwner = skillMap?.ownerId === user?.id;
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmingPublish, setConfirmingPublish] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -50,15 +53,6 @@ const SkillMapEditorPage: React.FC = () => {
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
   }, [api]);
-
-  useEffect(() => {
-    if (!user) return;
-    getSkillMapMembers(api, id)
-      .then((members) => {
-        setIsOwner(members.some((m) => m.userId === user.id && m.role === "OWNER"));
-      })
-      .catch(() => {});
-  }, [api, id, user]);
 
   useEffect(() => {
     const fetchGraph = async () => {
@@ -93,8 +87,16 @@ const SkillMapEditorPage: React.FC = () => {
 
         setNodes(skillNodes);
         setEdges(skillEdges);
-      } catch {
-        // keep empty graph on error
+      } catch (err) {
+        const status = (err as ApplicationError).status;
+        if (status === 403) {
+          toast.error("You don't have access to this map.");
+        } else if (status === 404) {
+          toast.error("This map doesn't exist.");
+        } else {
+          toast.error("Failed to load map.");
+        }
+        router.push("/skillmaps");
       } finally {
         setLoading(false);
       }
@@ -127,6 +129,12 @@ const SkillMapEditorPage: React.FC = () => {
     setRefreshKey((k) => k + 1);
   };
 
+  const isScrollable = (skillMap?.numberOfLevels ?? 0) > 4;
+  const NAV_HEIGHT = 64;
+  const graphHeight = typeof window !== "undefined" ? window.innerHeight - NAV_HEIGHT : 600;
+  const contentHeight = (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT;
+  const bottomViewportY = graphHeight - contentHeight - 20;
+
   if (loading) {
     return <div className={styles["sm-loading"]}>Loading...</div>;
   }
@@ -134,12 +142,10 @@ const SkillMapEditorPage: React.FC = () => {
   return (
     <div className={styles["sm-map-page"]}>
       <nav className={`${styles["sm-map-nav"]} ${isActive ? collabStyles["sm-map-nav--collab"] : ""}`}>
-        <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
-          <div className="nav-logo-icon">
-            <BookOpen size={16} color="white" />
-          </div>
-          <span className={styles["sm-nav-logo"]}>Mappd</span>
-        </div>
+        <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push("/skillmaps")}>
+          <ChevronLeft size={14} />
+          Dashboard
+        </button>
         {isActive && (
           <div className={collabStyles["collab-live-badge"]}>
             <span className={collabStyles["collab-live-badge-dot"]} />
@@ -147,10 +153,12 @@ const SkillMapEditorPage: React.FC = () => {
           </div>
         )}
         <div className={styles["sm-nav-right"]}>
-          <button className="btn-ghost" onClick={handleAddSkill}>
-            <Plus size={14} style={{ marginRight: 4 }} />
-            Add Skill
-          </button>
+          {isOwner && !isActive && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
+              <Plus size={14} />
+              Add Skill
+            </button>
+          )}
           {isOwner && !isActive && (
             <button
               className="btn-ghost"
@@ -175,22 +183,55 @@ const SkillMapEditorPage: React.FC = () => {
               End Session
             </button>
           )}
-          {isOwner && !skillMap?.isPublic && (
-            <button
-              className="btn-ghost"
-              onClick={async () => {
-                const updated = await updateSkillMap(api, id, { isPublic: true });
-                setSkillMap(updated);
-              }}
-            >
-              <Globe size={14} style={{ marginRight: 4 }} />
+          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
+              <Globe size={14} />
               Publish
             </button>
           )}
+          {isOwner && !skillMap?.isPublic && confirmingPublish && (
+            <>
+              <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
+                Cancel
+              </button>
+              <button
+                className={`btn-gradient ${styles["sm-nav-btn"]}`}
+                onClick={async () => {
+                  const updated = await updateSkillMap(api, id, { isPublic: true });
+                  setSkillMap(updated);
+                  setConfirmingPublish(false);
+                }}
+              >
+                <Globe size={14} />
+                Confirm Publish
+              </button>
+            </>
+          )}
           {isOwner && skillMap?.isPublic && (
-            <button className="btn-ghost" onClick={() => router.push(`/skillmaps/${id}/edit`)}>
-              <Pencil size={14} style={{ marginRight: 4 }} />
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
+              <Pencil size={14} />
               Edit
+            </button>
+          )}
+          {isOwner && skillMap?.inviteCode && (
+            <button
+              className={`btn-ghost ${styles["sm-nav-btn"]}`}
+              onClick={() => {
+                navigator.clipboard.writeText(skillMap.inviteCode).then(() => {
+                  toast.success("Invite code copied!");
+                }).catch(() => {
+                  const el = document.createElement("textarea");
+                  el.value = skillMap.inviteCode;
+                  document.body.appendChild(el);
+                  el.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(el);
+                  toast.success("Invite code copied!");
+                });
+              }}
+            >
+              <Copy size={14} />
+              {skillMap.inviteCode}
             </button>
           )}
           <div
@@ -218,18 +259,24 @@ const SkillMapEditorPage: React.FC = () => {
         <>
           <div className={styles["sm-map-graph"]}>
             <ReactFlow
+              key={refreshKey}
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               onNodeClick={handleNodeClick}
-              fitView
+              fitView={!isScrollable}
               fitViewOptions={{ padding: 0.3 }}
+              defaultViewport={isScrollable ? { x: 0, y: bottomViewportY, zoom: 1 } : undefined}
+              translateExtent={isScrollable ? [[-Infinity, -50], [Infinity, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
               nodesConnectable={false}
               panOnDrag={false}
+              panOnScroll={isScrollable}
+              panOnScrollMode={isScrollable ? PanOnScrollMode.Vertical : PanOnScrollMode.Free}
               zoomOnScroll={false}
               zoomOnPinch={false}
               zoomOnDoubleClick={false}
+              zoomActivationKeyCode={null}
               proOptions={{ hideAttribution: true }}
             >
               {skillMap && (

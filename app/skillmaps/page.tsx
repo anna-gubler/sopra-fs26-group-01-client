@@ -7,10 +7,11 @@ import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
-import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ApplicationError } from "@/types/error";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
@@ -22,7 +23,6 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
-
 
   const handleLogout = async () => {
     try {
@@ -37,14 +37,24 @@ const SkillMapsPage: React.FC = () => {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    let code = inviteCode.trim();
     try {
-      await joinSkillMap(api, inviteCode);
-      setInviteCode("");
-      setShowJoinInput(false);
-      const maps = await getSkillMaps(api);
-      setSkillMaps(maps);
+      const url = new URL(code);
+      code = url.searchParams.get("code") ?? code;
+    } catch {
+      // not a URL, use as-is
+    }
+    try {
+      const joined = await joinSkillMap(api, code);
+      router.push(`/skillmaps/${joined.id}`);
     } catch (err) {
-      if (err instanceof Error) toast.error(err.message);
+      if (err instanceof Error) {
+        const status = (err as ApplicationError).status;
+        if (status === 404) toast.error("Invalid invite code.");
+        else if (status === 403) toast.error("This map is private.");
+        else if (status === 409) toast.error("You're already a member of this map.");
+        else toast.error("Failed to join map.");
+      }
     }
   };
 
@@ -85,14 +95,11 @@ const SkillMapsPage: React.FC = () => {
           <span className={styles['sm-nav-logo']}>Mappd</span>
         </div>
         <div className={styles['sm-nav-right']}>
-          <button className={styles['sm-nav-icon']}><Inbox size={20} /></button>
-          <button className={styles['sm-nav-icon']}><Bell size={20} /></button>
-          <button className={styles['sm-nav-icon']}><Settings size={20} /></button>
           <div className={styles['sm-nav-avatar']} role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
             <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
-          <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
+          <button className={`${styles['sm-nav-icon']} ${styles['sm-logout-btn']}`} onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
       </nav>
 
@@ -138,11 +145,11 @@ const SkillMapsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Maps Section */}
+      {/* My Maps Section */}
       <div className={styles['sm-section-title']}>MY MAPS</div>
 
       <div className={styles['sm-grid']}>
-        {skillMaps.map((map) => (
+        {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
           <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
@@ -192,12 +199,44 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Create new map placeholder card */}
         <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
       </div>
+
+      {/* Joined Maps Section */}
+      {skillMaps.some((m) => m.ownerId !== user?.id) && (
+        <>
+          <div className={styles['sm-section-title']}>JOINED MAPS</div>
+          <div className={styles['sm-grid']}>
+            {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
+              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+                <div className={styles['sm-card-top']}>
+                  <div>
+                    <div className={styles['sm-card-title']}>{map.title}</div>
+                    <div className={styles['sm-card-subtitle']}>{map.description}</div>
+                  </div>
+                </div>
+
+                <div className={styles['sm-card-meta']}>
+                  <span>📖 XX Skills</span>
+                  <span>👤 XX Students</span>
+                </div>
+
+                <div className={styles['sm-progress-bar']}>
+                  <div className={styles['sm-progress-fill']} />
+                </div>
+                <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+
+                <div className={styles['sm-card-footer']}>
+                  <span className={styles['sm-continue']}>Continue Learning &gt;</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
