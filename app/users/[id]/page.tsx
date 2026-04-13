@@ -11,6 +11,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { ApplicationError } from "@/types/error";
 import styles from "@/styles/profile.module.css";
 
 const Profile: React.FC = () => {
@@ -47,8 +48,14 @@ const Profile: React.FC = () => {
       clearToken();
       clearId();
       router.push("/login");
-    } catch {
-      toast.error("Incorrect old password or request failed. Please try again.");
+    } catch (err: unknown) {
+      const error = err as ApplicationError;
+      const knownCodes = [400, 401, 403, 409];
+      if (error.status && knownCodes.includes(error.status)) {
+        toast.error(error.details);
+      } else {
+        toast.error("Password change failed. Please try again.");
+      }
     }
   };
 
@@ -94,6 +101,93 @@ const Profile: React.FC = () => {
   const dateFormat = user.creationDate
     ? new Date(user.creationDate).toLocaleDateString("de-DE")
     : "";
+
+  const renderPasswordForm = () => (
+    <form onSubmit={handleChangePassword}>
+      <div className="input-group">
+        <label htmlFor="old-password">Old Password</label>
+        <div className="password-field">
+          <input
+            id="old-password"
+            type={showOldPassword ? "text" : "password"}
+            className="auth-input"
+            placeholder="Enter old password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            required
+          />
+          <button type="button" className="toggle-password" onClick={() => setShowOldPassword(!showOldPassword)}>
+            {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+      </div>
+      <div className="input-group">
+        <label htmlFor="new-password">New Password</label>
+        <div className="password-field">
+          <input
+            id="new-password"
+            type={showNewPassword ? "text" : "password"}
+            className="auth-input"
+            placeholder="Enter new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+          />
+          <button type="button" className="toggle-password" onClick={() => setShowNewPassword(!showNewPassword)}>
+            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+        {newPassword && oldPassword && newPassword === oldPassword && (
+          <span className="field-error">New password must be different from your old password.</span>
+        )}
+      </div>
+      <div className="input-group">
+        <label htmlFor="confirm-password">Confirm New Password</label>
+        <div className="password-field">
+          <input
+            id="confirm-password"
+            type={showConfirmPassword ? "text" : "password"}
+            className="auth-input"
+            placeholder="Enter new password again"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+        {confirmPassword && newPassword && confirmPassword !== newPassword && (
+          <span className="field-error">Passwords do not match.</span>
+        )}
+      </div>
+      <button className="btn-gradient btn-full mt-12" type="submit">
+        Confirm Password Change
+      </button>
+      <button
+        type="button"
+        className="btn-ghost btn-full mt-8"
+        onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+      >
+        Cancel
+      </button>
+    </form>
+  );
+
+  const renderOwnerActions = () => (
+    <>
+      <div className={styles['profile-divider']} />
+      {!showPasswordForm && (
+        <button
+          className="btn-ghost btn-full"
+          onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+        >
+          Change Password
+        </button>
+      )}
+      {showPasswordForm && renderPasswordForm()}
+    </>
+  );
 
   return (
     <div className="page-deep">
@@ -168,91 +262,7 @@ const Profile: React.FC = () => {
           </div>
 
           {/* own profile actions */}
-          {isOwnProfile && (
-            <>
-              <div className={styles['profile-divider']} />
-              {!showPasswordForm && (
-                <button
-                  className="btn-ghost btn-full"
-                  onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
-                >
-                  Change Password
-                </button>
-              )}
-
-              {showPasswordForm && (
-                <form onSubmit={handleChangePassword}>
-                  <div className="input-group">
-                    <label htmlFor="old-password">Old Password</label>
-                    <div className="password-field">
-                      <input
-                        id="old-password"
-                        type={showOldPassword ? "text" : "password"}
-                        className="auth-input"
-                        placeholder="Enter old password"
-                        value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
-                        required
-                      />
-                      <button type="button" className="toggle-password" onClick={() => setShowOldPassword(!showOldPassword)}>
-                        {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="input-group">
-                    <label htmlFor="new-password">New Password</label>
-                    <div className="password-field">
-                      <input
-                        id="new-password"
-                        type={showNewPassword ? "text" : "password"}
-                        className="auth-input"
-                        placeholder="Enter new password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                      />
-                      <button type="button" className="toggle-password" onClick={() => setShowNewPassword(!showNewPassword)}>
-                        {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    {newPassword && oldPassword && newPassword === oldPassword && (
-                      <span className="field-error">New password must be different from your old password.</span>
-                    )}
-                  </div>
-                  <div className="input-group">
-                    <label htmlFor="confirm-password">Confirm New Password</label>
-                    <div className="password-field">
-                      <input
-                        id="confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        className="auth-input"
-                        placeholder="Enter new password again"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                      />
-                      <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    {confirmPassword && newPassword && confirmPassword !== newPassword && (
-                      <span className="field-error">Passwords do not match.</span>
-                    )}
-                  </div>
-                  <button className="btn-gradient btn-full mt-12" type="submit">
-                    Confirm Password Change
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-ghost btn-full mt-8"
-                    onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
-                  >
-                    Cancel
-                  </button>
-                </form>
-              )}
-            </>
-          )}
+          {isOwnProfile && renderOwnerActions()}
         </motion.div>
       </div>
     </div>

@@ -219,7 +219,7 @@ const SkillMapEditorPage: React.FC = () => {
       setEdges((eds) => addEdge(newEdge, eds));
       setDependencies((deps) => [...deps, provisional]);
       try {
-        const dep = await createDependency(api, id, fromSkillId, toSkillId);
+        const dep = await createDependency(api, id, { fromSkillId, toSkillId });
         setDependencies((deps) => deps.map((d) => (d === provisional ? dep : d)));
       } catch (err) {
         toast.error(`Dependency error: ${(err as Error).message}`);
@@ -228,6 +228,22 @@ const SkillMapEditorPage: React.FC = () => {
       }
     },
     [api, id]
+  );
+
+  const handleConfirmDeleteEdge = useCallback(
+    async (toastId: string, edge: Edge, dep: Dependency) => {
+      toast.dismiss(toastId);
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      setDependencies((deps) => deps.filter((d) => d.id !== dep.id));
+      try {
+        await deleteDependency(api, dep.id);
+      } catch {
+        setEdges((eds) => [...eds, edge]);
+        setDependencies((deps) => [...deps, dep]);
+        toast.error("Failed to delete connection.");
+      }
+    },
+    [api]
   );
 
   const handleEdgeClick = useCallback(
@@ -242,21 +258,7 @@ const SkillMapEditorPage: React.FC = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <span>Delete this dependency?</span>
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              className="btn-gradient"
-              onClick={async () => {
-                toast.dismiss(t.id);
-                setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-                setDependencies((deps) => deps.filter((d) => d.id !== dep.id));
-                try {
-                  await deleteDependency(api, dep.id);
-                } catch {
-                  setEdges((eds) => [...eds, edge]);
-                  setDependencies((deps) => [...deps, dep]);
-                  toast.error("Failed to delete connection.");
-                }
-              }}
-            >
+            <button className="btn-gradient" onClick={() => handleConfirmDeleteEdge(t.id, edge, dep)}>
               Confirm
             </button>
             <button className="btn-ghost" onClick={() => toast.dismiss(t.id)}>
@@ -273,7 +275,7 @@ const SkillMapEditorPage: React.FC = () => {
         },
       });
     },
-    [api, dependencies]
+    [api, dependencies, handleConfirmDeleteEdge]
   );
 
 
@@ -403,8 +405,8 @@ const SkillMapEditorPage: React.FC = () => {
         <SkillDetailPanel
           skill={selectedSkill}
           dependencies={edges
-            .filter((e) => e.target === String(selectedSkill.id))
-            .map((e) => skills.find((s) => String(s.id) === e.source))
+            .filter((e: Edge) => e.target === String(selectedSkill.id))
+            .map((e: Edge) => skills.find((s: Skill) => String(s.id) === e.source))
             .filter((s): s is Skill => s !== undefined)}
           onClose={() => setSelectedSkill(null)}
           isOwner={isOwner}

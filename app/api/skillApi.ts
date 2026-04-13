@@ -28,10 +28,9 @@ export function deleteSkill(api: ApiService, skillId: number): Promise<void> {
 export function createDependency(
   api: ApiService,
   skillMapId: number,
-  fromSkillId: number,
-  toSkillId: number,
+  data: { fromSkillId: number; toSkillId: number },
 ): Promise<Dependency> {
-  return api.post<Dependency>(`/skillmaps/${skillMapId}/dependencies`, { fromSkillId, toSkillId });
+  return api.post<Dependency>(`/skillmaps/${skillMapId}/dependencies`, data);
 }
 
 export function deleteDependency(api: ApiService, dependencyId: number): Promise<void> {
