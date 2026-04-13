@@ -1,0 +1,99 @@
+/* Collaboration mode */
+
+:root {
+  --collab: #F59E0B;
+  --collab-glow: rgba(245, 158, 11, 0.2);
+}
+
+/* Nav overrides when session is active */
+.sm-map-nav--collab {
+  border-bottom-color: var(--collab) !important;
+  box-shadow: 0 1px 0 0 var(--collab-glow);
+}
+
+.collab-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--collab);
+  letter-spacing: 0.05em;
+}
+
+.collab-live-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--collab);
+  animation: collab-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes collab-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Two-column layout */
+.collab-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.collab-graph {
+  flex: 1;
+}
+
+.collab-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--collab);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+}
+
+/* Individual panels */
+.collab-panel {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.collab-panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--collab);
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.collab-panel-placeholder {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Session meta footer */
+.collab-session-meta {
+  margin-top: auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+
+.collab-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--collab);
+  animation: collab-pulse 1.4s ease-in-out infinite;
+}

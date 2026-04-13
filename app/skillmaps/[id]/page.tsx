@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BookOpen, Globe, Pencil, Plus } from "lucide-react";
+import { BookOpen, Globe, Pencil, Plus, Play, Square } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
+import { useSessionStatus } from "@/hooks/useSessionStatus";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, getSkillMapMembers, updateSkillMap } from "@/api/skillmapApi";
+import { startSession, endSession } from "@/api/sessionApi";
 import { User } from "@/types/user";
 import { Skill } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -15,7 +17,9 @@ import SkillNode from "./components/SkillNode";
 import GradientEdge from "./components/GradientEdge";
 import LaneSeparators from "./components/LaneSeparators";
 import SkillModal from "./components/SkillModal";
+import CollabView from "./components/CollabView";
 import styles from "@/styles/skillmaps.module.css";
+import collabStyles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
@@ -40,6 +44,8 @@ const SkillMapEditorPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const { session, isActive, refresh: refreshSession } = useSessionStatus(api, id);
 
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
@@ -127,18 +133,48 @@ const SkillMapEditorPage: React.FC = () => {
 
   return (
     <div className={styles["sm-map-page"]}>
-      <nav className={styles["sm-map-nav"]}>
+      <nav className={`${styles["sm-map-nav"]} ${isActive ? collabStyles["sm-map-nav--collab"] : ""}`}>
         <div className="nav-logo" style={{ cursor: "pointer" }} role="button" tabIndex={0} onClick={() => router.push("/skillmaps")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps")}>
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
           <span className={styles["sm-nav-logo"]}>Mappd</span>
         </div>
+        {isActive && (
+          <div className={collabStyles["collab-live-badge"]}>
+            <span className={collabStyles["collab-live-badge-dot"]} />
+            LIVE
+          </div>
+        )}
         <div className={styles["sm-nav-right"]}>
           <button className="btn-ghost" onClick={handleAddSkill}>
             <Plus size={14} style={{ marginRight: 4 }} />
             Add Skill
           </button>
+          {isOwner && !isActive && (
+            <button
+              className="btn-ghost"
+              onClick={async () => {
+                await startSession(api, id);
+                refreshSession();
+              }}
+            >
+              <Play size={14} style={{ marginRight: 4 }} />
+              Start Session
+            </button>
+          )}
+          {isOwner && isActive && (
+            <button
+              className="btn-ghost"
+              onClick={async () => {
+                await endSession(api, id);
+                refreshSession();
+              }}
+            >
+              <Square size={14} style={{ marginRight: 4 }} />
+              End Session
+            </button>
+          )}
           {isOwner && !skillMap?.isPublic && (
             <button
               className="btn-ghost"
@@ -170,42 +206,54 @@ const SkillMapEditorPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className={styles["sm-map-graph"]}>
-        <ReactFlow
+      {isActive && skillMap && session ? (
+        <CollabView
           nodes={nodes}
           edges={edges}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onNodeClick={handleNodeClick}
-          fitView
-          fitViewOptions={{ padding: 0.3 }}
-          nodesConnectable={false}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          zoomOnPinch={false}
-          zoomOnDoubleClick={false}
-          proOptions={{ hideAttribution: true }}
-        >
+          skillMap={skillMap}
+          session={session}
+          isOwner={isOwner}
+        />
+      ) : (
+        <>
+          <div className={styles["sm-map-graph"]}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onNodeClick={handleNodeClick}
+              fitView
+              fitViewOptions={{ padding: 0.3 }}
+              nodesConnectable={false}
+              panOnDrag={false}
+              zoomOnScroll={false}
+              zoomOnPinch={false}
+              zoomOnDoubleClick={false}
+              proOptions={{ hideAttribution: true }}
+            >
+              {skillMap && (
+                <LaneSeparators
+                  levels={skillMap.numberOfLevels}
+                  laneHeight={LANE_HEIGHT}
+                />
+              )}
+              <Background color="var(--border-color)" gap={40} />
+            </ReactFlow>
+          </div>
+
           {skillMap && (
-            <LaneSeparators
-              levels={skillMap.numberOfLevels}
-              laneHeight={LANE_HEIGHT}
+            <SkillModal
+              open={modalOpen}
+              skill={editingSkill}
+              skills={skills}
+              numberOfLevels={skillMap.numberOfLevels}
+              skillMapId={id}
+              onClose={handleModalClose}
+              onSaved={handleSaved}
             />
           )}
-          <Background color="var(--border-color)" gap={40} />
-        </ReactFlow>
-      </div>
-
-      {skillMap && (
-        <SkillModal
-          open={modalOpen}
-          skill={editingSkill}
-          skills={skills}
-          numberOfLevels={skillMap.numberOfLevels}
-          skillMapId={id}
-          onClose={handleModalClose}
-          onSaved={handleSaved}
-        />
+        </>
       )}
     </div>
   );
