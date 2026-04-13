@@ -3,11 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
 import { BookOpen, LogOut } from "lucide-react";
+
+type MapStats = {
+  skillCount: number;
+  unlockedCount: number;
+  memberCount: number;
+};
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -17,6 +23,7 @@ const SkillMapsPage: React.FC = () => {
   const router = useRouter();
   const api = useApi();
   const [skillMaps, setSkillMaps] = useState<SkillMap[]>([]);
+  const [mapStats, setMapStats] = useState<Record<number, MapStats>>({});
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { clear: clearToken } = useLocalStorage<string>("token", "");
@@ -67,6 +74,21 @@ const SkillMapsPage: React.FC = () => {
         ]);
         setSkillMaps(maps);
         setUser(me);
+
+        const statsEntries = await Promise.all(
+          maps.map(async (map) => {
+            const [graph, members] = await Promise.all([
+              getSkillMapGraph(api, map.id),
+              getSkillMapMembers(api, map.id),
+            ]);
+            return [map.id, {
+              skillCount: graph.skills.length,
+              unlockedCount: graph.skills.filter((s) => s.isUnlocked).length,
+              memberCount: members.length,
+            }] as [number, MapStats];
+          })
+        );
+        setMapStats(Object.fromEntries(statsEntries));
       } catch (error) {
         if (error instanceof Error) {
           toast.error(`Failed to load skill maps: ${error.message}`);
@@ -133,11 +155,16 @@ const SkillMapsPage: React.FC = () => {
       <div className={styles['sm-stats-row']}>
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
-          <span className={`${styles['sm-stat-value']} ${styles.green}`}>XX/XX</span>
+          <span className={`${styles['sm-stat-value']} ${styles.green}`}>
+            {Object.values(mapStats).reduce((s, m) => s + m.unlockedCount, 0)}
+            /{Object.values(mapStats).reduce((s, m) => s + m.skillCount, 0)}
+          </span>
         </div>
         <div className={styles['sm-stat-card']}>
-          <span className={styles['sm-stat-label']}>SKILLS IN PROGRESS</span>
-          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>XX/XX</span>
+          <span className={styles['sm-stat-label']}>SKILLS REMAINING</span>
+          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>
+            {Object.values(mapStats).reduce((s, m) => s + (m.skillCount - m.unlockedCount), 0)}
+          </span>
         </div>
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>MAPS JOINED</span>
@@ -178,14 +205,21 @@ const SkillMapsPage: React.FC = () => {
             )}
 
             <div className={styles['sm-card-meta']}>
-              <span>📖 XX Skills</span>
-              <span>👤 XX Students</span>
+              <span>📖 {mapStats[map.id]?.skillCount ?? "—"} Skills</span>
+              <span>👤 {mapStats[map.id]?.memberCount ?? "—"} Students</span>
             </div>
 
             <div className={styles['sm-progress-bar']}>
-              <div className={styles['sm-progress-fill']} />
+              <div
+                className={styles['sm-progress-fill']}
+                style={{ width: mapStats[map.id]?.skillCount
+                  ? `${Math.round((mapStats[map.id].unlockedCount / mapStats[map.id].skillCount) * 100)}%`
+                  : "0%" }}
+              />
             </div>
-            <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+            <div className={styles['sm-progress-label']}>
+              {mapStats[map.id]?.unlockedCount ?? 0}/{mapStats[map.id]?.skillCount ?? "—"} skills completed
+            </div>
 
             <div className={styles['sm-card-footer']}>
               <span className={styles['sm-continue']}>Continue Learning &gt;</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ReactFlow, Background, Node, Edge } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, NodeMouseHandler } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
 import { SkillMap } from "@/types/skillmap";
@@ -21,9 +21,10 @@ interface CollabViewProps {
   skillMap: SkillMap;
   session: CollaborationSession;
   isOwner: boolean;
+  onNodeClick: NodeMouseHandler;
 }
 
-const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner }) => {
+const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick }) => {
   return (
     <div className={styles["collab-layout"]}>
       <div className={styles["collab-graph"]}>
@@ -35,6 +36,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           fitView
           fitViewOptions={{ padding: 0.3 }}
           nodesConnectable={false}
+          onNodeClick={onNodeClick}
           nodesDraggable={false}
           panOnDrag={false}
           zoomOnScroll={false}
