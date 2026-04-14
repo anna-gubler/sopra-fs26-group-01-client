@@ -5,6 +5,19 @@
   --collab-glow: rgba(245, 158, 11, 0.2);
 }
 
+/* Session action button */
+.btn-collab {
+  border-color: var(--collab);
+  color: var(--collab);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.btn-collab:hover {
+  border-color: var(--collab);
+  background: var(--collab);
+  color: #fff;
+}
+
 /* Nav overrides when session is active */
 .sm-map-nav--collab {
   border-bottom-color: var(--collab) !important;
@@ -46,9 +59,9 @@
 }
 
 .collab-sidebar {
-  width: 280px;
+  width: 40vw;
   flex-shrink: 0;
-  border-left: 1px solid var(--collab);
+  border-right: 1px solid var(--collab);
   background: var(--bg-surface);
   display: flex;
   flex-direction: column;

@@ -28,6 +28,7 @@ import toast from "react-hot-toast";
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
+const NAV_HEIGHT = 56;
 
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
@@ -55,7 +56,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { session, isActive, refresh: refreshSession } = useSessionStatus(api, id);
+  const { session, isActive, refresh: refreshSession, setSession } = useSessionStatus(api, id);
 
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
@@ -160,7 +161,6 @@ const SkillMapEditorPage: React.FC = () => {
   };
 
   const isScrollable = (skillMap?.numberOfLevels ?? 0) > 4;
-  const NAV_HEIGHT = 64;
   const graphHeight = typeof window !== "undefined" ? window.innerHeight - NAV_HEIGHT : 600;
   const contentHeight = (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT;
   const bottomViewportY = graphHeight - contentHeight - 20;
@@ -268,9 +268,9 @@ const SkillMapEditorPage: React.FC = () => {
       if (dep.id < 0) { toast("Connection is still being saved…"); return; }
 
       toast((t) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className={styles["toast-body"]}>
           <span>Delete this dependency?</span>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className={styles["toast-actions"]}>
             <button className="btn-gradient" onClick={() => handleConfirmDeleteEdge(t.id, edge, dep)}>
               Confirm
             </button>
@@ -316,54 +316,6 @@ const SkillMapEditorPage: React.FC = () => {
             </button>
           )}
           {isOwner && !isActive && (
-            <button
-              className="btn-ghost"
-              onClick={async () => {
-                await startSession(api, id);
-                refreshSession();
-              }}
-            >
-              <Play size={14} style={{ marginRight: 4 }} />
-              Start Session
-            </button>
-          )}
-          {isOwner && isActive && (
-            <button
-              className="btn-ghost"
-              onClick={async () => {
-                await endSession(api, id);
-                refreshSession();
-              }}
-            >
-              <Square size={14} style={{ marginRight: 4 }} />
-              End Session
-            </button>
-          )}
-          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
-            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
-              <Globe size={14} />
-              Publish
-            </button>
-          )}
-          {isOwner && !skillMap?.isPublic && confirmingPublish && (
-            <>
-              <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
-                Cancel
-              </button>
-              <button
-                className={`btn-gradient ${styles["sm-nav-btn"]}`}
-                onClick={async () => {
-                  const updated = await updateSkillMap(api, id, { isPublic: true });
-                  setSkillMap(updated);
-                  setConfirmingPublish(false);
-                }}
-              >
-                <Globe size={14} />
-                Confirm Publish
-              </button>
-            </>
-          )}
-          {isOwner && skillMap?.isPublic && (
             <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
               <Pencil size={14} />
               Edit
@@ -388,6 +340,71 @@ const SkillMapEditorPage: React.FC = () => {
             >
               <Copy size={14} />
               {skillMap.inviteCode}
+            </button>
+          )}
+          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
+              <Globe size={14} />
+              Publish
+            </button>
+          )}
+          {isOwner && !skillMap?.isPublic && confirmingPublish && (
+            <>
+              <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
+                Cancel
+              </button>
+              <button
+                className={`btn-gradient btn-no-lift ${styles["sm-nav-btn"]}`}
+                onClick={async () => {
+                  try {
+                    const updated = await updateSkillMap(api, id, { isPublic: true });
+                    setSkillMap(updated);
+                    setConfirmingPublish(false);
+                  } catch {
+                    toast.error("Failed to publish map. Please try again.");
+                  }
+                }}
+              >
+                <Globe size={14} />
+                Confirm Publish
+              </button>
+            </>
+          )}
+          {isOwner && isActive && (
+            <button
+              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
+              onClick={async () => {
+                try {
+                  await endSession(api, id);
+                  refreshSession();
+                } catch {
+                  toast.error("Failed to end session. Please try again.");
+                }
+              }}
+            >
+              <Square size={14} />
+              End Session
+            </button>
+          )}
+          {isOwner && !isActive && skillMap?.isPublic && (
+            <button
+              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
+              onClick={async () => {
+                try {
+                  const raw = await startSession(api, id);
+                  const s = { ...raw, isActive: raw.isActive ?? (raw as unknown as { active: boolean }).active };
+                  setSession(s);
+                } catch (err) {
+                  if ((err as { status?: number }).status === 409) {
+                    refreshSession();
+                  } else {
+                    throw err;
+                  }
+                }
+              }}
+            >
+              <Play size={14} />
+              Start Session
             </button>
           )}
           <div
@@ -434,7 +451,7 @@ const SkillMapEditorPage: React.FC = () => {
               fitViewOptions={{ padding: 0.3 }}
               defaultViewport={isScrollable ? { x: 0, y: bottomViewportY, zoom: 1 } : undefined}
               translateExtent={isScrollable ? [[-Infinity, -50], [Infinity, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
-              panOnDrag={true}
+              panOnDrag={false}
               panOnScroll={isScrollable}
               panOnScrollMode={isScrollable ? PanOnScrollMode.Vertical : PanOnScrollMode.Free}
               zoomOnScroll={false}

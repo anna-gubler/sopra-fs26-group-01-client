@@ -83,7 +83,7 @@ const SkillMapsPage: React.FC = () => {
             ]);
             return [map.id, {
               skillCount: graph.skills.length,
-              unlockedCount: graph.skills.filter((s) => s.isUnlocked).length,
+              unlockedCount: graph.skills.filter((s) => !s.isLocked).length,
               memberCount: members.length,
             }] as [number, MapStats];
           })
@@ -186,12 +186,11 @@ const SkillMapsPage: React.FC = () => {
             </div>
 
             {map.isPublic && map.inviteCode && (
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                  Code: <strong style={{ color: "var(--text-bright)" }}>{map.inviteCode}</strong>
+              <div className={styles['sm-invite-row']}>
+                <span className={styles['sm-invite-code']}>
+                  Code: <strong>{map.inviteCode}</strong>
                 </span>
                 <button
-                  style={{ fontSize: "11px", padding: "2px 8px" }}
                   className={styles['sm-edit-btn']}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -201,7 +200,7 @@ const SkillMapsPage: React.FC = () => {
                 >
                   Copy
                 </button>
-                </div>
+              </div>
             )}
 
             <div className={styles['sm-card-meta']}>

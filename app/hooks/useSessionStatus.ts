@@ -10,6 +10,7 @@ interface SessionStatus {
   isActive: boolean;
   loading: boolean;
   refresh: () => void;
+  setSession: (s: CollaborationSession | null) => void;
 }
 
 export function useSessionStatus(api: ApiService, skillMapId: number): SessionStatus {
@@ -19,11 +20,19 @@ export function useSessionStatus(api: ApiService, skillMapId: number): SessionSt
 
   const fetchSession = useCallback(async () => {
     try {
-      const data = await getActiveSession(api, skillMapId);
+      const raw = await getActiveSession(api, skillMapId);
+      const data: CollaborationSession = {
+        ...raw,
+        isActive: raw.isActive ?? (raw as unknown as { active: boolean }).active,
+      };
       setSession(data);
-    } catch {
-      // 404 or no active session — treat as no active session
-      setSession(null);
+    } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 404) {
+        // Confirmed no active session
+        setSession(null);
+      }
+      // For 403 or other errors, leave session state unchanged
     } finally {
       setLoading(false);
     }
@@ -42,5 +51,6 @@ export function useSessionStatus(api: ApiService, skillMapId: number): SessionSt
     isActive: session?.isActive ?? false,
     loading,
     refresh: fetchSession,
+    setSession,
   };
 }

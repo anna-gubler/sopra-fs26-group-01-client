@@ -48,7 +48,7 @@ const SkillDetailPanel: React.FC<Props> = ({ skill, dependencies, onClose, isOwn
       </button>
 
       <div className={styles["detail-panel-header"]}>
-        <span className={styles["detail-panel-dot"]} style={{ background: color }} />
+        <span className={styles["detail-panel-dot"]} style={{ "--dot-color": color } as React.CSSProperties} />
         <h2 className={styles["detail-panel-title"]}>{skill.name.toUpperCase()}</h2>
       </div>
 
@@ -97,7 +97,7 @@ const SkillDetailPanel: React.FC<Props> = ({ skill, dependencies, onClose, isOwn
       </section>
 
       {isOwner && onEdit && (
-        <button className="btn-ghost" style={{ marginTop: "auto" }} onClick={onEdit}>
+        <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>
           Edit Skill
         </button>
       )}

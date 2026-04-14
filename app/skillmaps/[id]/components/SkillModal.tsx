@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import { createSkill, updateSkill, deleteSkill } from "@/api/skillApi";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
+import toast from "react-hot-toast";
 
 type Props = {
   open: boolean;
@@ -54,19 +55,27 @@ const SkillModal: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (skill) {
-      await updateSkill(api, skill.id, { name, description, difficulty, resources });
-    } else {
-      const positionX = 100 + skills.filter((s) => s.level === level).length * 200;
-      await createSkill(api, skillMapId, { name, description, level, difficulty, resources, positionX });
+    try {
+      if (skill) {
+        await updateSkill(api, skill.id, { name, description, difficulty, resources });
+      } else {
+        const positionX = 100 + skills.filter((s) => s.level === level).length * 200;
+        await createSkill(api, skillMapId, { name, description, level, difficulty, resources, positionX });
+      }
+      onSaved();
+    } catch {
+      toast.error("Failed to save skill. Please try again.");
     }
-    onSaved();
   };
 
   const handleDelete = async () => {
     if (!skill) return;
-    await deleteSkill(api, skill.id);
-    onSaved();
+    try {
+      await deleteSkill(api, skill.id);
+      onSaved();
+    } catch {
+      toast.error("Failed to delete skill. Please try again.");
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ReactFlow, Background, Node, Edge, NodeMouseHandler } from "@xyflow/react";
+import { ReactFlow, Background, Node, Edge, NodeMouseHandler, PanOnScrollMode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
 import { SkillMap } from "@/types/skillmap";
@@ -27,28 +27,6 @@ interface CollabViewProps {
 const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick }) => {
   return (
     <div className={styles["collab-layout"]}>
-      <div className={styles["collab-graph"]}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.3 }}
-          nodesConnectable={false}
-          onNodeClick={onNodeClick}
-          nodesDraggable={false}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          zoomOnPinch={false}
-          zoomOnDoubleClick={false}
-          proOptions={{ hideAttribution: true }}
-        >
-          <LaneSeparators levels={skillMap.numberOfLevels} laneHeight={LANE_HEIGHT} />
-          <Background color="var(--border-color)" gap={40} />
-        </ReactFlow>
-      </div>
-
       <aside className={styles["collab-sidebar"]}>
         {isOwner ? (
           <>
@@ -81,13 +59,38 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             </div>
           </>
         )}
-
         <div className={styles["collab-session-meta"]}>
           <span>Session #{session.id}</span>
           <span className={styles["collab-live-dot"]} />
           <span>Live</span>
         </div>
       </aside>
+      <div className={styles["collab-graph"]}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.3 }}
+          nodesConnectable={false}
+          onNodeClick={onNodeClick}
+          nodesDraggable={false}
+          panOnDrag={false}
+          panOnScroll={skillMap.numberOfLevels > 4}
+          panOnScrollMode={PanOnScrollMode.Vertical}
+          translateExtent={skillMap.numberOfLevels > 4 ? [[-Infinity, -50], [Infinity, skillMap.numberOfLevels * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          zoomOnDoubleClick={false}
+          zoomActivationKeyCode={null}
+          proOptions={{ hideAttribution: true }}
+        >
+          <LaneSeparators levels={skillMap.numberOfLevels} laneHeight={LANE_HEIGHT} />
+          <Background color="var(--border-color)" gap={40} />
+        </ReactFlow>
+      </div>
+
     </div>
   );
 };
