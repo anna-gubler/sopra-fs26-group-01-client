@@ -1,10 +1,5 @@
 /* Collaboration mode */
 
-:root {
-  --collab: #F59E0B;
-  --collab-glow: rgba(245, 158, 11, 0.2);
-}
-
 /* Session action button */
 .btn-collab {
   border-color: var(--collab);

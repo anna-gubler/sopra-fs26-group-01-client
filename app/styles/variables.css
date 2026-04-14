@@ -24,6 +24,8 @@
   /* collaboration mode */
   --color-amber:  hsl(42, 95%, 55%);
   --color-orange: hsl(25, 95%, 60%);
+  --collab:       #F59E0B;
+  --collab-glow:  rgba(245, 158, 11, 0.2);
 
   /* borders + glow */
   --border-color: hsl(258, 24%, 22%);
