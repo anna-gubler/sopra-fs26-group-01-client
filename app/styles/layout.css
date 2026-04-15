@@ -51,6 +51,10 @@
   color: var(--text-bright);
 }
 
+.nav-logo:hover {
+  color: var(--text-bright);
+}
+
 /* 32×32 gradient icon box used in navbars */
 .nav-logo-icon {
   width: 32px;

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useStore } from "@xyflow/react";
+import styles from "@/styles/skillmaps.module.css";
 
 type Props = {
   levels: number;
@@ -12,17 +13,7 @@ const LaneSeparators: React.FC<Props> = ({ levels, laneHeight }) => {
   const [, ty, zoom] = useStore((s) => s.transform);
 
   return (
-    <svg
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        overflow: "visible",
-        zIndex: 0,
-      }}
-    >
+    <svg className={styles["lane-svg"]}>
       {Array.from({ length: levels }, (_, i) => {
         const lineY = i * laneHeight * zoom + ty;
         return (
@@ -42,7 +33,7 @@ const LaneSeparators: React.FC<Props> = ({ levels, laneHeight }) => {
               fontSize={10}
               fontWeight={600}
               letterSpacing={1}
-              style={{ textTransform: "uppercase", fontFamily: "inherit" }}
+              className={styles["lane-label"]}
             >
               Level {levels - i}
             </text>

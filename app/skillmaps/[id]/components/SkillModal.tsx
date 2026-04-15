@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import { createSkill, updateSkill, deleteSkill } from "@/api/skillApi";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
+import toast from "react-hot-toast";
 
 type Props = {
   open: boolean;
@@ -31,6 +32,7 @@ const SkillModal: React.FC<Props> = ({
   const [level, setLevel] = useState(1);
   const [difficulty, setDifficulty] = useState("");
   const [resources, setResources] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     if (skill) {
@@ -46,25 +48,34 @@ const SkillModal: React.FC<Props> = ({
       setDifficulty("");
       setResources("");
     }
+    setConfirmingDelete(false);
   }, [skill, open]);
 
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (skill) {
-      await updateSkill(api, skill.id, { name, description, difficulty, resources });
-    } else {
-      const positionX = 100 + skills.filter((s) => s.level === level).length * 200;
-      await createSkill(api, skillMapId, { name, description, level, difficulty, resources, positionX });
+    try {
+      if (skill) {
+        await updateSkill(api, skill.id, { name, description, difficulty, resources });
+      } else {
+        const positionX = 100 + skills.filter((s) => s.level === level).length * 200;
+        await createSkill(api, skillMapId, { name, description, level, difficulty, resources, positionX });
+      }
+      onSaved();
+    } catch {
+      toast.error("Failed to save skill. Please try again.");
     }
-    onSaved();
   };
 
   const handleDelete = async () => {
     if (!skill) return;
-    await deleteSkill(api, skill.id);
-    onSaved();
+    try {
+      await deleteSkill(api, skill.id);
+      onSaved();
+    } catch {
+      toast.error("Failed to delete skill. Please try again.");
+    }
   };
 
   return (
@@ -140,10 +151,20 @@ const SkillModal: React.FC<Props> = ({
           <button type="button" className="btn-ghost btn-full" onClick={onClose}>
             Cancel
           </button>
-          {skill && (
-            <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
+          {skill && !confirmingDelete && (
+            <button type="button" className={styles["btn-delete"]} onClick={() => setConfirmingDelete(true)}>
               Delete Skill
             </button>
+          )}
+          {skill && confirmingDelete && (
+            <div className={styles["btn-delete-row"]}>
+              <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirmingDelete(false)}>
+                Cancel
+              </button>
+              <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
+                Confirm Delete
+              </button>
+            </div>
           )}
         </form>
       </div>

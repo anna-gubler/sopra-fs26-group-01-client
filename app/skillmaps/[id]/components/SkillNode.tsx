@@ -16,13 +16,13 @@ const SkillNode: React.FC<NodeProps> = ({ data }) => {
 
   return (
     <div className={clsx(styles["skill-node"], styles[`status-${status}`])}>
-      <Handle type="target" position={Position.Top} className={styles["skill-node-handle"]} />
+      <Handle type="source" position={Position.Top} className={styles["skill-node-handle"]} />
       <span className={styles["skill-node__dot"]} />
       <span className={styles["skill-node__label"]}>{label}</span>
       {progress !== undefined && (
         <span className={styles["skill-node__progress"]}>{progress}%</span>
       )}
-      <Handle type="source" position={Position.Bottom} className={styles["skill-node-handle"]} />
+      <Handle type="target" position={Position.Bottom} className={styles["skill-node-handle"]} />
     </div>
   );
 };

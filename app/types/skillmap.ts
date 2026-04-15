@@ -7,6 +7,7 @@ export interface SkillMap {
   numberOfLevels: number;
   isPublic: boolean;
   inviteCode: string;
+  ownerId: number;
   createdAt: string;
   updatedAt: string;
 }
