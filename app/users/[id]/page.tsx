@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
-import { getUser, updateMe } from "@/api/userApi";
+import { getUser, updateMe, changePassword } from "@/api/userApi";
 import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
@@ -20,6 +20,9 @@ const Profile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editUsername, setEditUsername] = useState("");
+  const [editBio, setEditBio] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -31,7 +34,30 @@ const Profile: React.FC = () => {
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
 
-  // update password via PUT /users/me, then log out
+  const openEditForm = () => {
+    setEditUsername(user?.username ?? "");
+    setEditBio(user?.bio ?? "");
+    setShowEditForm(true);
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const updated = await updateMe(apiService, { username: editUsername, bio: editBio });
+      setUser(updated);
+      setShowEditForm(false);
+      toast.success("Profile updated.");
+    } catch (err: unknown) {
+      const status = (err as { status?: number }).status;
+      if (status === 409) {
+        toast.error("That username is already taken.");
+      } else {
+        toast.error("Failed to update profile. Please try again.");
+      }
+    }
+  };
+
+  // update password via PATCH /users/me/password, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword === oldPassword) {
