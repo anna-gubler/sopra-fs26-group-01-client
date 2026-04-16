@@ -5,6 +5,7 @@ import { ReactFlow, Background, Node, Edge, NodeMouseHandler, PanOnScrollMode } 
 import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
 import { SkillMap } from "@/types/skillmap";
+import { Skill } from "@/types/skill";
 import SkillNode from "./SkillNode";
 import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
@@ -23,9 +24,10 @@ interface CollabViewProps {
   session: CollaborationSession;
   isOwner: boolean;
   onNodeClick: NodeMouseHandler;
+  liveSkills: Skill[] | null;
 }
 
-const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick }) => {
+const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, liveSkills: _liveSkills }) => {
   return (
     <div className={styles["collab-layout"]}>
       <aside className={styles["collab-sidebar"]}>
