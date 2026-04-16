@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useApi } from "@/hooks/useApi";
+import { ApiService } from "@/api/apiService";
 import { createSkill, updateSkill, deleteSkill } from "@/api/skillApi";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
 import toast from "react-hot-toast";
 
 type Props = {
+  api: ApiService;
   open: boolean;
   skill: Skill | null;
   skills: Skill[];
@@ -18,6 +19,7 @@ type Props = {
 };
 
 const SkillModal: React.FC<Props> = ({
+  api,
   open,
   skill,
   skills,
@@ -26,7 +28,6 @@ const SkillModal: React.FC<Props> = ({
   onClose,
   onSaved,
 }) => {
-  const api = useApi();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState(1);

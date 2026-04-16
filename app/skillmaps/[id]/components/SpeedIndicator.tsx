@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useApi } from "@/hooks/useApi";
+import { useApiContext } from "@/context/ApiContext";
 import { submitSpeedFeedback, SpeedFeedback } from "@/api/sessionApi";
 import { CollaborationSession } from "@/types/session";
 import styles from "@/styles/collab.module.css";
@@ -26,7 +26,7 @@ const SPEED_LABEL: Record<SpeedFeedback, string> = {
 };
 
 const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skillMapId }) => {
-  const api = useApi();
+  const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
   const [submitting, setSubmitting] = useState(false);
 

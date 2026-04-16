@@ -7,6 +7,7 @@ import "@xyflow/react/dist/style.css";
 import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useDashboardPolling } from "@/hooks/useDashboardPolling";
+import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
@@ -424,15 +425,17 @@ const SkillMapEditorPage: React.FC = () => {
       </nav>
 
       {isActive && skillMap && session ? (
-        <CollabView
-          nodes={nodes}
-          edges={edges}
-          skillMap={skillMap}
-          session={session}
-          isOwner={isOwner}
-          onNodeClick={handleNodeClick}
-          liveSkills={liveSkills}
-        />
+        <ApiContext.Provider value={api}>
+          <CollabView
+            nodes={nodes}
+            edges={edges}
+            skillMap={skillMap}
+            session={session}
+            isOwner={isOwner}
+            onNodeClick={handleNodeClick}
+            liveSkills={liveSkills}
+          />
+        </ApiContext.Provider>
       ) : (
         <>
           <div className={styles["sm-map-graph"]}>
@@ -473,6 +476,7 @@ const SkillMapEditorPage: React.FC = () => {
 
           {skillMap && (
             <SkillModal
+              api={api}
               open={modalOpen}
               skill={editingSkill}
               skills={skills}
