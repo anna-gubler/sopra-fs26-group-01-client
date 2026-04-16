@@ -95,7 +95,7 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 16.04.2026   | FE: [S11 speed indicator + react context](https://github.com/anna-gubler/sopra-fs26-group-01-client/compare/af39899...d552274) | Implemented S11 collaboration features: speed indicator (student + lecture input/view) and dashboard polling for live data. Added the React context for the API. | Enables real-time collaboration: students can signal pace to the lecturer during live sessions, the dashboard stays in sync with live session data. The react context ensures clean top-down API access without prop drilling across the collab mode. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
