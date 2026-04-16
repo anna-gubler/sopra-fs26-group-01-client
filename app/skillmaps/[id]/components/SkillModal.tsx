@@ -28,26 +28,20 @@ const SkillModal: React.FC<Props> = ({
   onClose,
   onSaved,
 }) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [level, setLevel] = useState(1);
-  const [difficulty, setDifficulty] = useState("");
-  const [resources, setResources] = useState("");
+  const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "", resources: "" });
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     if (skill) {
-      setName(skill.name);
-      setDescription(skill.description ?? "");
-      setLevel(skill.level);
-      setDifficulty(skill.difficulty ?? "");
-      setResources(skill.resources ?? "");
+      setSkillForm({
+        name: skill.name,
+        description: skill.description ?? "",
+        level: skill.level,
+        difficulty: skill.difficulty ?? "",
+        resources: skill.resources ?? "",
+      });
     } else {
-      setName("");
-      setDescription("");
-      setLevel(1);
-      setDifficulty("");
-      setResources("");
+      setSkillForm({ name: "", description: "", level: 1, difficulty: "", resources: "" });
     }
     setConfirmingDelete(false);
   }, [skill, open]);
@@ -56,6 +50,7 @@ const SkillModal: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { name, description, level, difficulty, resources } = skillForm;
     try {
       if (skill) {
         await updateSkill(api, skill.id, { name, description, difficulty, resources });
@@ -69,7 +64,7 @@ const SkillModal: React.FC<Props> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirmDelete = async () => {
     if (!skill) return;
     try {
       await deleteSkill(api, skill.id);
@@ -90,8 +85,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-name"
               className="auth-input"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={skillForm.name}
+              onChange={(e) => setSkillForm((f) => ({ ...f, name: e.target.value }))}
               required
               autoFocus
             />
@@ -102,8 +97,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-description"
               className="auth-input"
               rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={skillForm.description}
+              onChange={(e) => setSkillForm((f) => ({ ...f, description: e.target.value }))}
             />
           </div>
           {!skill && (
@@ -112,8 +107,8 @@ const SkillModal: React.FC<Props> = ({
               <select
                 id="skill-level"
                 className="auth-input"
-                value={level}
-                onChange={(e) => setLevel(Number(e.target.value))}
+                value={skillForm.level}
+                onChange={(e) => setSkillForm((f) => ({ ...f, level: Number(e.target.value) }))}
               >
                 {Array.from({ length: numberOfLevels }, (_, i) => i + 1).map((l) => (
                   <option key={l} value={l}>Level {l}</option>
@@ -126,8 +121,8 @@ const SkillModal: React.FC<Props> = ({
             <select
               id="skill-difficulty"
               className="auth-input"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
+              value={skillForm.difficulty}
+              onChange={(e) => setSkillForm((f) => ({ ...f, difficulty: e.target.value }))}
             >
               <option value="">—</option>
               <option value="easy">Easy</option>
@@ -141,8 +136,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-resources"
               className="auth-input"
               rows={2}
-              value={resources}
-              onChange={(e) => setResources(e.target.value)}
+              value={skillForm.resources}
+              onChange={(e) => setSkillForm((f) => ({ ...f, resources: e.target.value }))}
               placeholder="Links, notes, references..."
             />
           </div>
@@ -162,7 +157,7 @@ const SkillModal: React.FC<Props> = ({
               <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirmingDelete(false)}>
                 Cancel
               </button>
-              <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
+              <button type="button" className={styles["btn-delete"]} onClick={handleConfirmDelete}>
                 Confirm Delete
               </button>
             </div>

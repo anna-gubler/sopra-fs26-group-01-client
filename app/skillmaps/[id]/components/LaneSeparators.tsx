@@ -4,12 +4,12 @@ import React from "react";
 import { useStore } from "@xyflow/react";
 import styles from "@/styles/skillmaps.module.css";
 
-type Props = {
+type LaneSeparatorsProps = {
   levels: number;
   laneHeight: number;
 };
 
-const LaneSeparators: React.FC<Props> = ({ levels, laneHeight }) => {
+const LaneSeparators: React.FC<LaneSeparatorsProps> = ({ levels, laneHeight }) => {
   const [, ty, zoom] = useStore((s) => s.transform);
 
   return (

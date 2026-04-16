@@ -16,34 +16,28 @@ import styles from "@/styles/profile.module.css";
 
 const Profile: React.FC = () => {
   const params = useParams();
-  const id = params.id; // profile id from the URL
+  const id = params.id;
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
-  const [editUsername, setEditUsername] = useState("");
-  const [editBio, setEditBio] = useState("");
+  const [editForm, setEditForm] = useState({ username: "", bio: "" });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
+  const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
-  const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
-  const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
+  const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", "");
+  const isOwnProfile = id === "me" || String(loggedInId) === String(id);
 
   const openEditForm = () => {
-    setEditUsername(user?.username ?? "");
-    setEditBio(user?.bio ?? "");
+    setEditForm({ username: user?.username ?? "", bio: user?.bio ?? "" });
     setShowEditForm(true);
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const updated = await updateMe(apiService, { username: editUsername, bio: editBio });
+      const updated = await updateMe(apiService, { username: editForm.username, bio: editForm.bio });
       setUser(updated);
       setShowEditForm(false);
       toast.success("Profile updated.");
@@ -57,9 +51,9 @@ const Profile: React.FC = () => {
     }
   };
 
-  // update password via PATCH /users/me/password, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { oldPassword, newPassword, confirmPassword } = passwordForm;
     if (newPassword === oldPassword) {
       toast.error("New password must be different from your old password.");
       return;
@@ -69,7 +63,7 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      await updateMe(apiService, { password: newPassword } as Parameters<typeof updateMe>[1]);
+      await changePassword(apiService, oldPassword, newPassword);
       await logout(apiService);
       clearToken();
       clearId();
@@ -85,7 +79,6 @@ const Profile: React.FC = () => {
     }
   };
 
-  // log out locally even if the server call fails
   const handleLogout = async () => {
     try {
       await logout(apiService);
@@ -97,7 +90,6 @@ const Profile: React.FC = () => {
     router.push("/login");
   };
 
-  // redirect to login if no token is present
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -105,9 +97,8 @@ const Profile: React.FC = () => {
     }
   }, []);
 
-  // fetch the profile data for the user with this id
   useEffect(() => {
-    if (!token) return; // wait for token to be available before fetching
+    if (!token) return;
     const fetchUser = async () => {
       try {
         const result = await getUser(apiService, id as string);
@@ -123,10 +114,14 @@ const Profile: React.FC = () => {
 
   if (!user) return null;
 
-  // format creation date as DD.MM.YYYY (German locale)
   const dateFormat = user.creationDate
     ? new Date(user.creationDate).toLocaleDateString("de-DE")
     : "";
+
+  const resetPasswordForm = () => {
+    setShowPasswordForm(false);
+    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+  };
 
   const renderPasswordForm = () => (
     <form onSubmit={handleChangePassword}>
@@ -135,15 +130,15 @@ const Profile: React.FC = () => {
         <div className="password-field">
           <input
             id="old-password"
-            type={showOldPassword ? "text" : "password"}
+            type={showPasswords.old ? "text" : "password"}
             className="auth-input"
             placeholder="Enter old password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
+            value={passwordForm.oldPassword}
+            onChange={(e) => setPasswordForm((f) => ({ ...f, oldPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowOldPassword(!showOldPassword)}>
-            {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, old: !s.old }))}>
+            {showPasswords.old ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
@@ -152,18 +147,18 @@ const Profile: React.FC = () => {
         <div className="password-field">
           <input
             id="new-password"
-            type={showNewPassword ? "text" : "password"}
+            type={showPasswords.new ? "text" : "password"}
             className="auth-input"
             placeholder="Enter new password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            value={passwordForm.newPassword}
+            onChange={(e) => setPasswordForm((f) => ({ ...f, newPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowNewPassword(!showNewPassword)}>
-            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}>
+            {showPasswords.new ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
-        {newPassword && oldPassword && newPassword === oldPassword && (
+        {passwordForm.newPassword && passwordForm.oldPassword && passwordForm.newPassword === passwordForm.oldPassword && (
           <span className="field-error">New password must be different from your old password.</span>
         )}
       </div>
@@ -172,29 +167,57 @@ const Profile: React.FC = () => {
         <div className="password-field">
           <input
             id="confirm-password"
-            type={showConfirmPassword ? "text" : "password"}
+            type={showPasswords.confirm ? "text" : "password"}
             className="auth-input"
             placeholder="Enter new password again"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={passwordForm.confirmPassword}
+            onChange={(e) => setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}>
+            {showPasswords.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
-        {confirmPassword && newPassword && confirmPassword !== newPassword && (
+        {passwordForm.confirmPassword && passwordForm.newPassword && passwordForm.confirmPassword !== passwordForm.newPassword && (
           <span className="field-error">Passwords do not match.</span>
         )}
       </div>
       <button className="btn-gradient btn-full mt-12" type="submit">
         Confirm Password Change
       </button>
-      <button
-        type="button"
-        className="btn-ghost btn-full mt-8"
-        onClick={() => { setShowPasswordForm(false); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
-      >
+      <button type="button" className="btn-ghost btn-full mt-12" onClick={resetPasswordForm}>
+        Cancel
+      </button>
+    </form>
+  );
+
+  const renderEditForm = () => (
+    <form onSubmit={handleUpdateProfile}>
+      <div className="input-group">
+        <label htmlFor="edit-username">Username</label>
+        <input
+          id="edit-username"
+          type="text"
+          className="auth-input"
+          value={editForm.username}
+          onChange={(e) => setEditForm((f) => ({ ...f, username: e.target.value }))}
+          required
+        />
+      </div>
+      <div className="input-group">
+        <label htmlFor="edit-bio">Bio</label>
+        <input
+          id="edit-bio"
+          type="text"
+          className="auth-input"
+          value={editForm.bio}
+          onChange={(e) => setEditForm((f) => ({ ...f, bio: e.target.value }))}
+        />
+      </div>
+      <button className="btn-gradient btn-full mt-12" type="submit">
+        Save Changes
+      </button>
+      <button type="button" className="btn-ghost btn-full mt-12" onClick={() => setShowEditForm(false)}>
         Cancel
       </button>
     </form>
@@ -202,11 +225,17 @@ const Profile: React.FC = () => {
 
   const renderOwnerActions = () => (
     <>
-      <div className={styles['profile-divider']} />
-      {!showPasswordForm && (
+      <div className={styles["profile-divider"]} />
+      {!showEditForm && !showPasswordForm && (
+        <button className="btn-ghost btn-full" onClick={openEditForm}>
+          Edit Profile
+        </button>
+      )}
+      {showEditForm && renderEditForm()}
+      {!showEditForm && !showPasswordForm && (
         <button
-          className="btn-ghost btn-full"
-          onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+          className="btn-ghost btn-full mt-12"
+          onClick={() => { setShowPasswordForm(true); setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" }); }}
         >
           Change Password
         </button>
@@ -252,38 +281,38 @@ const Profile: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           {/* avatar + username */}
-          <div className={styles['profile-header']}>
-            <div className={styles['profile-avatar']}>
+          <div className={styles["profile-header"]}>
+            <div className={styles["profile-avatar"]}>
               {user.username?.[0]?.toUpperCase()}
             </div>
             <div>
-              <p className={styles['profile-label']}>Username</p>
-              <h1 className={styles['profile-username']}>{user.username}</h1>
+              <p className={styles["profile-label"]}>Username</p>
+              <h1 className={styles["profile-username"]}>{user.username}</h1>
             </div>
           </div>
 
           {/* divider */}
-          <div className={styles['profile-divider']} />
+          <div className={styles["profile-divider"]} />
 
           {/* bio */}
-          <div className={styles['profile-section']}>
-            <p className={styles['profile-section-label']}>Bio</p>
-            <p className={styles['profile-section-text']}>
-              {user.bio || <span className={styles['profile-empty']}>No bio yet.</span>}
+          <div className={styles["profile-section"]}>
+            <p className={styles["profile-section-label"]}>Bio</p>
+            <p className={styles["profile-section-text"]}>
+              {user.bio || <span className={styles["profile-empty"]}>No bio yet.</span>}
             </p>
           </div>
 
           {/* status + joined */}
-          <div className={styles['profile-meta-row']}>
+          <div className={styles["profile-meta-row"]}>
             <div>
-              <p className={styles['profile-meta-label']}>Status</p>
-              <span className={user.status === "ONLINE" ? styles['profile-status-online'] : styles['profile-status-offline']}>
+              <p className={styles["profile-meta-label"]}>Status</p>
+              <span className={user.status === "ONLINE" ? styles["profile-status-online"] : styles["profile-status-offline"]}>
                 ● {user.status}
               </span>
             </div>
             <div>
-              <p className={styles['profile-meta-label']}>Member Since</p>
-              <span className={styles['profile-meta-value']}>{dateFormat}</span>
+              <p className={styles["profile-meta-label"]}>Member Since</p>
+              <span className={styles["profile-meta-value"]}>{dateFormat}</span>
             </div>
           </div>
 

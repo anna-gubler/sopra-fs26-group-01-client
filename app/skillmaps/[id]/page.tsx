@@ -51,6 +51,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isOwner = skillMap?.ownerId === user?.id;
+  const canPublish = isOwner && !skillMap?.isPublic;
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmingPublish, setConfirmingPublish] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
@@ -343,13 +344,13 @@ const SkillMapEditorPage: React.FC = () => {
               {skillMap.inviteCode}
             </button>
           )}
-          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
+          {canPublish && !confirmingPublish && (
             <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
               <Globe size={14} />
               Publish
             </button>
           )}
-          {isOwner && !skillMap?.isPublic && confirmingPublish && (
+          {canPublish && confirmingPublish && (
             <>
               <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
                 Cancel

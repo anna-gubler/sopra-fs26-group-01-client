@@ -17,7 +17,6 @@ export function changePassword(
   api: ApiService,
   oldPassword: string,
   newPassword: string,
-  confirmPassword: string,
 ): Promise<void> {
-  return api.patch<void>("/users/me/password", { oldPassword, newPassword, confirmPassword });
+  return api.patch<void>("/users/me/password", { oldPassword, newPassword });
 }
