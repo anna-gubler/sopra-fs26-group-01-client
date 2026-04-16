@@ -105,3 +105,59 @@
   background: var(--collab);
   animation: collab-pulse 1.4s ease-in-out infinite;
 }
+
+/* Speed indicator — student buttons */
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.speed-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.speed-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.speed-btn--TOO_SLOW { border-color: var(--ctp-blue); color: var(--ctp-blue); }
+.speed-btn--TOO_SLOW:hover:not(:disabled) { background: rgba(139, 166, 235, 0.12); }
+
+.speed-btn--OK { border-color: var(--accent); color: var(--accent); }
+.speed-btn--OK:hover:not(:disabled) { background: rgba(64, 200, 150, 0.12); }
+
+.speed-btn--TOO_FAST { border-color: var(--ctp-red); color: var(--ctp-red); }
+.speed-btn--TOO_FAST:hover:not(:disabled) { background: rgba(210, 70, 90, 0.12); }
+
+.speed-btn--selected.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.2); }
+.speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
+.speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
+
+/* Speed indicator — lecturer display */
+.speed-display {
+  display: flex;
+  align-items: center;
+}
+
+.speed-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.speed-badge--TOO_SLOW { background: rgba(139, 166, 235, 0.15); color: var(--ctp-blue); }
+.speed-badge--OK       { background: rgba(64, 200, 150, 0.15);  color: var(--accent); }
+.speed-badge--TOO_FAST { background: rgba(210, 70, 90, 0.15);   color: var(--ctp-red); }

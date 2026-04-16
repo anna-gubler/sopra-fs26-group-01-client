@@ -8,6 +8,7 @@ import { SkillMap } from "@/types/skillmap";
 import SkillNode from "./SkillNode";
 import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
+import SpeedIndicator from "./SpeedIndicator";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -36,7 +37,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Speed Indicator</h3>
-              <p className={styles["collab-panel-placeholder"]}>Student speed feedback will appear here.</p>
+              <SpeedIndicator isOwner={true} session={session} skillMapId={skillMap.id} />
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Live Questions</h3>
@@ -51,7 +52,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Session Speed</h3>
-              <p className={styles["collab-panel-placeholder"]}>Speed feedback controls will appear here.</p>
+              <SpeedIndicator isOwner={false} session={session} skillMapId={skillMap.id} />
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Ask a Question</h3>
