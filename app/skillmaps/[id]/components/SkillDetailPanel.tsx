@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
 
-type Props = {
+type SkillDetailPanelProps = {
   skill: Skill;
   dependencies: Skill[];
   onClose: () => void;
@@ -37,7 +37,7 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<Props> = ({ skill, dependencies, onClose, isOwner, onEdit }) => {
+const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
 

@@ -7,7 +7,7 @@ import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
 import toast from "react-hot-toast";
 
-type Props = {
+type SkillModalProps = {
   api: ApiService;
   open: boolean;
   skill: Skill | null;
@@ -18,7 +18,7 @@ type Props = {
   onSaved: () => void;
 };
 
-const SkillModal: React.FC<Props> = ({
+const SkillModal: React.FC<SkillModalProps> = ({
   api,
   open,
   skill,
