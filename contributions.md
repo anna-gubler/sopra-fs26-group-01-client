@@ -97,8 +97,8 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **@chiawld** | 16.04.2026   | FE: [S11 speed indicator + react context](https://github.com/anna-gubler/sopra-fs26-group-01-client/compare/af39899...d552274) | Implemented S11 collaboration features: speed indicator (student + lecture input/view) and dashboard polling for live data. Added the React context for the API. | Enables real-time collaboration: students can signal pace to the lecturer during live sessions, the dashboard stays in sync with live session data. The react context ensures clean top-down API access without prop drilling across the collab mode. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@anna-gubler** | 15.04.2026  | [BE: Create classes Upvote and LiveQuestion](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/3a636a9b72667ab6867b4710b651b1b0f9bebd2a) | Created classes Upvote and Live Questions | to realize LiveQuestion feature S12 |
+|                    | 18.04.2026   | [BE: Test these created tasks](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/59990ca1be3ddbcef13ec3d50a74572dd4f25b68) | Testing the created functionalities | to ensure code quality |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
