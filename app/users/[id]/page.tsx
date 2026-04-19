@@ -219,12 +219,50 @@ const Profile: React.FC = () => {
     </form>
   );
 
+  const renderEditForm = () => (
+    <form onSubmit={handleUpdateProfile}>
+      <div className="input-group">
+        <label htmlFor="edit-username">Username</label>
+        <input
+          id="edit-username"
+          type="text"
+          className="auth-input"
+          value={editUsername}
+          onChange={(e) => setEditUsername(e.target.value)}
+          required
+        />
+      </div>
+      <div className="input-group">
+        <label htmlFor="edit-bio">Bio</label>
+        <input
+          id="edit-bio"
+          type="text"
+          className="auth-input"
+          value={editBio}
+          onChange={(e) => setEditBio(e.target.value)}
+        />
+      </div>
+      <button className="btn-gradient btn-full mt-12" type="submit">
+        Save Changes
+      </button>
+      <button type="button" className="btn-ghost btn-full mt-8" onClick={() => setShowEditForm(false)}>
+        Cancel
+      </button>
+    </form>
+  );
+
   const renderOwnerActions = () => (
     <>
       <div className={styles['profile-divider']} />
-      {!showPasswordForm && (
+      {!showEditForm && !showPasswordForm && (
+        <button className="btn-ghost btn-full" onClick={openEditForm}>
+          Edit Profile
+        </button>
+      )}
+      {showEditForm && renderEditForm()}
+      {!showEditForm && !showPasswordForm && (
         <button
-          className="btn-ghost btn-full"
+          className="btn-ghost btn-full mt-12"
           onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
         >
           Change Password
