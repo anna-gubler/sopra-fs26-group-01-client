@@ -101,8 +101,8 @@ reason).
 |                    | 18.04.2026   | [BE: Test these created tasks](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/59990ca1be3ddbcef13ec3d50a74572dd4f25b68) | Testing the created functionalities | to ensure code quality |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | 15.04.2026   | [Interceptor Refactor](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/90577a7927d17db9905fbf13b78c23e4a5d85be9) | [Refactored Interceptor to pass authenticated user to controller, adapted controller, service functions and tests. Learned a lot about git and briefly lost my sanity] | [It's better practice then what we did before] |
+|                    | 19.04.2026   | [S11: Implemented Speed Feedback Backend] (https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/30597ce47d6a8a63c41b5cdd9441078fe9b48c46) | [Implemented Speed Feedback as well as corresponding tests] | [Self-explanatory] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
 ---
