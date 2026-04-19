@@ -159,24 +159,70 @@
 .speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
 .speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
 
-/* Speed indicator — lecturer display */
-.speed-display {
+/* Speed indicator — lecturer gauge */
+.speed-gauge {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.speed-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+.speed-gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(to right, var(--bg-elevated) 0%, var(--border-color) 50%, var(--bg-elevated) 100%);
+  border: 1px solid var(--border-color);
 }
 
-.speed-badge--TOO_SLOW { background: rgba(139, 166, 235, 0.15); color: var(--ctp-blue); }
-.speed-badge--OK       { background: rgba(64, 200, 150, 0.15);  color: var(--accent); }
-.speed-badge--TOO_FAST { background: rgba(210, 70, 90, 0.15);   color: var(--ctp-red); }
+.speed-gauge-needle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: var(--text-bright);
+  border-radius: 1px;
+  transition: left 0.6s ease;
+}
+
+.speed-gauge-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--text-muted);
+  opacity: 0.4;
+  border-radius: 3px;
+  transition: left 0.6s ease, width 0.6s ease, background 0.4s ease;
+}
+
+.speed-gauge-fill--warn {
+  background: hsl(351, 80%, 60%);
+  opacity: 0.6;
+}
+
+.speed-gauge-marker {
+  position: absolute;
+  top: -3px;
+  transform: translateX(-50%);
+  width: 1px;
+  height: calc(100% + 6px);
+  background: var(--border-color);
+}
+
+.speed-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.speed-gauge-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  text-align: center;
+}
 
 /* Q&A panel — shared */
 .qa-list {
