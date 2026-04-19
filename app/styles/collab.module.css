@@ -161,3 +161,121 @@
 .speed-badge--TOO_SLOW { background: rgba(139, 166, 235, 0.15); color: var(--ctp-blue); }
 .speed-badge--OK       { background: rgba(64, 200, 150, 0.15);  color: var(--accent); }
 .speed-badge--TOO_FAST { background: rgba(210, 70, 90, 0.15);   color: var(--ctp-red); }
+
+/* Q&A panel — shared */
+.qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qa-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.qa-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Q&A panel — owner view */
+.qa-skill-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qa-skill-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.qa-upvotes {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.12);
+  border-radius: 4px;
+  padding: 2px 6px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Q&A panel — student view */
+.qa-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-skill-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.qa-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.qa-textarea:focus {
+  outline: none;
+  border-color: var(--collab);
+}
+
+.qa-upvote-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  min-width: 36px;
+  text-align: center;
+}
+
+.qa-upvote-btn:hover {
+  border-color: var(--collab);
+  color: var(--collab);
+}
+
+.qa-upvote-btn--active {
+  border-color: var(--collab);
+  color: var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.12);
+}

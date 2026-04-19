@@ -6,10 +6,12 @@ import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
 import { SkillMap } from "@/types/skillmap";
 import { Skill } from "@/types/skill";
+import { Question } from "@/types/question";
 import SkillNode from "./SkillNode";
 import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
 import SpeedIndicator from "./SpeedIndicator";
+import LiveQuestionsPanel from "./LiveQuestionsPanel";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -25,9 +27,10 @@ interface CollabViewProps {
   isOwner: boolean;
   onNodeClick: NodeMouseHandler;
   liveSkills: Skill[] | null;
+  liveQuestions: Question[] | null;
 }
 
-const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, liveSkills: _liveSkills }) => {
+const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, liveSkills, liveQuestions }) => {
   return (
     <div className={styles["collab-layout"]}>
       <aside className={styles["collab-sidebar"]}>
@@ -43,7 +46,10 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Live Questions</h3>
-              <p className={styles["collab-panel-placeholder"]}>Student questions will appear here.</p>
+              <LiveQuestionsPanel
+                questions={liveQuestions ?? []}
+                skills={liveSkills ?? []}
+              />
             </div>
           </>
         ) : (

@@ -58,7 +58,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { session, isActive, refresh: refreshSession, setSession, liveSkills } = useDashboardPolling(api, id);
+  const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
 
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
@@ -435,6 +435,7 @@ const SkillMapEditorPage: React.FC = () => {
             isOwner={isOwner}
             onNodeClick={handleNodeClick}
             liveSkills={liveSkills}
+            liveQuestions={liveQuestions}
           />
         </ApiContext.Provider>
       ) : (
