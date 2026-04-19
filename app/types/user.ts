@@ -6,4 +6,6 @@ export interface User {
   creationDate: string | null;
   token: string | null;
   status: string | null;
+  seed: string | null;  //avatar seed
+  style: string | null; //avatar style
 }

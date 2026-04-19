@@ -20,3 +20,7 @@ export function changePassword(
 ): Promise<void> {
   return api.patch<void>("/users/me/password", { oldPassword, newPassword });
 }
+
+export function updateAvatar(api: ApiService, style: string, seed?: string): Promise<User> {
+  return api.put<User>("/users/me/avatar", { style, seed });
+}

@@ -17,6 +17,7 @@ type MapStats = {
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getAvatarUrl } from "@/utils/avatar";
 import { ApplicationError } from "@/types/error";
 
 const SkillMapsPage: React.FC = () => {
@@ -114,12 +115,19 @@ const SkillMapsPage: React.FC = () => {
           <div className="nav-logo-icon">
             <BookOpen size={16} color="white" />
           </div>
-          <span className={styles['sm-nav-logo']}>Mappd</span>
+          <span className="nav-logo-text">SkillMaps</span>
         </div>
         <div className={styles['sm-nav-right']}>
-          <div className={styles['sm-nav-avatar']} role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
-            <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
-          </div>
+          <button
+            onClick={() => router.push("/users/me")}
+            className={styles['sm-nav-avatar']}
+          >
+            <img
+              src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
+              alt={`${user?.username}'s avatar`}
+              className={styles['sm-nav-avatar-img']}
+              />
+          </button>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
           <button className={`${styles['sm-nav-icon']} ${styles['sm-logout-btn']}`} onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
@@ -127,7 +135,15 @@ const SkillMapsPage: React.FC = () => {
 
       {/* Welcome */}
       <div className={styles['sm-welcome']}>
-        <div className={styles['sm-welcome-avatar']}>{user?.username?.[0]?.toUpperCase() ?? "?"}</div>
+        <button
+          className={styles['sm-welcome-avatar']}
+          onClick={() => router.push("/users/me")}>
+            <img
+              src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
+              alt={`${user?.username}'s avatar`}
+              className={styles['sm-welcome-avatar-img']}
+            />
+        </button>
         <div>
           <div className={styles['sm-welcome-title']}>Welcome back, {user?.username}!</div>
           <div className={styles['sm-welcome-sub']}>{user?.bio || "No bio yet"}</div>
