@@ -295,3 +295,78 @@
   color: var(--collab);
   background: rgba(var(--collab-rgb, 202, 158, 230), 0.12);
 }
+
+.qa-addressed-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin-left: auto;
+}
+
+.qa-addressed-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(64, 200, 150, 0.12);
+}
+
+.qa-addressed-section {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.qa-addressed-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.qa-addressed-toggle:hover {
+  color: var(--text-secondary);
+}
+
+.qa-addressed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.qa-item--addressed {
+  opacity: 0.45;
+}
+
+.qa-putback-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin-left: auto;
+}
+
+.qa-putback-btn:hover {
+  border-color: var(--collab);
+  color: var(--collab);
+  background: rgba(245, 158, 11, 0.1);
+}

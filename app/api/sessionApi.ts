@@ -35,3 +35,7 @@ export function upvoteQuestion(api: ApiService, questionId: number): Promise<voi
 export function removeUpvote(api: ApiService, questionId: number): Promise<void> {
   return api.delete<void>(`/questions/${questionId}/upvotes/me`);
 }
+
+export function markQuestionAddressed(api: ApiService, questionId: number): Promise<void> {
+  return api.post<void>(`/questions/${questionId}/mark-addressed`, {});
+}
