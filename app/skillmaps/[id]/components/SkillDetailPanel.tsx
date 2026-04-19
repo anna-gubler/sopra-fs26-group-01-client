@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
+import RatingIndicator from "./RatingIndicator";
+import { CollaborationSession } from "@/types/session";
 
 type SkillDetailPanelProps = {
   skill: Skill;
@@ -11,6 +13,7 @@ type SkillDetailPanelProps = {
   onClose: () => void;
   isOwner?: boolean;
   onEdit?: () => void;
+  session?: CollaborationSession;
 };
 
 const URL_REGEX = /https?:\/\/[^\s]+/g;
@@ -37,7 +40,7 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit }) => {
+const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, session, isOwner, onEdit }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
 
@@ -84,6 +87,13 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           <p className={styles["detail-panel-placeholder"]}>No prerequisites.</p>
         )}
       </section>
+
+      {session && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>My understanding</h3>
+          <RatingIndicator isOwner={isOwner ?? false} session={session} skillId={skill.id} />
+        </section>
+      )}
 
       <section className={styles["detail-panel-section"]}>
         <h3 className={styles["detail-panel-label"]}>Notes</h3>

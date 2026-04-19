@@ -416,3 +416,108 @@
   color: var(--collab);
   background: rgba(245, 158, 11, 0.1);
 }
+
+/* Rating slider — student view */
+.rating-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rating-slider-input {
+  width: 100%;
+  accent-color: var(--collab);
+  cursor: pointer;
+}
+
+.rating-slider-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rating-slider-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rating-slider-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--collab);
+}
+
+.rating-submit-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--collab);
+  background: transparent;
+  color: var(--collab);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rating-submit-btn:hover:not(:disabled) {
+  background: var(--collab);
+  color: #1e1e2e;
+}
+
+.rating-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Rating gauge — owner view */
+.rating-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rating-gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.rating-gauge-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--collab);
+  opacity: 0.5;
+  border-radius: 5px;
+  transition: width 0.6s ease;
+}
+
+.rating-gauge-needle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: var(--text-bright);
+  border-radius: 1px;
+  transition: left 0.6s ease;
+}
+
+.rating-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.rating-gauge-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  text-align: center;
+}

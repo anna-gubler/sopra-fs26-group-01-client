@@ -500,6 +500,7 @@ const SkillMapEditorPage: React.FC = () => {
             .filter((s): s is Skill => s !== undefined)}
           onClose={() => setSelectedSkill(null)}
           isOwner={isOwner}
+          session={session ?? undefined}
           onEdit={() => {
             setEditingSkill(selectedSkill);
             setSelectedSkill(null);
