@@ -23,10 +23,11 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
   const [upvoted, setUpvoted] = useState<Set<number>>(new Set());
 
   const handleSubmit = async () => {
-    if (!text.trim() || !skillId) return;
+    const effectiveSkillId = skillId || skills[0]?.id;
+    if (!text.trim() || !effectiveSkillId) return;
     setSubmitting(true);
     try {
-      await postQuestion(api, session.id, skillId, text.trim());
+      await postQuestion(api, session.id, effectiveSkillId, text.trim());
       setText("");
       toast.success("Question submitted!");
     } catch {
@@ -59,14 +60,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
     }
   };
 
-  // TODO: remove mock data once backend question submission is working
-  const MOCK_QUESTIONS = questions.length === 0 ? [
-    { id: 1, sessionId: 0, skillId: 0, text: "Can you explain how recursion works here?", upvotes: 7, isAddressed: false, createdAt: "" },
-    { id: 2, sessionId: 0, skillId: 0, text: "What's the base case for this?", upvotes: 4, isAddressed: false, createdAt: "" },
-    { id: 3, sessionId: 0, skillId: 0, text: "Why do we use a hash map instead of a list?", upvotes: 11, isAddressed: false, createdAt: "" },
-  ] : [];
-
-  const active = [...questions, ...MOCK_QUESTIONS]
+  const active = questions
     .filter((q) => !q.isAddressed)
     .sort((a, b) => b.upvotes - a.upvotes);
 

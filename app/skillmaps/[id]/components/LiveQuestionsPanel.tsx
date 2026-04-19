@@ -13,14 +13,6 @@ interface LiveQuestionsPanelProps {
   skills: Skill[];
 }
 
-// TODO: remove mock data once backend question submission is working
-const MOCK_QUESTIONS: (Question & { _skillName: string })[] = [
-  { id: 1, sessionId: 0, skillId: 101, text: "Can you explain how recursion works here?", upvotes: 7, isAddressed: false, createdAt: "", _skillName: "Recursion" },
-  { id: 2, sessionId: 0, skillId: 101, text: "What's the base case for this?", upvotes: 4, isAddressed: false, createdAt: "", _skillName: "Recursion" },
-  { id: 3, sessionId: 0, skillId: 102, text: "Why do we use a hash map instead of a list?", upvotes: 11, isAddressed: false, createdAt: "", _skillName: "Data Structures" },
-  { id: 4, sessionId: 0, skillId: 102, text: "Is this O(n) or O(n log n)?", upvotes: 3, isAddressed: false, createdAt: "", _skillName: "Data Structures" },
-];
-
 const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skills }) => {
   const api = useApiContext();
   const [localAddressed, setLocalAddressed] = useState<Set<number>>(new Set());
@@ -28,16 +20,12 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
   const [addressedOpen, setAddressedOpen] = useState(false);
 
   const active = questions.filter((q) => !q.isAddressed || localUnaddressed.has(q.id));
-  const usingMock = active.length === 0 && questions.length === 0;
 
-  const displayQuestions = (usingMock ? MOCK_QUESTIONS : active).filter(
-    (q) => !localAddressed.has(q.id)
-  );
+  const displayQuestions = active.filter((q) => !localAddressed.has(q.id));
 
   const handleMarkAddressed = async (questionId: number) => {
     setLocalAddressed((prev) => new Set(prev).add(questionId));
     setLocalUnaddressed((prev) => { const next = new Set(prev); next.delete(questionId); return next; });
-    if (usingMock) return;
     try {
       await markQuestionAddressed(api, questionId);
     } catch {
@@ -53,7 +41,7 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
 
   const addressedQuestions = [
     ...questions.filter((q) => q.isAddressed && !localUnaddressed.has(q.id)),
-    ...(usingMock ? MOCK_QUESTIONS : questions).filter((q) => localAddressed.has(q.id) && !questions.find((r) => r.id === q.id)?.isAddressed),
+    ...questions.filter((q) => localAddressed.has(q.id) && !questions.find((r) => r.id === q.id)?.isAddressed),
   ];
 
   if (displayQuestions.length === 0 && addressedQuestions.length === 0) {
@@ -80,9 +68,7 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
     <div className={styles["qa-list"]}>
       {sortedSkillIds.map((skillId) => {
         const group = grouped[skillId].slice().sort((a, b) => b.upvotes - a.upvotes);
-        const skillName = usingMock
-          ? (group[0] as (typeof MOCK_QUESTIONS)[0])._skillName
-          : (skillNameMap[skillId] ?? `Skill #${skillId}`);
+        const skillName = skillNameMap[skillId] ?? `Skill #${skillId}`;
         return (
           <div key={skillId} className={styles["qa-skill-group"]}>
             <div className={styles["qa-skill-name"]}>{skillName}</div>
