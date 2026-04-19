@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { ReactFlow, Background, Node, Edge, NodeMouseHandler, PanOnScrollMode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
@@ -13,9 +13,14 @@ import LaneSeparators from "./LaneSeparators";
 import SpeedIndicator from "./SpeedIndicator";
 import LiveQuestionsPanel from "./LiveQuestionsPanel";
 import AskQuestionPanel from "./AskQuestionPanel";
+import UnderstandingHeatmap, { ratingColor } from "./UnderstandingHeatmap";
+import SessionStatsBar from "./SessionStatsBar";
+import { useSessionRatings } from "@/hooks/useSessionRatings";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
+// TODO: remove once backend ratings are wired up
+const MOCK_AVGS = [15, 35, 72, 55, 88, 42, 28, 63];
 
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
@@ -27,19 +32,46 @@ interface CollabViewProps {
   session: CollaborationSession;
   isOwner: boolean;
   onNodeClick: NodeMouseHandler;
+  onSkillClick?: (skill: Skill) => void;
   liveSkills: Skill[] | null;
   liveQuestions: Question[] | null;
 }
 
-const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, liveSkills, liveQuestions }) => {
+const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, onSkillClick, liveSkills, liveQuestions }) => {
+  const { aggregated, totalStudents } = useSessionRatings(session.id, skillMap.id);
+
+  const displayAggregated = useMemo(() => {
+    if (aggregated.size > 0 || !liveSkills?.length) return aggregated;
+    const mock = new Map<number, { avg: number; count: number }>();
+    liveSkills.forEach((s, i) => {
+      mock.set(s.id, { avg: MOCK_AVGS[i % MOCK_AVGS.length], count: i % 3 + 1 });
+    });
+    return mock;
+  }, [aggregated, liveSkills]);
+
+  const glowedNodes = useMemo(() => {
+    if (!isOwner || displayAggregated.size === 0) return nodes;
+    return nodes.map((node) => {
+      const skillId = Number(node.id);
+      const agg = displayAggregated.get(skillId);
+      if (!agg) return node;
+      const color = ratingColor(agg.avg);
+      return { ...node, data: { ...node.data, glowColor: color, heatPercent: agg.avg } };
+    });
+  }, [nodes, isOwner, aggregated]);
+
   return (
     <div className={styles["collab-layout"]}>
       <aside className={styles["collab-sidebar"]}>
         {isOwner ? (
           <>
             <div className={styles["collab-panel"]}>
+              <h3 className={styles["collab-panel-title"]}>Session Overview</h3>
+              <SessionStatsBar aggregated={displayAggregated} totalStudents={totalStudents} />
+            </div>
+            <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Understanding Heatmap</h3>
-              <p className={styles["collab-panel-placeholder"]}>Skill ratings will appear here during the session.</p>
+              <UnderstandingHeatmap aggregated={displayAggregated} skills={liveSkills ?? []} totalStudents={totalStudents} onSkillClick={onSkillClick} />
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Speed Indicator</h3>
@@ -81,7 +113,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
       </aside>
       <div className={styles["collab-graph"]}>
         <ReactFlow
-          nodes={nodes}
+          nodes={glowedNodes}
           edges={edges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}

@@ -434,6 +434,7 @@ const SkillMapEditorPage: React.FC = () => {
             session={session}
             isOwner={isOwner}
             onNodeClick={handleNodeClick}
+            onSkillClick={setSelectedSkill}
             liveSkills={liveSkills}
             liveQuestions={liveQuestions}
           />
@@ -505,6 +506,8 @@ const SkillMapEditorPage: React.FC = () => {
             setSelectedSkill(null);
             setModalOpen(true);
           }}
+          api={api}
+          sessionId={isActive && session ? session.id : null}
         />
       )}
     </div>

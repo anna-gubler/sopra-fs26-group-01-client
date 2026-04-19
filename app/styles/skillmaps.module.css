@@ -656,6 +656,44 @@
   margin-top: auto;
 }
 
+/* Understanding slider */
+
+.understanding-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.understanding-track {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.understanding-segment {
+  flex: 1;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.understanding-segment:hover {
+  border-color: var(--text-muted);
+}
+
+.understanding-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Lane separators SVG overlay */
 .lane-svg {
   position: absolute;

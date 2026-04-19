@@ -36,3 +36,7 @@ export function createDependency(
 export function deleteDependency(api: ApiService, dependencyId: number): Promise<void> {
   return api.delete<void>(`/dependencies/${dependencyId}`);
 }
+
+export function updateProgress(api: ApiService, skillId: number, isUnderstood: boolean): Promise<void> {
+  return api.put<void>(`/skills/${skillId}/progress/me`, { isUnderstood });
+}

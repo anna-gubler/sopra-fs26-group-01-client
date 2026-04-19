@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
+import { ApiService } from "@/api/apiService";
+import { updateProgress } from "@/api/skillApi";
+import { submitSkillRating } from "@/api/sessionApi";
+import UnderstandingSlider from "./UnderstandingSlider";
 import styles from "@/styles/skillmaps.module.css";
 
 type SkillDetailPanelProps = {
@@ -11,6 +15,8 @@ type SkillDetailPanelProps = {
   onClose: () => void;
   isOwner?: boolean;
   onEdit?: () => void;
+  api: ApiService;
+  sessionId: number | null;
 };
 
 const URL_REGEX = /https?:\/\/[^\s]+/g;
@@ -37,9 +43,40 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit }) => {
+const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, api, sessionId }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
+  const [understanding, setUnderstanding] = useState(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setUnderstanding(0);
+  }, [skill.id]);
+
+  const handleUnderstandingChange = useCallback(
+    (val: number) => {
+      setUnderstanding(val);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(async () => {
+        try {
+          if (sessionId !== null) {
+            await submitSkillRating(api, sessionId, skill.id, val);
+          } else {
+            await updateProgress(api, skill.id, val > 0);
+          }
+        } catch {
+          // ratings are best-effort; silently ignore failures
+        }
+      }, 600);
+    },
+    [api, sessionId, skill.id],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   return (
     <div className={styles["detail-panel"]}>
@@ -85,6 +122,13 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         )}
       </section>
 
+      {!isOwner && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Understanding</h3>
+          <UnderstandingSlider value={understanding} onChange={handleUnderstandingChange} />
+        </section>
+      )}
+
       <section className={styles["detail-panel-section"]}>
         <h3 className={styles["detail-panel-label"]}>Notes</h3>
         <textarea
@@ -96,7 +140,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         />
       </section>
 
-      {isOwner && onEdit && (
+      {isOwner && onEdit && sessionId === null && (
         <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>
           Edit Skill
         </button>
