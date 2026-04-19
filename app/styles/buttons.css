@@ -120,6 +120,11 @@
   transition: all 0.2s ease;
 }
 
+/* modifier: suppress the translateY lift on hover */
+.btn-no-lift:hover {
+  transform: none;
+}
+
 /* modifier: full-width centered (applied on top of btn-gradient / btn-ghost) */
 .btn-full {
   width: 100%;

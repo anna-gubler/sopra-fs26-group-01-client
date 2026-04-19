@@ -151,6 +151,16 @@
   outline: 2px solid var(--primary-light);
 }
 
+/* navbar action row */
+.profile-nav-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-nav-link {
+  text-decoration: none;
+}
+
 /* horizontal rule divider */
 .profile-divider {
   border-top: 1px solid var(--border-color);

@@ -35,10 +35,16 @@
   box-shadow:
     0 0 10px var(--skill-node-glow, transparent),
     inset 0 0 8px var(--skill-node-glow, transparent);
+  cursor: pointer;
 }
 
 .skill-node-handle {
   opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.skill-node:hover .skill-node-handle {
+  opacity: 1;
 }
 
 .skill-node__dot {

@@ -50,6 +50,7 @@ export class ApiService {
         2,
       );
       error.status = res.status;
+      error.details = errorDetail;
       throw error;
     }
     return res.headers.get("Content-Type")?.includes("application/json")

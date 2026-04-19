@@ -3,29 +3,34 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, joinSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
-import { Inbox, Bell, Settings, BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut } from "lucide-react";
+
+type MapStats = {
+  skillCount: number;
+  unlockedCount: number;
+  memberCount: number;
+};
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getAvatarUrl } from "@/utils/avatar";
-
-
+import { ApplicationError } from "@/types/error";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
   const api = useApi();
   const [skillMaps, setSkillMaps] = useState<SkillMap[]>([]);
+  const [mapStats, setMapStats] = useState<Record<number, MapStats>>({});
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { clear: clearToken } = useLocalStorage<string>("token", "");
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
-
 
   const handleLogout = async () => {
     try {
@@ -40,14 +45,24 @@ const SkillMapsPage: React.FC = () => {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    let code = inviteCode.trim();
     try {
-      await joinSkillMap(api, inviteCode);
-      setInviteCode("");
-      setShowJoinInput(false);
-      const maps = await getSkillMaps(api);
-      setSkillMaps(maps);
+      const url = new URL(code);
+      code = url.searchParams.get("code") ?? code;
+    } catch {
+      // not a URL, use as-is
+    }
+    try {
+      const joined = await joinSkillMap(api, code);
+      router.push(`/skillmaps/${joined.id}`);
     } catch (err) {
-      if (err instanceof Error) toast.error(err.message);
+      if (err instanceof Error) {
+        const status = (err as ApplicationError).status;
+        if (status === 404) toast.error("Invalid invite code.");
+        else if (status === 403) toast.error("This map is private.");
+        else if (status === 409) toast.error("You're already a member of this map.");
+        else toast.error("Failed to join map.");
+      }
     }
   };
 
@@ -60,6 +75,21 @@ const SkillMapsPage: React.FC = () => {
         ]);
         setSkillMaps(maps);
         setUser(me);
+
+        const statsEntries = await Promise.all(
+          maps.map(async (map) => {
+            const [graph, members] = await Promise.all([
+              getSkillMapGraph(api, map.id),
+              getSkillMapMembers(api, map.id),
+            ]);
+            return [map.id, {
+              skillCount: graph.skills.length,
+              unlockedCount: graph.skills.filter((s) => !s.isLocked).length,
+              memberCount: members.length,
+            }] as [number, MapStats];
+          })
+        );
+        setMapStats(Object.fromEntries(statsEntries));
       } catch (error) {
         if (error instanceof Error) {
           toast.error(`Failed to load skill maps: ${error.message}`);
@@ -88,7 +118,7 @@ const SkillMapsPage: React.FC = () => {
           <span className="nav-logo-text">SkillMaps</span>
         </div>
         <div className={styles['sm-nav-right']}>
-          <button 
+          <button
             onClick={() => router.push("/users/me")}
             className={styles['sm-nav-avatar']}
           >
@@ -99,7 +129,7 @@ const SkillMapsPage: React.FC = () => {
               />
           </button>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
-          <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
+          <button className={`${styles['sm-nav-icon']} ${styles['sm-logout-btn']}`} onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
       </nav>
 
@@ -141,11 +171,16 @@ const SkillMapsPage: React.FC = () => {
       <div className={styles['sm-stats-row']}>
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
-          <span className={`${styles['sm-stat-value']} ${styles.green}`}>XX/XX</span>
+          <span className={`${styles['sm-stat-value']} ${styles.green}`}>
+            {Object.values(mapStats).reduce((s, m) => s + m.unlockedCount, 0)}
+            /{Object.values(mapStats).reduce((s, m) => s + m.skillCount, 0)}
+          </span>
         </div>
         <div className={styles['sm-stat-card']}>
-          <span className={styles['sm-stat-label']}>SKILLS IN PROGRESS</span>
-          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>XX/XX</span>
+          <span className={styles['sm-stat-label']}>SKILLS REMAINING</span>
+          <span className={`${styles['sm-stat-value']} ${styles.orange}`}>
+            {Object.values(mapStats).reduce((s, m) => s + (m.skillCount - m.unlockedCount), 0)}
+          </span>
         </div>
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>MAPS JOINED</span>
@@ -153,11 +188,11 @@ const SkillMapsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Maps Section */}
+      {/* My Maps Section */}
       <div className={styles['sm-section-title']}>MY MAPS</div>
 
       <div className={styles['sm-grid']}>
-        {skillMaps.map((map) => (
+        {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
           <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
@@ -166,15 +201,40 @@ const SkillMapsPage: React.FC = () => {
               </div>
             </div>
 
+            {map.isPublic && map.inviteCode && (
+              <div className={styles['sm-invite-row']}>
+                <span className={styles['sm-invite-code']}>
+                  Code: <strong>{map.inviteCode}</strong>
+                </span>
+                <button
+                  className={styles['sm-edit-btn']}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(map.inviteCode!);
+                    toast.success("Invite code copied!");
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+            )}
+
             <div className={styles['sm-card-meta']}>
-              <span>📖 XX Skills</span>
-              <span>👤 XX Students</span>
+              <span>📖 {mapStats[map.id]?.skillCount ?? "—"} Skills</span>
+              <span>👤 {mapStats[map.id]?.memberCount ?? "—"} Students</span>
             </div>
 
             <div className={styles['sm-progress-bar']}>
-              <div className={styles['sm-progress-fill']} />
+              <div
+                className={styles['sm-progress-fill']}
+                style={{ width: mapStats[map.id]?.skillCount
+                  ? `${Math.round((mapStats[map.id].unlockedCount / mapStats[map.id].skillCount) * 100)}%`
+                  : "0%" }}
+              />
             </div>
-            <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+            <div className={styles['sm-progress-label']}>
+              {mapStats[map.id]?.unlockedCount ?? 0}/{mapStats[map.id]?.skillCount ?? "—"} skills completed
+            </div>
 
             <div className={styles['sm-card-footer']}>
               <span className={styles['sm-continue']}>Continue Learning &gt;</span>
@@ -188,12 +248,44 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        {/* Create new map placeholder card */}
         <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
       </div>
+
+      {/* Joined Maps Section */}
+      {skillMaps.some((m) => m.ownerId !== user?.id) && (
+        <>
+          <div className={styles['sm-section-title']}>JOINED MAPS</div>
+          <div className={styles['sm-grid']}>
+            {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
+              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+                <div className={styles['sm-card-top']}>
+                  <div>
+                    <div className={styles['sm-card-title']}>{map.title}</div>
+                    <div className={styles['sm-card-subtitle']}>{map.description}</div>
+                  </div>
+                </div>
+
+                <div className={styles['sm-card-meta']}>
+                  <span>📖 XX Skills</span>
+                  <span>👤 XX Students</span>
+                </div>
+
+                <div className={styles['sm-progress-bar']}>
+                  <div className={styles['sm-progress-fill']} />
+                </div>
+                <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+
+                <div className={styles['sm-card-footer']}>
+                  <span className={styles['sm-continue']}>Continue Learning &gt;</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
