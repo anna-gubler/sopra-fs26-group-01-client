@@ -13,6 +13,22 @@
   color: #fff;
 }
 
+.btn-collab-filled {
+  border-color: var(--collab);
+  background: var(--collab);
+  color: #1e1e2e;
+  transition: opacity 0.15s;
+}
+
+.btn-collab-filled:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-collab-filled:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Nav overrides when session is active */
 .sm-map-nav--collab {
   border-bottom-color: var(--collab) !important;

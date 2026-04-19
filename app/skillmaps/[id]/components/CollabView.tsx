@@ -12,6 +12,7 @@ import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
 import SpeedIndicator from "./SpeedIndicator";
 import LiveQuestionsPanel from "./LiveQuestionsPanel";
+import AskQuestionPanel from "./AskQuestionPanel";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -64,7 +65,11 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             </div>
             <div className={styles["collab-panel"]}>
               <h3 className={styles["collab-panel-title"]}>Ask a Question</h3>
-              <p className={styles["collab-panel-placeholder"]}>Question input will appear here.</p>
+              <AskQuestionPanel
+                session={session}
+                skills={liveSkills ?? []}
+                questions={liveQuestions ?? []}
+              />
             </div>
           </>
         )}
