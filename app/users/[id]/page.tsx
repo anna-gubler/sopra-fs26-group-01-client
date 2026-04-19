@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi } from "@/hooks/useApi";
-import { getUser, updateMe, changePassword } from "@/api/userApi";
+import { getUser, updateMe, updateAvatar } from "@/api/userApi";
 import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { ApplicationError } from "@/types/error";
 import styles from "@/styles/profile.module.css";
+import {  getAvatarUrl  } from "@/utils/avatar";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -33,6 +34,10 @@ const Profile: React.FC = () => {
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", ""); // id of the currently logged-in user
   const isOwnProfile = id === "me" || String(loggedInId) === String(id); // controls whether edit/logout actions are shown
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);  //controls whether the avatar picker UI is visible
+  const [selectedStyle, setSelectedStyle] = useState<string>("bottts-neutral"); //tracks which DiceBear style user has currently selected in the picker (not persisted directly)
+  const [selectedSeed, setSelectedSeed] = useState<string>(""); //tracks seed input in the avatar picker (not persisted directly)
+  const avatarStyles = ["adventurer","adventurer-neutral","avataaars","avataaars-neutral","big-ears","big-ears-neutral","big-smile","bottts","bottts-neutral","croodles","croodles-neutral","dylan","fun-emoji","glass","icons","identicon","initials","lorelei","lorelei-neutral","micah","miniavs","notionists","notionists-neutral","open-peeps","personas","pixel-art","pixel-art-neutral","rings","shapes","thumbs","toon-head",]; // all available DiceBear styles
 
   const openEditForm = () => {
     setEditUsername(user?.username ?? "");
@@ -104,6 +109,20 @@ const Profile: React.FC = () => {
       router.push("/login");
     }
   }, []);
+
+   // update avatar via PUT /users/me/avatar
+  const handleAvatarUpdate = async (style: string, seed: string) => {
+    console.log("Updating avatar with style:", style, "seed:", seed);
+    try {
+      const updated = await updateAvatar(apiService, style, seed);
+      setUser(updated);
+      setShowAvatarPicker(false);
+      console.log("Updating avatar with style:", style, "seed:", seed);
+      toast.success("Avatar updated!");
+    } catch {
+      toast.error("Failed to update avatar. Please try again.");
+    }
+  };
 
   // fetch the profile data for the user with this id
   useEffect(() => {
@@ -200,12 +219,50 @@ const Profile: React.FC = () => {
     </form>
   );
 
+  const renderEditForm = () => (
+    <form onSubmit={handleUpdateProfile}>
+      <div className="input-group">
+        <label htmlFor="edit-username">Username</label>
+        <input
+          id="edit-username"
+          type="text"
+          className="auth-input"
+          value={editUsername}
+          onChange={(e) => setEditUsername(e.target.value)}
+          required
+        />
+      </div>
+      <div className="input-group">
+        <label htmlFor="edit-bio">Bio</label>
+        <input
+          id="edit-bio"
+          type="text"
+          className="auth-input"
+          value={editBio}
+          onChange={(e) => setEditBio(e.target.value)}
+        />
+      </div>
+      <button className="btn-gradient btn-full mt-12" type="submit">
+        Save Changes
+      </button>
+      <button type="button" className="btn-ghost btn-full mt-8" onClick={() => setShowEditForm(false)}>
+        Cancel
+      </button>
+    </form>
+  );
+
   const renderOwnerActions = () => (
     <>
       <div className={styles['profile-divider']} />
-      {!showPasswordForm && (
+      {!showEditForm && !showPasswordForm && (
+        <button className="btn-ghost btn-full" onClick={openEditForm}>
+          Edit Profile
+        </button>
+      )}
+      {showEditForm && renderEditForm()}
+      {!showEditForm && !showPasswordForm && (
         <button
-          className="btn-ghost btn-full"
+          className="btn-ghost btn-full mt-12"
           onClick={() => { setShowPasswordForm(true); setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }}
         >
           Change Password
@@ -254,7 +311,11 @@ const Profile: React.FC = () => {
           {/* avatar + username */}
           <div className={styles['profile-header']}>
             <div className={styles['profile-avatar']}>
-              {user.username?.[0]?.toUpperCase()}
+              <img
+                src = {getAvatarUrl(user.seed,user.style)}
+                alt={`${user.username}'s avatar`}
+                className={styles['profile-avatar-img']}
+              />
             </div>
             <div>
               <p className={styles['profile-label']}>Username</p>
@@ -262,8 +323,64 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
+{/* avatar picker - only for own profile */}
+{isOwnProfile && !showAvatarPicker && (
+  <button
+    className="btn-ghost btn-full"
+    onClick={() => {
+      setSelectedStyle(user.style ?? "bottts-neutral");
+      setShowAvatarPicker(true);
+    }}
+  >
+    Change Avatar
+  </button>
+)}
+
+{isOwnProfile && showAvatarPicker && (
+  <div>
+    <p className={styles['profile-section-label']}>Pick a style:</p>
+    <div className={styles['avatar-picker-grid']}>
+      {avatarStyles.map((style) => (
+        <button 
+          key={style} 
+          className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
+          onClick={() => setSelectedStyle(style)}
+        >
+          <img
+            src={getAvatarUrl(selectedSeed || user.seed, style)}
+            className={styles['profile-avatar-img']}
+            alt={style}
+          />
+        </button>
+      ))}
+    </div>
+    <div className="input-group">
+      <label>Seed (leave blank to keep current)</label>
+      <input
+        type="text"
+        className="auth-input"
+        placeholder={user.seed ?? "Enter a seed"}
+        value={selectedSeed}
+        onChange={(e) => setSelectedSeed(e.target.value)}
+      />
+    </div>
+    <button
+      className="btn-gradient btn-full mt-8"
+      onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || user.seed ?? user.username ?? "")}
+    >
+      Save Avatar
+    </button>
+    <button
+      className="btn-ghost btn-full mt-8"
+      onClick={() => setShowAvatarPicker(false)}
+    >
+      Cancel
+    </button>
+  </div>
+)}
+
           {/* divider */}
-          <div className={styles['profile-divider']} />
+          <div className={styles['profile-divider']} style={{marginTop:24}}/>
 
           {/* bio */}
           <div className={styles['profile-section']}>
