@@ -103,7 +103,8 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@sebdahub** | 15.04.2026   | [Interceptor Refactor](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/90577a7927d17db9905fbf13b78c23e4a5d85be9) | [Refactored Interceptor to pass authenticated user to controller, adapted controller, service functions and tests. Learned a lot about git and briefly lost my sanity] | [It's better practice then what we did before] |
 |                    | 19.04.2026   | [S11: Implemented Speed Feedback Backend] (https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/30597ce47d6a8a63c41b5cdd9441078fe9b48c46) | [Implemented Speed Feedback as well as corresponding tests] | [Self-explanatory] |
-| **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@haslam** | 19.04.2026   | FE: [S10 #33 Build rating slider UI per skill node](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/01d9cdcf1a7d63d13b4035ff83919f49058eeabd) | Built rating slider UI (0–100%) per skill node & overview for prof, only interactive during active collaboration session. | Allows students to submit live understanding ratings of each skillnode during a session |
+|                    | 17.04.2026   | FE: [S3 #9 refactor avatar picker](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/a66dd40e1cb31e5945171cea3f6b79dd352a3fc1) | Added automatic seed preview when typing another seed, cleaned up code (replaced inline style with style classes, used button instead of div), aligned avatar format across pages | User sees preview of avatars when changing seed, not only once saved & cleaner code |
 
 ---
 
