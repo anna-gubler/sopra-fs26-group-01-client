@@ -7,6 +7,7 @@ import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
 import UnderstandingSlider from "./UnderstandingSlider";
+import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
 
 type SkillDetailPanelProps = {
@@ -17,6 +18,7 @@ type SkillDetailPanelProps = {
   onEdit?: () => void;
   api: ApiService;
   sessionId: number | null;
+  liveRating?: number | null;
 };
 
 const URL_REGEX = /https?:\/\/[^\s]+/g;
@@ -43,7 +45,7 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, api, sessionId }) => {
+const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, api, sessionId, liveRating }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
   const [understanding, setUnderstanding] = useState(0);
@@ -86,12 +88,32 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
       <div className={styles["detail-panel-header"]}>
         <span className={styles["detail-panel-dot"]} style={{ "--dot-color": color } as React.CSSProperties} />
-        <h2 className={styles["detail-panel-title"]}>{skill.name.toUpperCase()}</h2>
+<h2 className={styles["detail-panel-title"]}>{skill.name.toUpperCase()}</h2>
       </div>
 
-      <p className={skill.description ? styles["detail-panel-description"] : styles["detail-panel-placeholder"]}>
-        {skill.description || "No description provided."}
-      </p>
+      {isOwner && liveRating != null && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Class Understanding</h3>
+          <div className={styles["live-rating-row"]}>
+            <div className={styles["live-rating-bar-track"]}>
+              <div
+                className={styles["live-rating-bar-fill"]}
+                style={{ width: `${liveRating}%`, background: ratingColor(liveRating) }}
+              />
+            </div>
+            <span className={styles["live-rating-value"]} style={{ color: ratingColor(liveRating) }}>
+              {liveRating}%
+            </span>
+          </div>
+        </section>
+      )}
+
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Description</h3>
+        <p className={skill.description ? styles["detail-panel-description"] : styles["detail-panel-placeholder"]}>
+          {skill.description || "No description provided."}
+        </p>
+      </section>
 
 
       <section className={styles["detail-panel-section"]}>

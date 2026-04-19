@@ -498,6 +498,14 @@
   background: var(--dot-color, hsl(258, 24%, 40%));
 }
 
+.detail-panel-difficulty {
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .detail-panel-title {
   font-size: 22px;
   font-weight: 700;
@@ -656,6 +664,37 @@
   margin-top: auto;
 }
 
+/* Live rating display (owner only) */
+
+.live-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-rating-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.live-rating-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.live-rating-value {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: right;
+}
+
 /* Understanding slider */
 
 .understanding-row {
@@ -692,6 +731,36 @@
   min-width: 38px;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Skill legend overlay */
+
+.skill-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.skill-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skill-legend-label {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* Lane separators SVG overlay */

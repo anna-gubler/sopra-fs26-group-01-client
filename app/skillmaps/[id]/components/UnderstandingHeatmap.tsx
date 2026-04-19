@@ -17,7 +17,7 @@ interface UnderstandingHeatmapProps {
   aggregated: Map<number, RatingAggregate>;
   skills: Skill[];
   totalStudents: number;
-  onSkillClick?: (skill: Skill) => void;
+  onSkillClick?: (skill: Skill, avg: number) => void;
 }
 
 const UnderstandingHeatmap: React.FC<UnderstandingHeatmapProps> = ({
@@ -51,7 +51,7 @@ const UnderstandingHeatmap: React.FC<UnderstandingHeatmapProps> = ({
             key={card.id}
             className={styles["heatmap-card"]}
             style={onSkillClick ? { cursor: "pointer" } : undefined}
-            onClick={() => onSkillClick?.(skills.find((s) => s.id === card.id)!)}
+            onClick={() => onSkillClick?.(skills.find((s) => s.id === card.id)!, card.avg)}
           >
             <div className={styles["heatmap-card__header"]}>
               <span className={styles["heatmap-card__name"]}>{card.name}</span>
