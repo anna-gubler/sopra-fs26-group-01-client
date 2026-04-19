@@ -88,21 +88,16 @@ const SkillMapsPage: React.FC = () => {
           <span className="nav-logo-text">SkillMaps</span>
         </div>
         <div className={styles['sm-nav-right']}>
-          <div role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
-            {user?.seed && user?.style ? (
-              <img
-                src = {getAvatarUrl(user.seed,user.style)}
-
-                alt={`${user.username}'s avatar`}
-
-                width = {32}
-                height = {32}
+          <button 
+            onClick={() => router.push("/users/me")}
+            className={styles['sm-nav-avatar']}
+          >
+            <img
+              src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
+              alt={`${user?.username}'s avatar`}
+              className={styles['sm-nav-avatar-img']}
               />
-              ) : (
-                  user?.username?.[0]?.toUpperCase()
-                  
-              )}
-          </div>
+          </button>
           <span className={styles['sm-nav-username']}>{user?.username ?? ""}</span>
           <button className="sm-nav-icon" onClick={handleLogout} title="Log Out"><LogOut size={20} /></button>
         </div>
@@ -110,19 +105,15 @@ const SkillMapsPage: React.FC = () => {
 
       {/* Welcome */}
       <div className={styles['sm-welcome']}>
-        <div role="button" tabIndex={0} onClick={() => router.push("/users/me")} onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}>
-            {user?.seed && user?.style ? (
-              <img
-                src = {getAvatarUrl(user.seed,user.style)}
-                alt={`${user.username}'s avatar`}
-                width = {64}
-                height = {64}
-              />
-              ) : (
-                  user?.username?.[0]?.toUpperCase()
-                  
-              )}
-        </div>
+        <button
+          className={styles['sm-welcome-avatar']}
+          onClick={() => router.push("/users/me")}>
+            <img
+              src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
+              alt={`${user?.username}'s avatar`}
+              className={styles['sm-welcome-avatar-img']}
+            />
+        </button>
         <div>
           <div className={styles['sm-welcome-title']}>Welcome back, {user?.username}!</div>
           <div className={styles['sm-welcome-sub']}>{user?.bio || "No bio yet"}</div>

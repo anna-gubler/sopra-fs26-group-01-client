@@ -33,6 +33,7 @@ const Profile: React.FC = () => {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);  //controls whether the avatar picker UI is visible
   const [selectedStyle, setSelectedStyle] = useState<string>("bottts-neutral"); //tracks which DiceBear style user has currently selected in the picker (not persisted directly)
   const [selectedSeed, setSelectedSeed] = useState<string>(""); //tracks seed input in the avatar picker (not persisted directly)
+  const avatarStyles = ["adventurer","adventurer-neutral","avataaars","avataaars-neutral","big-ears","big-ears-neutral","big-smile","bottts","bottts-neutral","croodles","croodles-neutral","dylan","fun-emoji","glass","icons","identicon","initials","lorelei","lorelei-neutral","micah","miniavs","notionists","notionists-neutral","open-peeps","personas","pixel-art","pixel-art-neutral","rings","shapes","thumbs","toon-head",]; // all available DiceBear styles
 
   // update password via PUT /users/me, then log out
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -180,53 +181,19 @@ const Profile: React.FC = () => {
 {isOwnProfile && showAvatarPicker && (
   <div>
     <p className={styles['profile-section-label']}>Pick a style:</p>
-    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
-      {[
-        "adventurer",
-        "adventurer-neutral",
-        "avataaars",
-        "avataaars-neutral",
-        "big-ears",
-        "big-ears-neutral",
-        "big-smile",
-        "bottts",
-        "bottts-neutral",
-        "croodles",
-        "croodles-neutral",
-        "dylan",
-        "fun-emoji",
-        "glass",
-        "icons",
-        "identicon",
-        "initials",
-        "lorelei",
-        "lorelei-neutral",
-        "micah",
-        "miniavs",
-        "notionists",
-        "notionists-neutral",
-        "open-peeps",
-        "personas",
-        "pixel-art",
-        "pixel-art-neutral",
-        "rings",
-        "shapes",
-        "thumbs",
-        "toon-head",
-      ].map((style) => (
-        <img
-          key={style}
-          src={getAvatarUrl(user.seed, style)}
-          alt={style}
-          width={56}
-          height={56}
-          style={{
-            borderRadius: "50%",
-            cursor: "pointer",
-            border: selectedStyle === style ? "2px solid var(--primary)" : "2px solid transparent",
-          }}
+    <div className={styles['avatar-picker-grid']}>
+      {avatarStyles.map((style) => (
+        <button 
+          key={style} 
+          className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
           onClick={() => setSelectedStyle(style)}
-        />
+        >
+          <img
+            src={getAvatarUrl(selectedSeed || user.seed, style)}
+            className={styles['profile-avatar-img']}
+            alt={style}
+          />
+        </button>
       ))}
     </div>
     <div className="input-group">
@@ -240,7 +207,7 @@ const Profile: React.FC = () => {
       />
     </div>
     <button
-      className="btn-gradient btn-full"
+      className="btn-gradient btn-full mt-8"
       onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || user.seed ?? user.username ?? "")}
     >
       Save Avatar

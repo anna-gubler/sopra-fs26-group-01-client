@@ -86,10 +86,13 @@
 .profile-avatar {
   width: 64px;
   height: 64px;
+  border-radius: 50%;
+  border: 2px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 /*avatar image*/
@@ -122,7 +125,8 @@
 
 /*avatar style options picker grid*/
 .avatar-picker-grid{
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 16px;
@@ -134,11 +138,17 @@
   height: 56px;
   cursor: pointer;
   border: 2px solid transparent;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.avatar-picker-option:hover{
+  outline: 2px solid var(--primary);
 }
 
 /* selected avatar style option */
-.avatar-picker-option--selected{
-  border: 2px solid var(--primary-light);
+.avatar-picker-option-selected{
+  outline: 2px solid var(--primary-light);
 }
 
 /* horizontal rule divider */
