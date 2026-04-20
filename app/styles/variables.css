@@ -9,7 +9,7 @@
   /* text */
   --text-bright:    hsl(260, 60%, 98%);
   --text-secondary: hsl(263, 53%, 80%);
-  --text-muted:     hsl(262, 20%, 55%);
+  --text-muted:     #9399b2;
 
   /* primary: purple */
   --primary:       hsl(263, 70%, 58%);

@@ -25,7 +25,7 @@ export const colors = {
   text:         '#cdd6f4', // mocha text     — primary readable text
   sub1:         '#bac2de', // subtext1       — secondary labels, captions
   sub0:         '#a6adc8', // subtext0       — tertiary, placeholder
-  muted:        '#6c7086', // overlay0       — disabled, decorative
+  muted:        '#9399b2', // overlay2       — tertiary readable text (min 4.5:1 on all backgrounds)
 
   // ── Primary — Mauve (Default Mode) ─────────────────────────────────────
   primary:      '#cba6f7',
