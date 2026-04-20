@@ -5,6 +5,7 @@ import { BookOpen, Network, Users, BarChart2, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/landing.module.css";
+import CollabReadyBadge from "@/components/CollabReadyBadge";
 
 // skill map node data
 
@@ -252,14 +253,12 @@ export default function Home() {
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
         >
-          <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-            <span className={styles['hero-badge']}>
-              ● Live Collaboration Ready
-            </span>
+          <motion.div variants={fadeUp} transition={{ duration: 0.5 }} style={{ marginBottom: "24px" }}>
+            <CollabReadyBadge />
           </motion.div>
           <motion.h1 className={styles['hero-heading']} variants={fadeUp} transition={{ duration: 0.5 }}>
             Map Skills.<br />
-            <span className="gradient-text">Track Mastery.</span>
+            <span className="gradient-text">Improve Learning.</span>
           </motion.h1>
           <motion.p className={styles['hero-description']} variants={fadeUp} transition={{ duration: 0.5 }}>
             An interactive skill-mapping platform for educators and students.

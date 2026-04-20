@@ -10,6 +10,18 @@
 /* auth.css, landing.css, profile.css, skillmaps.css, skill-node.css
    are now CSS Modules imported directly by the components that use them. */
 
+/* ── CSS variable injection point ─────────────────────────────────────────
+   --color-* custom properties are set at runtime via buildCssVariables()
+   in app/layout.tsx as inline styles on <html>. */
+
+/* Collaboration Mode overrides — applied via class on a wrapper element */
+.mode-collaboration {
+  --color-primary:      #fab387;
+  --color-primaryHover: #fcd9b5;
+  --color-primaryDim:   #8b5a2a;
+  --color-primaryBg:    #2a1a0e;
+}
+
 /* base */
 
 html, body {
@@ -18,15 +30,15 @@ html, body {
 }
 
 body {
-  color: var(--text-bright);
-  background: var(--bg-elevated);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  color: var(--color-text, var(--text-bright));
+  background: var(--color-bg2, var(--bg-elevated));
+  font-family: var(--font-body), var(--font-inter), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-space-grotesk), Arial, sans-serif;
+  font-family: var(--font-display), var(--font-space-grotesk), Arial, sans-serif;
 }
 
 * {
@@ -35,13 +47,32 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
+/* WCAG AA focus indicator — never suppress */
+:focus-visible {
+  outline: 2px solid var(--color-primary, var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Text selection */
+::selection {
+  background: rgba(203, 166, 247, 0.2);
+  color: var(--color-text, var(--text-bright));
+}
+
+/* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border2, #45475a) var(--color-bg1, #181825);
+}
+
 a {
-  color: var(--primary-light);
+  color: var(--color-primary, var(--primary-light));
   text-decoration: none;
 }
 
 a:hover {
-  color: var(--primary);
+  color: var(--color-primaryHover, var(--primary));
 }
 
 button {
@@ -52,6 +83,27 @@ button {
   font-size: inherit;
 }
 
+/* Skip-to-content link (accessibility) */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  background: var(--color-bg1, #181825);
+  color: var(--color-text, #cdd6f4);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  z-index: 9999;
+  transition: top 0.1s;
+}
+.skip-to-content:focus {
+  top: 1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   html { color-scheme: dark; }
+}
+
+@keyframes collab-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }
