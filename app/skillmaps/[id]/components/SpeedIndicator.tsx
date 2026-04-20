@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useApiContext } from "@/context/ApiContext";
 import { submitSpeedFeedback, SpeedFeedback } from "@/api/sessionApi";
 import { CollaborationSession } from "@/types/session";
@@ -20,7 +20,7 @@ const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
 ];
 
 
-const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session: _session, skillMapId }) => {
+const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skillMapId }) => {
   const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -39,20 +39,11 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session: _sess
     }
   };
 
-  // TODO: remove mock data — replace counts with aggregated values from session
-  const MOCK_SEQUENCE: SpeedFeedback[] = ["TOO_FAST", "TOO_FAST", "TOO_FAST", "TOO_FAST", "OK", "TOO_FAST", "TOO_FAST"];
-  const [counts, setCounts] = useState<Record<SpeedFeedback, number>>({ TOO_SLOW: 0, OK: 1, TOO_FAST: 5 });
-  const [mockIndex, setMockIndex] = useState(0);
-
-  useEffect(() => {
-    if (!isOwner) return;
-    if (mockIndex >= MOCK_SEQUENCE.length) return;
-    const timer = setTimeout(() => {
-      setCounts((c) => ({ ...c, [MOCK_SEQUENCE[mockIndex]]: c[MOCK_SEQUENCE[mockIndex]] + 1 }));
-      setMockIndex((i) => i + 1);
-    }, 1800);
-    return () => clearTimeout(timer);
-  }, [isOwner, mockIndex]);
+  const counts: Record<SpeedFeedback, number> = {
+    TOO_SLOW: session.tooSlowCount ?? 0,
+    OK: session.okCount ?? 0,
+    TOO_FAST: session.tooFastCount ?? 0,
+  };
 
   if (isOwner) {
     const total = counts.TOO_SLOW + counts.OK + counts.TOO_FAST;

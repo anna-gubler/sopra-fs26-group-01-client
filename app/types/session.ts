@@ -7,4 +7,7 @@ export interface CollaborationSession {
   speedFeedback: string | null;
   ratingSummary: number;
   updatedAt: string;
+  tooSlowCount?: number;
+  okCount?: number;
+  tooFastCount?: number;
 }
