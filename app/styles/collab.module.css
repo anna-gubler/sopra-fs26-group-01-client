@@ -13,6 +13,22 @@
   color: #fff;
 }
 
+.btn-collab-filled {
+  border-color: var(--collab);
+  background: var(--collab);
+  color: #1e1e2e;
+  transition: opacity 0.15s;
+}
+
+.btn-collab-filled:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-collab-filled:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Nav overrides when session is active */
 .sm-map-nav--collab {
   border-bottom-color: var(--collab) !important;
@@ -104,4 +120,399 @@
   border-radius: 50%;
   background: var(--collab);
   animation: collab-pulse 1.4s ease-in-out infinite;
+}
+
+/* Speed indicator — student buttons */
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.speed-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.speed-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.speed-btn--TOO_SLOW { border-color: var(--ctp-blue); color: var(--ctp-blue); }
+.speed-btn--TOO_SLOW:hover:not(:disabled) { background: rgba(139, 166, 235, 0.12); }
+
+.speed-btn--OK { border-color: var(--accent); color: var(--accent); }
+.speed-btn--OK:hover:not(:disabled) { background: rgba(64, 200, 150, 0.12); }
+
+.speed-btn--TOO_FAST { border-color: var(--ctp-red); color: var(--ctp-red); }
+.speed-btn--TOO_FAST:hover:not(:disabled) { background: rgba(210, 70, 90, 0.12); }
+
+.speed-btn--selected.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.2); }
+.speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
+.speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
+
+/* Speed indicator — lecturer gauge */
+.speed-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.speed-gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(to right, var(--bg-elevated) 0%, var(--border-color) 50%, var(--bg-elevated) 100%);
+  border: 1px solid var(--border-color);
+}
+
+.speed-gauge-needle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: var(--text-bright);
+  border-radius: 1px;
+  transition: left 0.6s ease;
+}
+
+.speed-gauge-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--text-muted);
+  opacity: 0.4;
+  border-radius: 3px;
+  transition: left 0.6s ease, width 0.6s ease, background 0.4s ease;
+}
+
+.speed-gauge-fill--warn {
+  background: hsl(351, 80%, 60%);
+  opacity: 0.6;
+}
+
+.speed-gauge-marker {
+  position: absolute;
+  top: -3px;
+  transform: translateX(-50%);
+  width: 1px;
+  height: calc(100% + 6px);
+  background: var(--border-color);
+}
+
+.speed-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.speed-gauge-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  text-align: center;
+}
+
+/* Q&A panel — shared */
+.qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qa-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.qa-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Q&A panel — owner view */
+.qa-skill-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qa-skill-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.qa-upvotes {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.12);
+  border-radius: 4px;
+  padding: 2px 6px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Q&A panel — student view */
+.qa-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-skill-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.qa-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.qa-textarea:focus {
+  outline: none;
+  border-color: var(--collab);
+}
+
+.qa-upvote-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  min-width: 36px;
+  text-align: center;
+}
+
+.qa-upvote-btn:hover {
+  border-color: var(--collab);
+  color: var(--collab);
+}
+
+.qa-upvote-btn--active {
+  border-color: var(--collab);
+  color: var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.12);
+}
+
+.qa-addressed-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin-left: auto;
+}
+
+.qa-addressed-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(64, 200, 150, 0.12);
+}
+
+.qa-addressed-section {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.qa-addressed-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.qa-addressed-toggle:hover {
+  color: var(--text-secondary);
+}
+
+.qa-addressed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.qa-item--addressed {
+  opacity: 0.45;
+}
+
+.qa-putback-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin-left: auto;
+}
+
+.qa-putback-btn:hover {
+  border-color: var(--collab);
+  color: var(--collab);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Session stats bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+}
+
+.stat-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-card__value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-bright);
+  font-family: var(--font-space-grotesk), sans-serif;
+  margin-top: 6px;
+}
+
+.stat-card__sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* Understanding heatmap card grid */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.heatmap-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.heatmap-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.heatmap-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.heatmap-card__avg {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.heatmap-card__count {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.heatmap-card__bar-track {
+  height: 3px;
+  background: var(--border-color);
+  margin: 0 -10px;
+}
+
+.heatmap-card__bar-fill {
+  height: 100%;
+  border-radius: 0;
+  transition: width 0.4s ease;
 }

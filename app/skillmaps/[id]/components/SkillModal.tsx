@@ -1,13 +1,35 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useApi } from "@/hooks/useApi";
+import { ApiService } from "@/api/apiService";
 import { createSkill, updateSkill, deleteSkill } from "@/api/skillApi";
 import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
 import toast from "react-hot-toast";
 
-type Props = {
+const DeleteConfirmButton: React.FC<{ onDelete: () => void }> = ({ onDelete }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button type="button" className={styles["btn-delete"]} onClick={() => setConfirming(true)}>
+        Delete Skill
+      </button>
+    );
+  }
+  return (
+    <div className={styles["btn-delete-row"]}>
+      <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirming(false)}>
+        Cancel
+      </button>
+      <button type="button" className={styles["btn-delete"]} onClick={onDelete}>
+        Confirm Delete
+      </button>
+    </div>
+  );
+};
+
+type SkillModalProps = {
+  api: ApiService;
   open: boolean;
   skill: Skill | null;
   skills: Skill[];
@@ -17,7 +39,8 @@ type Props = {
   onSaved: () => void;
 };
 
-const SkillModal: React.FC<Props> = ({
+const SkillModal: React.FC<SkillModalProps> = ({
+  api,
   open,
   skill,
   skills,
@@ -26,35 +49,27 @@ const SkillModal: React.FC<Props> = ({
   onClose,
   onSaved,
 }) => {
-  const api = useApi();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [level, setLevel] = useState(1);
-  const [difficulty, setDifficulty] = useState("");
-  const [resources, setResources] = useState("");
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "", resources: "" });
 
   useEffect(() => {
     if (skill) {
-      setName(skill.name);
-      setDescription(skill.description ?? "");
-      setLevel(skill.level);
-      setDifficulty(skill.difficulty ?? "");
-      setResources(skill.resources ?? "");
+      setSkillForm({
+        name: skill.name,
+        description: skill.description ?? "",
+        level: skill.level,
+        difficulty: skill.difficulty ?? "",
+        resources: skill.resources ?? "",
+      });
     } else {
-      setName("");
-      setDescription("");
-      setLevel(1);
-      setDifficulty("");
-      setResources("");
+      setSkillForm({ name: "", description: "", level: 1, difficulty: "", resources: "" });
     }
-    setConfirmingDelete(false);
   }, [skill, open]);
 
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { name, description, level, difficulty, resources } = skillForm;
     try {
       if (skill) {
         await updateSkill(api, skill.id, { name, description, difficulty, resources });
@@ -68,7 +83,7 @@ const SkillModal: React.FC<Props> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirmDelete = async () => {
     if (!skill) return;
     try {
       await deleteSkill(api, skill.id);
@@ -89,8 +104,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-name"
               className="auth-input"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={skillForm.name}
+              onChange={(e) => setSkillForm((f) => ({ ...f, name: e.target.value }))}
               required
               autoFocus
             />
@@ -101,8 +116,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-description"
               className="auth-input"
               rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={skillForm.description}
+              onChange={(e) => setSkillForm((f) => ({ ...f, description: e.target.value }))}
             />
           </div>
           {!skill && (
@@ -111,8 +126,8 @@ const SkillModal: React.FC<Props> = ({
               <select
                 id="skill-level"
                 className="auth-input"
-                value={level}
-                onChange={(e) => setLevel(Number(e.target.value))}
+                value={skillForm.level}
+                onChange={(e) => setSkillForm((f) => ({ ...f, level: Number(e.target.value) }))}
               >
                 {Array.from({ length: numberOfLevels }, (_, i) => i + 1).map((l) => (
                   <option key={l} value={l}>Level {l}</option>
@@ -125,8 +140,8 @@ const SkillModal: React.FC<Props> = ({
             <select
               id="skill-difficulty"
               className="auth-input"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
+              value={skillForm.difficulty}
+              onChange={(e) => setSkillForm((f) => ({ ...f, difficulty: e.target.value }))}
             >
               <option value="">—</option>
               <option value="easy">Easy</option>
@@ -140,8 +155,8 @@ const SkillModal: React.FC<Props> = ({
               id="skill-resources"
               className="auth-input"
               rows={2}
-              value={resources}
-              onChange={(e) => setResources(e.target.value)}
+              value={skillForm.resources}
+              onChange={(e) => setSkillForm((f) => ({ ...f, resources: e.target.value }))}
               placeholder="Links, notes, references..."
             />
           </div>
@@ -151,21 +166,7 @@ const SkillModal: React.FC<Props> = ({
           <button type="button" className="btn-ghost btn-full" onClick={onClose}>
             Cancel
           </button>
-          {skill && !confirmingDelete && (
-            <button type="button" className={styles["btn-delete"]} onClick={() => setConfirmingDelete(true)}>
-              Delete Skill
-            </button>
-          )}
-          {skill && confirmingDelete && (
-            <div className={styles["btn-delete-row"]}>
-              <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirmingDelete(false)}>
-                Cancel
-              </button>
-              <button type="button" className={styles["btn-delete"]} onClick={handleDelete}>
-                Confirm Delete
-              </button>
-            </div>
-          )}
+          {skill && <DeleteConfirmButton onDelete={handleConfirmDelete} />}
         </form>
       </div>
     </div>

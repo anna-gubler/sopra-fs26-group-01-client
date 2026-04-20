@@ -6,7 +6,8 @@ import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection
 import "@xyflow/react/dist/style.css";
 import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
-import { useSessionStatus } from "@/hooks/useSessionStatus";
+import { useDashboardPolling } from "@/hooks/useDashboardPolling";
+import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
 import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
@@ -22,9 +23,36 @@ import LaneSeparators from "./components/LaneSeparators";
 import SkillModal from "./components/SkillModal";
 import CollabView from "./components/CollabView";
 import SkillDetailPanel from "./components/SkillDetailPanel";
+import SkillLegend from "./components/SkillLegend";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
+
+const PublishButton: React.FC<{ onPublish: () => Promise<void> }> = ({ onPublish }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirming(true)}>
+        <Globe size={14} />
+        Publish
+      </button>
+    );
+  }
+  return (
+    <>
+      <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirming(false)}>
+        Cancel
+      </button>
+      <button
+        className={`btn-gradient btn-no-lift ${styles["sm-nav-btn"]}`}
+        onClick={async () => { await onPublish(); setConfirming(false); }}
+      >
+        <Globe size={14} />
+        Confirm Publish
+      </button>
+    </>
+  );
+};
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
@@ -50,13 +78,15 @@ const SkillMapEditorPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isOwner = skillMap?.ownerId === user?.id;
+  const canPublish = isOwner && !skillMap?.isPublic;
   const [modalOpen, setModalOpen] = useState(false);
-  const [confirmingPublish, setConfirmingPublish] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [selectedSkillRating, setSelectedSkillRating] = useState<number | null>(null);
+  const [liveAggregated, setLiveAggregated] = useState<Map<number, { avg: number; count: number }>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { session, isActive, refresh: refreshSession, setSession } = useSessionStatus(api, id);
+  const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
 
   useEffect(() => {
     getMe(api).then(setUser).catch(() => {});
@@ -131,6 +161,7 @@ const SkillMapEditorPage: React.FC = () => {
     const skill = skills.find((s) => String(s.id) === node.id);
     if (!skill) return;
     setSelectedSkill(skill);
+    setSelectedSkillRating(liveAggregated.get(skill.id)?.avg ?? null);
   };
 
   const handleLogout = async () => {
@@ -342,33 +373,17 @@ const SkillMapEditorPage: React.FC = () => {
               {skillMap.inviteCode}
             </button>
           )}
-          {isOwner && !skillMap?.isPublic && !confirmingPublish && (
-            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(true)}>
-              <Globe size={14} />
-              Publish
-            </button>
-          )}
-          {isOwner && !skillMap?.isPublic && confirmingPublish && (
-            <>
-              <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirmingPublish(false)}>
-                Cancel
-              </button>
-              <button
-                className={`btn-gradient btn-no-lift ${styles["sm-nav-btn"]}`}
-                onClick={async () => {
-                  try {
-                    const updated = await updateSkillMap(api, id, { isPublic: true });
-                    setSkillMap(updated);
-                    setConfirmingPublish(false);
-                  } catch {
-                    toast.error("Failed to publish map. Please try again.");
-                  }
-                }}
-              >
-                <Globe size={14} />
-                Confirm Publish
-              </button>
-            </>
+          {canPublish && (
+            <PublishButton
+              onPublish={async () => {
+                try {
+                  const updated = await updateSkillMap(api, id, { isPublic: true });
+                  setSkillMap(updated);
+                } catch {
+                  toast.error("Failed to publish map. Please try again.");
+                }
+              }}
+            />
           )}
           {isOwner && isActive && (
             <button
@@ -424,14 +439,20 @@ const SkillMapEditorPage: React.FC = () => {
       </nav>
 
       {isActive && skillMap && session ? (
-        <CollabView
-          nodes={nodes}
-          edges={edges}
-          skillMap={skillMap}
-          session={session}
-          isOwner={isOwner}
-          onNodeClick={handleNodeClick}
-        />
+        <ApiContext.Provider value={api}>
+          <CollabView
+            nodes={nodes}
+            edges={edges}
+            skillMap={skillMap}
+            session={session}
+            isOwner={isOwner}
+            onNodeClick={handleNodeClick}
+            onSkillClick={(skill, avg) => { setSelectedSkill(skill); setSelectedSkillRating(avg); }}
+            onAggregatedChange={setLiveAggregated}
+            liveSkills={liveSkills}
+            liveQuestions={liveQuestions}
+          />
+        </ApiContext.Provider>
       ) : (
         <>
           <div className={styles["sm-map-graph"]}>
@@ -467,11 +488,13 @@ const SkillMapEditorPage: React.FC = () => {
                 />
               )}
               <Background color="var(--border-color)" gap={40} />
+              <SkillLegend />
             </ReactFlow>
           </div>
 
           {skillMap && (
             <SkillModal
+              api={api}
               open={modalOpen}
               skill={editingSkill}
               skills={skills}
@@ -491,13 +514,17 @@ const SkillMapEditorPage: React.FC = () => {
             .filter((e: Edge) => e.target === String(selectedSkill.id))
             .map((e: Edge) => skills.find((s: Skill) => String(s.id) === e.source))
             .filter((s): s is Skill => s !== undefined)}
-          onClose={() => setSelectedSkill(null)}
+          onClose={() => { setSelectedSkill(null); setSelectedSkillRating(null); }}
           isOwner={isOwner}
           onEdit={() => {
             setEditingSkill(selectedSkill);
             setSelectedSkill(null);
+            setSelectedSkillRating(null);
             setModalOpen(true);
           }}
+          api={api}
+          sessionId={isActive && session ? session.id : null}
+          liveRating={selectedSkillRating}
         />
       )}
     </div>

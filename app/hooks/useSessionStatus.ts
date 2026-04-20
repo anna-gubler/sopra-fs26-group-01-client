@@ -3,7 +3,7 @@ import { ApiService } from "@/api/apiService";
 import { getActiveSession } from "@/api/sessionApi";
 import { CollaborationSession } from "@/types/session";
 
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = 3000;
 
 interface SessionStatus {
   session: CollaborationSession | null;
