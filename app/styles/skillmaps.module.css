@@ -12,7 +12,7 @@
 .sm-nav-logo {
   font-size: 20px;
   font-weight: 700;
-  font-family: var(--font-space-grotesk), Arial, sans-serif;
+  font-family: var(--font-display), Arial, sans-serif;
   color: var(--text-bright);
 }
 
@@ -164,7 +164,7 @@
   background-color: var(--bg-deep);
   padding: 32px;
   color: var(--text-bright);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }
 
 .sm-loading {

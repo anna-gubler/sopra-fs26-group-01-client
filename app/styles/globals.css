@@ -32,13 +32,13 @@ html, body {
 body {
   color: var(--color-text, var(--text-bright));
   background: var(--color-bg2, var(--bg-elevated));
-  font-family: var(--font-body), var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display), var(--font-space-grotesk), Arial, sans-serif;
+  font-family: var(--font-display), Arial, sans-serif;
 }
 
 * {

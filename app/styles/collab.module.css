@@ -474,7 +474,7 @@
   font-weight: 700;
   line-height: 1.1;
   color: var(--text-bright);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-display), sans-serif;
   margin-top: 6px;
 }
 
