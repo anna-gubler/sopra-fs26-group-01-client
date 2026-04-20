@@ -354,7 +354,7 @@ const Profile: React.FC = () => {
               </div>
               <button
                 className="btn-gradient btn-full mt-8"
-                onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || user.seed ?? user.username ?? "")}
+                onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || (user.seed ?? user.username ?? ""))}
               >
                 Save Avatar
               </button>
