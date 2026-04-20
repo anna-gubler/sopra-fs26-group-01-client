@@ -6,7 +6,7 @@ import { useSessionStatus } from "@/hooks/useSessionStatus";
 import { Skill } from "@/types/skill";
 import { Question } from "@/types/question";
 
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = 3000;
 
 export interface DashboardPollingResult extends ReturnType<typeof useSessionStatus> {
   liveSkills: Skill[] | null;

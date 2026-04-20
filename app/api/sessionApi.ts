@@ -39,3 +39,7 @@ export function removeUpvote(api: ApiService, questionId: number): Promise<void>
 export function markQuestionAddressed(api: ApiService, questionId: number): Promise<void> {
   return api.post<void>(`/questions/${questionId}/mark-addressed`, {});
 }
+
+export function submitSkillRating(api: ApiService, sessionId: number, skillId: number, rating: number): Promise<void> {
+  return api.put<void>(`/sessions/${sessionId}/skills/${skillId}/rating`, { rating });
+}

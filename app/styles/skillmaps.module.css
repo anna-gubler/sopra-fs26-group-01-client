@@ -498,6 +498,14 @@
   background: var(--dot-color, hsl(258, 24%, 40%));
 }
 
+.detail-panel-difficulty {
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .detail-panel-title {
   font-size: 22px;
   font-weight: 700;
@@ -654,6 +662,105 @@
 /* Edit skill button at bottom of detail panel */
 .detail-panel-edit-btn {
   margin-top: auto;
+}
+
+/* Live rating display (owner only) */
+
+.live-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-rating-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.live-rating-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.live-rating-value {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Understanding slider */
+
+.understanding-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.understanding-track {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.understanding-segment {
+  flex: 1;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.understanding-segment:hover {
+  border-color: var(--text-muted);
+}
+
+.understanding-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Skill legend overlay */
+
+.skill-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.skill-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skill-legend-label {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* Lane separators SVG overlay */

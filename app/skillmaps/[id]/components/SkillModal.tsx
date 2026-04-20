@@ -7,6 +7,27 @@ import { Skill } from "@/types/skill";
 import styles from "@/styles/skillmaps.module.css";
 import toast from "react-hot-toast";
 
+const DeleteConfirmButton: React.FC<{ onDelete: () => void }> = ({ onDelete }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button type="button" className={styles["btn-delete"]} onClick={() => setConfirming(true)}>
+        Delete Skill
+      </button>
+    );
+  }
+  return (
+    <div className={styles["btn-delete-row"]}>
+      <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirming(false)}>
+        Cancel
+      </button>
+      <button type="button" className={styles["btn-delete"]} onClick={onDelete}>
+        Confirm Delete
+      </button>
+    </div>
+  );
+};
+
 type SkillModalProps = {
   api: ApiService;
   open: boolean;
@@ -29,7 +50,6 @@ const SkillModal: React.FC<SkillModalProps> = ({
   onSaved,
 }) => {
   const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "", resources: "" });
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     if (skill) {
@@ -43,7 +63,6 @@ const SkillModal: React.FC<SkillModalProps> = ({
     } else {
       setSkillForm({ name: "", description: "", level: 1, difficulty: "", resources: "" });
     }
-    setConfirmingDelete(false);
   }, [skill, open]);
 
   if (!open) return null;
@@ -147,21 +166,7 @@ const SkillModal: React.FC<SkillModalProps> = ({
           <button type="button" className="btn-ghost btn-full" onClick={onClose}>
             Cancel
           </button>
-          {skill && !confirmingDelete && (
-            <button type="button" className={styles["btn-delete"]} onClick={() => setConfirmingDelete(true)}>
-              Delete Skill
-            </button>
-          )}
-          {skill && confirmingDelete && (
-            <div className={styles["btn-delete-row"]}>
-              <button type="button" className={`btn-ghost ${styles["btn-delete-cancel"]}`} onClick={() => setConfirmingDelete(false)}>
-                Cancel
-              </button>
-              <button type="button" className={styles["btn-delete"]} onClick={handleConfirmDelete}>
-                Confirm Delete
-              </button>
-            </div>
-          )}
+          {skill && <DeleteConfirmButton onDelete={handleConfirmDelete} />}
         </form>
       </div>
     </div>
