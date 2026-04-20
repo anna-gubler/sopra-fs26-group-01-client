@@ -153,7 +153,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, oldPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, old: !s.old }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.old ? "Hide old password" : "Show old password"} onClick={() => setShowPasswords((s) => ({ ...s, old: !s.old }))}>
             {showPasswords.old ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
@@ -170,7 +170,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, newPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.new ? "Hide new password" : "Show new password"} onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}>
             {showPasswords.new ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
@@ -190,7 +190,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.confirm ? "Hide confirm password" : "Show confirm password"} onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}>
             {showPasswords.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>

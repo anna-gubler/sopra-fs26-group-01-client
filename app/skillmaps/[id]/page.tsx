@@ -426,6 +426,7 @@ const SkillMapEditorPage: React.FC = () => {
             className={styles["sm-nav-avatar"]}
             role="button"
             tabIndex={0}
+            aria-label="Go to profile"
             onClick={() => router.push("/users/me")}
             onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}
           >
@@ -455,7 +456,7 @@ const SkillMapEditorPage: React.FC = () => {
         </ApiContext.Provider>
       ) : (
         <>
-          <div className={styles["sm-map-graph"]}>
+          <div className={styles["sm-map-graph"]} role="application" aria-label="Skill map canvas">
             <ReactFlow
               key={refreshKey}
               nodes={nodes}

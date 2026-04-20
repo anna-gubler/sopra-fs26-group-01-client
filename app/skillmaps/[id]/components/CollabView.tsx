@@ -79,7 +79,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           <span>Live</span>
         </div>
       </aside>
-      <div className={styles["collab-graph"]}>
+      <div className={styles["collab-graph"]} role="application" aria-label="Collaboration skill map canvas">
         <ReactFlow
           nodes={glowedNodes}
           edges={edges}

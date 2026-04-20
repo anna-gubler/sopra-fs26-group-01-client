@@ -52,16 +52,16 @@ const NewSkillMapPage: React.FC = () => {
           <h2 className="form-heading">Create Skill Map</h2>
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="input-group">
-              <label>Title</label>
-              <input className="auth-input" type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              <label htmlFor="map-title">Title</label>
+              <input id="map-title" className="auth-input" type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
             </div>
             <div className="input-group">
-              <label>Description</label>
-              <textarea className="auth-input" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
+              <label htmlFor="map-description">Description</label>
+              <textarea id="map-description" className="auth-input" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
             </div>
             <div className="input-group">
-              <label>Number of Levels</label>
-              <input className="auth-input" type="number" min={1} value={numberOfLevels || ""} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
+              <label htmlFor="map-levels">Number of Levels</label>
+              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels || ""} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
             </div>
             <button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>

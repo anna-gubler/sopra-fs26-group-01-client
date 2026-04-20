@@ -121,6 +121,7 @@ const SkillMapsPage: React.FC = () => {
           <button
             onClick={() => router.push("/users/me")}
             className={styles['sm-nav-avatar']}
+            aria-label="Go to profile"
           >
             <img
               src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
@@ -133,10 +134,13 @@ const SkillMapsPage: React.FC = () => {
         </div>
       </nav>
 
+      <main id="main-content">
+
       {/* Welcome */}
       <div className={styles['sm-welcome']}>
         <button
           className={styles['sm-welcome-avatar']}
+          aria-label="Go to profile"
           onClick={() => router.push("/users/me")}>
             <img
               src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
@@ -193,7 +197,7 @@ const SkillMapsPage: React.FC = () => {
 
       <div className={styles['sm-grid']}>
         {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
-          <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+          <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
                 <div className={styles['sm-card-title']}>{map.title}</div>
@@ -248,7 +252,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
@@ -260,7 +264,7 @@ const SkillMapsPage: React.FC = () => {
           <div className={styles['sm-section-title']}>JOINED MAPS</div>
           <div className={styles['sm-grid']}>
             {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
-              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
                 <div className={styles['sm-card-top']}>
                   <div>
                     <div className={styles['sm-card-title']}>{map.title}</div>
@@ -293,6 +297,8 @@ const SkillMapsPage: React.FC = () => {
           </div>
         </>
       )}
+
+      </main>
     </div>
   );
 };

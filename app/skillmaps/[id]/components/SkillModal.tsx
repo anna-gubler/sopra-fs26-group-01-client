@@ -94,7 +94,7 @@ const SkillModal: React.FC<SkillModalProps> = ({
   };
 
   return (
-    <div className={styles["modal-backdrop"]} role="button" tabIndex={0} onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+    <div className={styles["modal-backdrop"]} role="button" tabIndex={0} aria-label="Close modal" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
       <div className={styles["modal"]} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
         <h2 className="form-heading">{skill ? "Edit Skill" : "Add Skill"}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
