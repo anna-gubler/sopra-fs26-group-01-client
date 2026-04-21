@@ -20,7 +20,7 @@ const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
 ];
 
 
-const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skillMapId }) => {
+const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => {
   const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -30,7 +30,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skill
     setSelected(value);
     setSubmitting(true);
     try {
-      await submitSpeedFeedback(api, skillMapId, value);
+      await submitSpeedFeedback(api, session.id, value);
     } catch {
       toast.error("Failed to submit speed feedback.");
       setSelected(null);

@@ -16,8 +16,8 @@ export function endSession(api: ApiService, skillMapId: number): Promise<void> {
 
 export type SpeedFeedback = "TOO_SLOW" | "OK" | "TOO_FAST";
 
-export function submitSpeedFeedback(api: ApiService, skillMapId: number, feedback: SpeedFeedback): Promise<void> {
-  return api.post<void>(`/skillmaps/${skillMapId}/sessions/active/speed-feedback`, { feedback });
+export function submitSpeedFeedback(api: ApiService, sessionId: number, feedback: SpeedFeedback): Promise<void> {
+  return api.put<void>(`/sessions/${sessionId}/speed`, { feedback });
 }
 
 export function getQuestions(api: ApiService, sessionId: number): Promise<Question[]> {
