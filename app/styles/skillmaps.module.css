@@ -161,7 +161,7 @@
 
 .sm-page {
   min-height: 100vh;
-  background-color: var(--bg-deep);
+  background: transparent;
   padding: 32px;
   color: var(--text-bright);
   font-family: var(--font-body), Arial, Helvetica, sans-serif;
@@ -172,7 +172,6 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-deep);
   color: var(--text-bright);
 }
 
@@ -366,7 +365,7 @@
   flex-direction: column;
   width: 100vw;
   height: 100vh;
-  background: var(--bg-deep);
+  background: transparent;
 }
 
 .sm-map-nav {
