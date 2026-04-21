@@ -1,50 +1,57 @@
-/* Mappd design profile */
+/* Mappd design tokens — legacy CSS variables used by CSS modules */
+/* Source of truth is app/styles/colors.ts. Update both together. */
 
 :root {
   /* backgrounds */
-  --bg-deep:     hsl(249, 40%, 8%);
-  --bg-surface:  hsl(252, 35%, 11%);
-  --bg-elevated: hsl(255, 28%, 15%);
+  --bg-deep:     #0a0a12;
+  --bg-surface:  #0f0f1a;
+  --bg-elevated: #1a1a2e;
 
   /* text */
-  --text-bright:    hsl(260, 60%, 98%);
-  --text-secondary: hsl(263, 53%, 80%);
-  --text-muted:     #9399b2;
+  --text-bright:    #f8e3ff;
+  --text-secondary: #c8b8e8;
+  --text-muted:     #9880b8;
 
-  /* primary: purple */
-  --primary:       hsl(263, 70%, 58%);
-  --primary-light: hsl(263, 83%, 78%);
+  /* primary: hot pink */
+  --primary:       #f472b6;
+  --primary-light: #e879f9;
+  --primary-hover: #e879f9;
 
-  /* secondary: pink */
-  --secondary: hsl(330, 70%, 56%);
+  /* secondary: violet */
+  --secondary: #a78bfa;
 
-  /* accent: cyan/teal */
-  --accent: hsl(160, 60%, 52%);
+  /* accent: emerald */
+  --accent: #34d399;
 
   /* collaboration mode */
-  --color-amber:  hsl(42, 95%, 55%);
-  --color-orange: hsl(25, 95%, 60%);
-  --collab:       #F59E0B;
-  --collab-glow:  rgba(245, 158, 11, 0.2);
+  --color-amber:  #fb923c;
+  --color-orange: #fb923c;
+  --collab:       #fb923c;
+  --collab-glow:  rgba(251, 146, 60, 0.2);
+
+  /* semantic status */
+  --color-rose:    #f43f5e;
+  --color-emerald: #34d399;
+  --color-violet:  #a78bfa;
 
   /* borders + glow */
-  --border-color: hsl(258, 24%, 22%);
-  --glow:         0 0 20px hsla(263, 70%, 58%, 0.4);
+  --border-color: #252540;
+  --glow:         0 0 20px rgba(244, 114, 182, 0.35);
 
-  /* further colours Cattpuccin */
+  /* ctp-* aliases for legacy module references */
   --ctp-crust:    var(--bg-deep);
   --ctp-mantle:   var(--bg-surface);
   --ctp-base:     var(--bg-elevated);
-  --ctp-surface0: hsl(258, 24%, 20%);
+  --ctp-surface0: #21213a;
   --ctp-surface1: var(--border-color);
-  --ctp-surface2: hsl(258, 24%, 26%);
+  --ctp-surface2: #2a2a48;
   --ctp-text:     var(--text-bright);
   --ctp-subtext0: var(--text-muted);
   --ctp-mauve:    var(--primary);
   --ctp-lavender: var(--primary-light);
-  --ctp-blue:     hsl(225, 83%, 72%);
+  --ctp-blue:     #89b4fa;
   --ctp-green:    var(--accent);
-  --ctp-red:      hsl(351, 80%, 60%);
+  --ctp-red:      var(--color-rose);
   --color-pink:   var(--secondary);
 
   /* skill node status */
