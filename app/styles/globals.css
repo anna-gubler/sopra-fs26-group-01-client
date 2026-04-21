@@ -14,15 +14,24 @@
    --color-* custom properties are set at runtime via buildCssVariables()
    in app/layout.tsx as inline styles on <html>. */
 
-/* Collaboration Mode overrides — applied via class on a wrapper element */
+/* ── Collaboration Mode overrides ─────────────────────────────────────────
+   Applied via .mode-collaboration class on the skill map page root */
 .mode-collaboration {
-  --color-primary:      #fab387;
-  --color-primaryHover: #fcd9b5;
-  --color-primaryDim:   #8b5a2a;
-  --color-primaryBg:    #2a1a0e;
+  /* new palette vars */
+  --color-primary:      #fb923c;
+  --color-primaryHover: #fdba74;
+  --color-primaryDim:   #92400e;
+  --color-primaryBg:    #1f100a;
+  /* legacy vars used by CSS modules */
+  --primary:            #fb923c;
+  --primary-light:      #fdba74;
+  --primary-hover:      #fdba74;
+  --collab:             #fb923c;
+  --collab-glow:        rgba(251, 146, 60, 0.2);
+  --glow:               0 0 20px rgba(251, 146, 60, 0.35);
 }
 
-/* base */
+/* ── Base ──────────────────────────────────────────────────────────────── */
 
 html, body {
   max-width: 100vw;
@@ -30,15 +39,16 @@ html, body {
 }
 
 body {
-  color: var(--color-text, var(--text-bright));
-  background: var(--color-bg2, var(--bg-elevated));
-  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  background-color: #0f0f1a;
+  background-image: radial-gradient(ellipse 80% 40% at 50% -10%, #f472b610 0%, transparent 70%);
+  color: #f8e3ff;
+  font-family: var(--font-body), system-ui, -apple-system, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display), Arial, sans-serif;
+  font-family: var(--font-display), system-ui, Arial, sans-serif;
 }
 
 * {
@@ -47,33 +57,34 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
-/* WCAG AA focus indicator — never suppress */
+/* WCAG AA focus indicator */
 :focus-visible {
-  outline: 2px solid var(--color-primary, var(--primary));
+  outline: 2px solid #f472b6;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 /* Text selection */
 ::selection {
-  background: rgba(203, 166, 247, 0.2);
-  color: var(--color-text, var(--text-bright));
+  background: #f472b630;
+  color: #f8e3ff;
 }
 
 /* Scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border2, #45475a) var(--color-bg1, #181825);
+  scrollbar-color: #333355 #0f0f1a;
 }
+*::-webkit-scrollbar         { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track   { background: #0f0f1a; }
+*::-webkit-scrollbar-thumb   { background: #333355; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #42426a; }
 
 a {
-  color: var(--color-primary, var(--primary-light));
+  color: var(--primary);
   text-decoration: none;
 }
-
-a:hover {
-  color: var(--color-primaryHover, var(--primary));
-}
+a:hover { color: var(--primary-light); }
 
 button {
   cursor: pointer;
@@ -83,21 +94,19 @@ button {
   font-size: inherit;
 }
 
-/* Skip-to-content link (accessibility) */
+/* Skip-to-content link */
 .skip-to-content {
   position: absolute;
   top: -100%;
   left: 1rem;
-  background: var(--color-bg1, #181825);
-  color: var(--color-text, #cdd6f4);
+  background: #0f0f1a;
+  color: #f8e3ff;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   z-index: 9999;
   transition: top 0.1s;
 }
-.skip-to-content:focus {
-  top: 1rem;
-}
+.skip-to-content:focus { top: 1rem; }
 
 @media (prefers-color-scheme: dark) {
   html { color-scheme: dark; }
@@ -106,4 +115,55 @@ button {
 @keyframes collab-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.3; }
+}
+
+/* ── React Flow global overrides ───────────────────────────────────────── */
+
+.react-flow__background { background: #0f0f1a; }
+.react-flow__background pattern circle { fill: #252540; }
+
+.react-flow__controls {
+  background: #1a1a2e;
+  border: 1px solid #252540;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.react-flow__controls-button {
+  background: #1a1a2e;
+  border-bottom: 1px solid #252540;
+  fill: #9880b8;
+}
+.react-flow__controls-button:hover {
+  background: #21213a;
+  fill: #f472b6;
+}
+.react-flow__controls-button:focus-visible {
+  outline: 2px solid #f472b6;
+  outline-offset: 2px;
+}
+
+.react-flow__minimap {
+  background: #0f0f1a;
+  border: 1px solid #252540;
+  border-radius: 8px;
+}
+.react-flow__minimap-mask { fill: rgba(10, 10, 18, 0.5); }
+.react-flow__minimap-node { fill: #1a1a2e; stroke: #252540; }
+
+.react-flow__handle {
+  background: #333355;
+  border: 1px solid #252540;
+  width: 8px;
+  height: 8px;
+}
+.react-flow__handle:hover { background: #f472b6; }
+
+.react-flow__node:focus-visible {
+  outline: 2px solid #f472b6;
+  outline-offset: 2px;
+}
+
+.react-flow__selection {
+  background: rgba(244, 114, 182, 0.06);
+  border: 1px solid #f472b6;
 }
