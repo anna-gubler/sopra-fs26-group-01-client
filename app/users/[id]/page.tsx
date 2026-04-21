@@ -21,8 +21,8 @@ const Profile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editForm, setEditForm] = useState({ username: "", bio: "" });
+  const [editingField, setEditingField] = useState<'username' | 'bio' | null>(null);
+  const [editValue, setEditValue] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
@@ -34,21 +34,25 @@ const Profile: React.FC = () => {
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", "");
   const isOwnProfile = id === "me" || String(loggedInId) === String(id);
 
-  const openEditForm = () => {
-    setEditForm({ username: user?.username ?? "", bio: user?.bio ?? "" });
-    setShowEditForm(true);
+  const openEditField = (field: 'username' | 'bio') => {
+    setEditValue(field === 'username' ? (user?.username ?? "") : (user?.bio ?? ""));
+    setEditingField(field);
   };
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateField = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const updated = await updateMe(apiService, { username: editForm.username, bio: editForm.bio });
+      const patch = editingField === 'username'
+        ? { username: editValue }
+        : { bio: editValue };
+      const updated = await updateMe(apiService, patch);
       setUser(updated);
-      setShowEditForm(false);
+      setEditingField(null);
+      router.refresh();
       toast.success("Profile updated.");
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
-      if (status === 409) {
+      if (status === 409 && editingField === 'username') {
         toast.error("That username is already taken.");
       } else {
         toast.error("Failed to update profile. Please try again.");
@@ -207,30 +211,22 @@ const Profile: React.FC = () => {
     </form>
   );
 
-  const renderEditForm = () => (
-    <form onSubmit={handleUpdateProfile}>
-      <button type="button" className={styles['profile-back-btn']} onClick={() => setShowEditForm(false)}>
+  const renderEditFieldForm = () => (
+    <form onSubmit={handleUpdateField}>
+      <button type="button" className={styles['profile-back-btn']} onClick={() => setEditingField(null)}>
         <ArrowLeft size={14} /> Back
       </button>
       <div className="input-group">
-        <label htmlFor="edit-username">Username</label>
+        <label htmlFor="edit-field">
+          {editingField === 'username' ? 'Username' : 'Bio'}
+        </label>
         <input
-          id="edit-username"
+          id="edit-field"
           type="text"
           className="auth-input"
-          value={editForm.username}
-          onChange={(e) => setEditForm((f) => ({ ...f, username: e.target.value }))}
-          required
-        />
-      </div>
-      <div className="input-group">
-        <label htmlFor="edit-bio">Bio</label>
-        <input
-          id="edit-bio"
-          type="text"
-          className="auth-input"
-          value={editForm.bio}
-          onChange={(e) => setEditForm((f) => ({ ...f, bio: e.target.value }))}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          required={editingField === 'username'}
         />
       </div>
       <button className="btn-gradient btn-full mt-12" type="submit">
@@ -274,10 +270,10 @@ const Profile: React.FC = () => {
       </>
     );
 
-    if (showEditForm) return (
+    if (editingField !== null) return (
       <>
         <div className={styles['profile-divider']} />
-        {renderEditForm()}
+        {renderEditFieldForm()}
       </>
     );
 
@@ -303,11 +299,19 @@ const Profile: React.FC = () => {
             </div>
             <ChevronRight size={16} className={styles['profile-action-chevron']} />
           </button>
-          <button className={styles['profile-action-row']} onClick={openEditForm}>
+          <button className={styles['profile-action-row']} onClick={() => openEditField('username')}>
             <div className={styles['profile-action-icon']}><Pencil size={16} /></div>
             <div className={styles['profile-action-body']}>
-              <span className={styles['profile-action-label']}>Edit Profile</span>
-              <span className={styles['profile-action-desc']}>Update your username and bio</span>
+              <span className={styles['profile-action-label']}>Edit Username</span>
+              <span className={styles['profile-action-desc']}>Change your display name</span>
+            </div>
+            <ChevronRight size={16} className={styles['profile-action-chevron']} />
+          </button>
+          <button className={styles['profile-action-row']} onClick={() => openEditField('bio')}>
+            <div className={styles['profile-action-icon']}><Pencil size={16} /></div>
+            <div className={styles['profile-action-body']}>
+              <span className={styles['profile-action-label']}>Edit Bio</span>
+              <span className={styles['profile-action-desc']}>Update your profile bio</span>
             </div>
             <ChevronRight size={16} className={styles['profile-action-chevron']} />
           </button>
@@ -364,7 +368,7 @@ const Profile: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           {/* back to skill maps */}
-          {!(showAvatarPicker || showEditForm || showPasswordForm) && (
+          {!(showAvatarPicker || editingField !== null || showPasswordForm) && (
             <button type="button" className={styles['profile-back-btn']} onClick={() => router.push('/skillmaps')}>
               <ArrowLeft size={14} /> Back to Skill Maps
             </button>
@@ -386,7 +390,7 @@ const Profile: React.FC = () => {
           </div>
 
           {/* bio + meta — hidden while editing */}
-          {!(showAvatarPicker || showEditForm || showPasswordForm) && (
+          {!(showAvatarPicker || editingField !== null || showPasswordForm) && (
             <>
               <div className={styles['profile-divider']} />
               <div className={styles["profile-section"]}>

@@ -68,6 +68,7 @@ export class ApiService {
     const res = await fetch(url, {
       method: "GET",
       headers: this.defaultHeaders,
+      cache: "no-store",
     });
     return this.processResponse<T>(
       res,
