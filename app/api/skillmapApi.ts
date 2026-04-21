@@ -25,8 +25,8 @@ export function updateSkillMap(
   return api.patch<SkillMap>(`/skillmaps/${id}`, data);
 }
 
-export function joinSkillMap(api: ApiService, inviteCode: string): Promise<SkillMap> {
-  return api.post<SkillMap>("/skillmaps/join", { inviteCode });
+export function joinSkillMap(api: ApiService, inviteCode: string): Promise<SkillMapMembership> {
+  return api.post<SkillMapMembership>("/skillmaps/join", { inviteCode });
 }
 
 export function getSkillMapGraph(api: ApiService, id: number): Promise<GraphResponse> {

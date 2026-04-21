@@ -16,12 +16,10 @@ const NewSkillMapPage: React.FC = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState(1);
-  const [isPublic, setIsPublic] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const map = await createSkillMap(api, { title, description, numberOfLevels, isPublic });
+      const map = await createSkillMap(api, { title, description, numberOfLevels, isPublic: false });
       router.push(`/skillmaps/${map.id}`);
     } catch (err) {
       const status = (err as ApplicationError).status;
@@ -63,11 +61,7 @@ const NewSkillMapPage: React.FC = () => {
             </div>
             <div className="input-group">
               <label>Number of Levels</label>
-              <input className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
-            </div>
-            <div className="input-group input-group--row">
-              <label htmlFor="isPublic">Public</label>
-              <input type="checkbox" id="isPublic" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+              <input className="auth-input" type="number" min={1} value={numberOfLevels || ""} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
             </div>
             <button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>

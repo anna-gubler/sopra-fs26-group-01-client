@@ -54,7 +54,7 @@ const SkillMapsPage: React.FC = () => {
     }
     try {
       const joined = await joinSkillMap(api, code);
-      router.push(`/skillmaps/${joined.id}`);
+      router.push(`/skillmaps/${joined.skillMapId}`);
     } catch (err) {
       if (err instanceof Error) {
         const status = (err as ApplicationError).status;
@@ -269,14 +269,21 @@ const SkillMapsPage: React.FC = () => {
                 </div>
 
                 <div className={styles['sm-card-meta']}>
-                  <span>📖 XX Skills</span>
-                  <span>👤 XX Students</span>
+                  <span>📖 {mapStats[map.id]?.skillCount ?? "—"} Skills</span>
+                  <span>👤 {mapStats[map.id]?.memberCount ?? "—"} Students</span>
                 </div>
 
                 <div className={styles['sm-progress-bar']}>
-                  <div className={styles['sm-progress-fill']} />
+                  <div
+                    className={styles['sm-progress-fill']}
+                    style={{ width: mapStats[map.id]?.skillCount
+                      ? `${Math.round((mapStats[map.id].unlockedCount / mapStats[map.id].skillCount) * 100)}%`
+                      : "0%" }}
+                  />
                 </div>
-                <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+                <div className={styles['sm-progress-label']}>
+                  {mapStats[map.id]?.unlockedCount ?? 0}/{mapStats[map.id]?.skillCount ?? "—"} skills completed
+                </div>
 
                 <div className={styles['sm-card-footer']}>
                   <span className={styles['sm-continue']}>Continue Learning &gt;</span>
