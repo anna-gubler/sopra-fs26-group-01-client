@@ -23,6 +23,7 @@ const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
 const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => {
   const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSelect = async (value: SpeedFeedback) => {
@@ -31,6 +32,8 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => 
     setSubmitting(true);
     try {
       await submitSpeedFeedback(api, session.id, value);
+      setSubmitted(true);
+      toast.success("Speed feedback submitted!");
     } catch {
       toast.error("Failed to submit speed feedback.");
       setSelected(null);
@@ -84,7 +87,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => 
           onClick={() => handleSelect(value)}
           disabled={submitting}
         >
-          {label}
+          {submitted && selected === value ? `✓ ${label}` : label}
         </button>
       ))}
     </div>
