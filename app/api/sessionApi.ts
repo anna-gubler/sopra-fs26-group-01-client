@@ -20,6 +20,16 @@ export function submitSpeedFeedback(api: ApiService, sessionId: number, feedback
   return api.put<void>(`/sessions/${sessionId}/speed`, { feedback });
 }
 
+export interface SpeedCounts {
+  tooSlow: number;
+  tooFast: number;
+  totalResponses: number;
+}
+
+export function getSpeedCounts(api: ApiService, sessionId: number): Promise<SpeedCounts> {
+  return api.get<SpeedCounts>(`/sessions/${sessionId}/speed`);
+}
+
 export function getQuestions(api: ApiService, sessionId: number): Promise<Question[]> {
   return api.get<Question[]>(`/sessions/${sessionId}/questions`);
 }

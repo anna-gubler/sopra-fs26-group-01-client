@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useApiContext } from "@/context/ApiContext";
-import { submitSpeedFeedback, SpeedFeedback } from "@/api/sessionApi";
+import { submitSpeedFeedback, getSpeedCounts, SpeedCounts, SpeedFeedback } from "@/api/sessionApi";
 import { CollaborationSession } from "@/types/session";
 import styles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
@@ -20,11 +20,23 @@ const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
 ];
 
 
+const POLL_INTERVAL_MS = 3000;
+
 const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => {
   const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [speedCounts, setSpeedCounts] = useState<SpeedCounts | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    const fetch = () => getSpeedCounts(api, session.id).then(setSpeedCounts).catch((err) => console.error("[SpeedIndicator] fetch failed:", err));
+    fetch();
+    intervalRef.current = setInterval(fetch, POLL_INTERVAL_MS);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [api, isOwner, session.id]);
 
   const handleSelect = async (value: SpeedFeedback) => {
     if (submitting || selected === value) return;
@@ -43,9 +55,9 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => 
   };
 
   const counts: Record<SpeedFeedback, number> = {
-    TOO_SLOW: session.tooSlowCount ?? 0,
-    OK: session.okCount ?? 0,
-    TOO_FAST: session.tooFastCount ?? 0,
+    TOO_SLOW: speedCounts?.tooSlow ?? 0,
+    TOO_FAST: speedCounts?.tooFast ?? 0,
+    OK: speedCounts ? speedCounts.totalResponses - speedCounts.tooSlow - speedCounts.tooFast : 0,
   };
 
   if (isOwner) {
@@ -71,9 +83,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => 
           <span>Just Right</span>
           <span>Too Fast</span>
         </div>
-        {total > 0 && (
-          <p className={styles["speed-gauge-count"]}>{total} response{total !== 1 ? "s" : ""}</p>
-        )}
+        <p className={styles["speed-gauge-count"]}>{total} response{total !== 1 ? "s" : ""}</p>
       </div>
     );
   }
