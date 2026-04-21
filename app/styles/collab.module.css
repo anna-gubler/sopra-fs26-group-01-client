@@ -10,13 +10,13 @@
 .btn-collab:hover {
   border-color: var(--collab);
   background: var(--collab);
-  color: #fff;
+  color: #f8e3ff;
 }
 
 .btn-collab-filled {
   border-color: var(--collab);
   background: var(--collab);
-  color: #1e1e2e;
+  color: #0a0a12;
   transition: opacity 0.15s;
 }
 

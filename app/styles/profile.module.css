@@ -227,5 +227,107 @@
 .profile-status-offline {
   font-size: 13px;
   font-weight: 600;
-  color: hsl(351, 80%, 60%);
+  color: var(--color-rose, #f38ba8);
+}
+
+/* back button above forms */
+.profile-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.profile-back-btn:hover {
+  color: var(--text-bright);
+}
+
+/* ── owner action settings list ── */
+
+.profile-actions {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.profile-action-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.profile-action-row:last-child {
+  border-bottom: none;
+}
+
+.profile-action-row:hover {
+  background: rgba(244, 114, 182, 0.06);
+}
+
+.profile-action-row:hover .profile-action-icon {
+  background: rgba(244, 114, 182, 0.18);
+  color: var(--primary);
+  border-color: rgba(244, 114, 182, 0.3);
+}
+
+.profile-action-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.profile-action-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-action-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-bright);
+  line-height: 1.3;
+}
+
+.profile-action-desc {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.profile-action-chevron {
+  color: var(--border-color);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.profile-action-row:hover .profile-action-chevron {
+  color: var(--primary);
+  transform: translateX(3px);
 }
