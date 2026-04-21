@@ -2,17 +2,17 @@
 
 .status-done {
   --skill-node-color: var(--accent);
-  --skill-node-glow: hsla(160, 60%, 52%, 0.35);
+  --skill-node-glow: rgba(52, 211, 153, 0.35);
 }
 
 .status-active {
   --skill-node-color: var(--primary);
-  --skill-node-glow: hsla(263, 70%, 58%, 0.35);
+  --skill-node-glow: rgba(244, 114, 182, 0.35);
 }
 
 .status-secondary {
   --skill-node-color: var(--secondary);
-  --skill-node-glow: hsla(330, 70%, 56%, 0.35);
+  --skill-node-glow: rgba(167, 139, 250, 0.35);
 }
 
 .status-default {

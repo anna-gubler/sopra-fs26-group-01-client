@@ -61,6 +61,11 @@ const NAV_HEIGHT = 56;
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
 
+const defaultEdgeOptions = {
+  style: { stroke: "#333355", strokeWidth: 1.5 },
+  animated: false,
+};
+
 
 const SkillMapEditorPage: React.FC = () => {
   const params = useParams();
@@ -463,6 +468,7 @@ const SkillMapEditorPage: React.FC = () => {
               edges={edges}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
+              defaultEdgeOptions={defaultEdgeOptions}
               onNodesChange={onNodesChange}
               onNodeClick={handleNodeClick}
               onNodeDragStop={handleNodeDragStop}
@@ -488,7 +494,7 @@ const SkillMapEditorPage: React.FC = () => {
                   laneHeight={LANE_HEIGHT}
                 />
               )}
-              <Background color="var(--border-color)" gap={40} />
+              <Background color="#252540" gap={24} />
               <SkillLegend />
             </ReactFlow>
           </div>

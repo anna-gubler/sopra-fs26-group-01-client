@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import { EdgeProps, getSmoothStepPath, useNodes } from "@xyflow/react";
 
 const colorMap: Record<string, string> = {
-  done:      "hsl(160, 60%, 52%)",
-  active:    "hsl(263, 70%, 58%)",
-  secondary: "hsl(330, 70%, 56%)",
-  default:   "hsl(258, 24%, 22%)",
+  done:      "#34d399",
+  active:    "#f472b6",
+  secondary: "#a78bfa",
+  default:   "#252540",
 };
 
 const GradientEdge: React.FC<EdgeProps> = ({ id, sourceX, sourceY, targetX, targetY, source, target }) => {
