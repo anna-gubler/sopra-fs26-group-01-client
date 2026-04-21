@@ -160,6 +160,8 @@
 }
 
 .sm-page {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   background: transparent;
   padding: 32px;
@@ -185,6 +187,8 @@
 }
 
 .sm-stat-card {
+  position: relative;
+  z-index: 1;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -234,6 +238,8 @@
 /* Map Card */
 
 .sm-card {
+  position: relative;
+  z-index: 1;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -335,7 +341,7 @@
 
 .sm-card-new {
   border: 2px dashed var(--border-color);
-  background-color: transparent;
+  background-color: var(--bg-surface);
   justify-content: center;
   align-items: center;
   min-height: 200px;

@@ -108,6 +108,7 @@ const SkillMapsPage: React.FC = () => {
 
   return (
     <div className={styles['sm-page']}>
+      <div className="grid-overlay" />
 
       {/* Navbar */}
       <nav className={styles['sm-nav']}>

@@ -50,6 +50,7 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles['auth-page']}>
+      <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}
         initial={{ opacity: 0, y: 24 }}

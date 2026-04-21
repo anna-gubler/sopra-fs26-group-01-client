@@ -12,8 +12,8 @@
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(244, 114, 182, 0.05) 1px, transparent 1px),
-    linear-gradient(to right, rgba(244, 114, 182, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(233, 30, 140, 0.06) 1px, transparent 1px),
+    linear-gradient(to right, rgba(233, 30, 140, 0.06) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 0;

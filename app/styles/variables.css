@@ -12,13 +12,13 @@
   --text-secondary: #c8b8e8;
   --text-muted:     #9880b8;
 
-  /* primary: hot pink */
-  --primary:       #f472b6;
-  --primary-light: #e879f9;
-  --primary-hover: #e879f9;
+  /* primary: magenta */
+  --primary:       #e91e8c;
+  --primary-light: #f040a8;
+  --primary-hover: #f040a8;
 
-  /* secondary: violet */
-  --secondary: #a78bfa;
+  /* secondary: fuchsia/purple */
+  --secondary: #9333ea;
 
   /* accent: emerald */
   --accent: #34d399;

@@ -8,9 +8,9 @@ import styles from "@/styles/collab.module.css";
 export function ratingColor(avg: number): string {
   if (avg <= 20) return "#f63f50";
   if (avg <= 40) return "#f97706";
-  if (avg <= 60) return "#fbbf24";
-  if (avg <= 80) return "#a3e635";
-  return "#54d596";
+  if (avg <= 60) return "#facc15";
+  if (avg <= 80) return "#4ade80";
+  return "#34d399";
 }
 
 interface UnderstandingHeatmapProps {

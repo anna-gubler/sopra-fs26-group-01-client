@@ -40,7 +40,7 @@ html, body {
 
 body {
   background-color: #0f0f1a;
-  background-image: radial-gradient(ellipse 80% 40% at 50% -10%, #f472b610 0%, transparent 70%);
+  background-image: radial-gradient(ellipse 80% 40% at 50% -10%, #e91e8c12 0%, transparent 70%);
   color: #f8e3ff;
   font-family: var(--font-body), system-ui, -apple-system, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
