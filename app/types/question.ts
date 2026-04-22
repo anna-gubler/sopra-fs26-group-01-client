@@ -3,7 +3,7 @@ export interface Question {
   sessionId: number;
   skillId: number;
   text: string;
-  upvoteCount: number;
+  upvotes: number;
   isAddressed: boolean;
   createdAt: string;
 }

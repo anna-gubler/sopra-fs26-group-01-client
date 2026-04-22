@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useEffect } from "react";
 import { ReactFlow, Background, Node, Edge, NodeMouseHandler, PanOnScrollMode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CollaborationSession } from "@/types/session";
@@ -11,9 +11,9 @@ import SkillNode from "./SkillNode";
 import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
 import { ratingColor } from "./UnderstandingHeatmap";
-import { RatingAggregate } from "@/hooks/useSessionRatings";
 import OwnerSidebar from "./OwnerSidebar";
 import StudentSidebar from "./StudentSidebar";
+import { useSessionRatings } from "@/hooks/useSessionRatings";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -35,7 +35,11 @@ interface CollabViewProps {
 }
 
 const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, onSkillClick, onAggregatedChange, liveSkills, liveQuestions }) => {
-  const [aggregated, setAggregated] = useState<Map<number, RatingAggregate>>(new Map());
+  const { aggregated, totalStudents } = useSessionRatings(session.id, skillMap.id);
+
+  useEffect(() => {
+    onAggregatedChange?.(aggregated);
+  }, [aggregated, onAggregatedChange]);
 
   const glowedNodes = useMemo(() => {
     if (!isOwner || aggregated.size === 0) return nodes;
@@ -48,22 +52,18 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
     });
   }, [nodes, isOwner, aggregated]);
 
-  const handleAggregatedChange = (agg: Map<number, RatingAggregate>) => {
-    setAggregated(agg);
-    onAggregatedChange?.(agg);
-  };
-
   return (
     <div className={styles["collab-layout"]}>
       <aside className={styles["collab-sidebar"]}>
         {isOwner ? (
           <OwnerSidebar
+            displayAggregated={aggregated}
+            totalStudents={totalStudents}
             session={session}
             skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
             onSkillClick={onSkillClick}
-            onAggregatedChange={handleAggregatedChange}
           />
         ) : (
           <StudentSidebar
@@ -104,6 +104,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           <Background color="#252540" gap={24} />
         </ReactFlow>
       </div>
+
     </div>
   );
 };

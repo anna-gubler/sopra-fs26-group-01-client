@@ -14,14 +14,25 @@
 }
 
 .btn-collab-filled {
-  border-color: var(--collab);
-  background: var(--collab);
-  color: #0a0a12;
-  transition: opacity 0.15s;
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--collab);
+  background: transparent;
+  color: var(--collab);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .btn-collab-filled:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--collab);
+  border-color: var(--collab);
+  color: #ffffff;
 }
 
 .btn-collab-filled:disabled {
@@ -155,36 +166,9 @@
 .speed-btn--TOO_FAST { border-color: var(--ctp-red); color: var(--ctp-red); }
 .speed-btn--TOO_FAST:hover:not(:disabled) { background: rgba(210, 70, 90, 0.12); }
 
-.speed-btn--selected {
-  transform: scale(1.04);
-  font-size: 13px;
-}
-
-.speed-btn--selected.speed-btn--TOO_SLOW {
-  background: rgba(139, 166, 235, 0.22);
-  border-width: 2px;
-  color: var(--ctp-blue);
-  box-shadow: 0 0 8px rgba(139, 166, 235, 0.35);
-}
-.speed-btn--selected.speed-btn--OK {
-  background: rgba(64, 200, 150, 0.22);
-  border-width: 2px;
-  color: var(--accent);
-  box-shadow: 0 0 8px rgba(64, 200, 150, 0.35);
-}
-.speed-btn--selected.speed-btn--TOO_FAST {
-  background: rgba(210, 70, 90, 0.22);
-  border-width: 2px;
-  color: var(--ctp-red);
-  box-shadow: 0 0 8px rgba(210, 70, 90, 0.35);
-}
-
-.speed-submitted {
-  font-size: 0.85rem;
-  color: var(--accent);
-  text-align: center;
-  padding: 8px 0;
-}
+.speed-btn--selected.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.2); }
+.speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
+.speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
 
 /* Speed indicator — lecturer gauge */
 .speed-gauge {
@@ -332,7 +316,8 @@
   background: var(--bg-elevated);
   color: var(--text-primary);
   font-size: 13px;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   font-family: inherit;
   line-height: 1.4;
   box-sizing: border-box;

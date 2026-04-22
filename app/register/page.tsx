@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { register } from "@/api/authApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ApplicationError } from "@/types/error";
@@ -19,6 +20,7 @@ const Register: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [bio, setBio] = useState("");
+  const bioResize = useAutoResize(bio);
   const [showPassword, setShowPassword] = useState(false);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
@@ -115,7 +117,9 @@ const Register: React.FC = () => {
             <label htmlFor="bio">Bio <span className="label-optional">(optional)</span></label>
             <textarea
               id="bio"
-              className="auth-input textarea-resize-v"
+              className="auth-input"
+              ref={bioResize.ref}
+              onInput={bioResize.onInput}
               placeholder="Tell us a bit about yourself"
               value={bio}
               onChange={(e) => setBio(e.target.value)}

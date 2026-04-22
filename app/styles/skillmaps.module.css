@@ -315,6 +315,16 @@
   margin-top: auto;
 }
 
+.sm-card--owner {
+  padding: 14px 16px;
+  gap: 8px;
+}
+
+.sm-card--owner .sm-card-footer {
+  margin-top: 0;
+}
+
+
 .sm-continue {
   font-size: 13px;
   color: var(--primary-light);
@@ -344,7 +354,7 @@
   background-color: var(--bg-surface);
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 140px;
   gap: 8px;
 }
 
@@ -556,7 +566,8 @@
   font-size: 14px;
   color: var(--text-bright);
   font-family: inherit;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   outline: none;
   width: 100%;
   box-sizing: border-box;

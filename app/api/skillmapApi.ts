@@ -36,3 +36,7 @@ export function getSkillMapGraph(api: ApiService, id: number): Promise<GraphResp
 export function getSkillMapMembers(api: ApiService, id: number): Promise<SkillMapMembership[]> {
   return api.get<SkillMapMembership[]>(`/skillmaps/${id}/members`);
 }
+
+export function deleteSkillMap(api: ApiService, id: number): Promise<void> {
+  return api.delete<void>(`/skillmaps/${id}`);
+}

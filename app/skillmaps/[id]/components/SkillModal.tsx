@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { ApiService } from "@/api/apiService";
 import { createSkill, updateSkill, deleteSkill } from "@/api/skillApi";
 import { Skill } from "@/types/skill";
@@ -50,6 +51,8 @@ const SkillModal: React.FC<SkillModalProps> = ({
   onSaved,
 }) => {
   const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "", resources: "" });
+  const descriptionResize = useAutoResize(skillForm.description);
+  const resourcesResize = useAutoResize(skillForm.resources);
 
   useEffect(() => {
     if (skill) {
@@ -115,6 +118,8 @@ const SkillModal: React.FC<SkillModalProps> = ({
             <textarea
               id="skill-description"
               className="auth-input"
+              ref={descriptionResize.ref}
+              onInput={descriptionResize.onInput}
               rows={3}
               value={skillForm.description}
               onChange={(e) => setSkillForm((f) => ({ ...f, description: e.target.value }))}
@@ -154,6 +159,8 @@ const SkillModal: React.FC<SkillModalProps> = ({
             <textarea
               id="skill-resources"
               className="auth-input"
+              ref={resourcesResize.ref}
+              onInput={resourcesResize.onInput}
               rows={2}
               value={skillForm.resources}
               onChange={(e) => setSkillForm((f) => ({ ...f, resources: e.target.value }))}

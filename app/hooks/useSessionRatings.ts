@@ -34,21 +34,14 @@ export function useSessionRatings(
   const [totalStudents, setTotalStudents] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Fetch member count once on mount
-  useEffect(() => {
-    getSkillMapMembers(api, skillMapId)
-      .then((members) => {
-        const studentCount = members.filter((m) => m.role === "STUDENT").length;
-        setTotalStudents(studentCount);
-      })
-      .catch(() => {});
-  }, [api, skillMapId]);
-
   const fetchRatings = useCallback(async () => {
     try {
-      const ratings: UnderstandingRating[] = await api.get(
-        `/sessions/${sessionId}/ratings`
-      );
+      const [ratings, members]: [UnderstandingRating[], Awaited<ReturnType<typeof getSkillMapMembers>>] = await Promise.all([
+        api.get(`/sessions/${sessionId}/ratings`) as Promise<UnderstandingRating[]>,
+        getSkillMapMembers(api, skillMapId),
+      ]);
+      const studentCount = members.filter((m) => m.role === "STUDENT").length;
+      setTotalStudents(studentCount);
       const grouped = new Map<number, number[]>();
       for (const r of ratings) {
         if (!grouped.has(r.skillId)) grouped.set(r.skillId, []);
@@ -63,7 +56,7 @@ export function useSessionRatings(
     } catch {
       // silently ignore poll errors
     }
-  }, [api, sessionId]);
+  }, [api, sessionId, skillMapId]);
 
   useEffect(() => {
     fetchRatings();

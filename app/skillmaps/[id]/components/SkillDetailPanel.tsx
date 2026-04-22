@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
@@ -48,16 +49,36 @@ const dotColor: Record<string, string> = {
 const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, api, sessionId, liveRating }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
+  const notesResize = useAutoResize(notes);
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const understandingRef = useRef(0);
+  const prevSessionIdRef = useRef<number | null>(null);
 
+  // Initialize slider from persisted understanding; sync to session if one is active
   useEffect(() => {
-    setUnderstanding(0);
-  }, [skill.id]);
+    const initial = skill.isUnderstood ? 100 : 0;
+    setUnderstanding(initial);
+    understandingRef.current = initial;
+    if (!isOwner && sessionId !== null && initial > 0) {
+      submitSkillRating(api, sessionId, skill.id, initial).catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skill.id, skill.isUnderstood]);
+
+  // When a session starts while the panel is open, submit the current understanding
+  useEffect(() => {
+    const prev = prevSessionIdRef.current;
+    prevSessionIdRef.current = sessionId;
+    if (prev === null && sessionId !== null && !isOwner && understandingRef.current > 0) {
+      submitSkillRating(api, sessionId, skill.id, understandingRef.current).catch(() => {});
+    }
+  }, [sessionId, api, skill.id, isOwner]);
 
   const handleUnderstandingChange = useCallback(
     (val: number) => {
       setUnderstanding(val);
+      understandingRef.current = val;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(async () => {
         try {
@@ -155,6 +176,8 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         <h3 className={styles["detail-panel-label"]}>Notes</h3>
         <textarea
           className={styles["detail-panel-notes"]}
+          ref={notesResize.ref}
+          onInput={notesResize.onInput}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={4}

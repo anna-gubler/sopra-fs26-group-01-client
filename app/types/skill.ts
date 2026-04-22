@@ -7,6 +7,7 @@ export interface Skill {
   resources: string;
   difficulty: string;
   isLocked: boolean;
+  isUnderstood: boolean;
   skillMapId: number;
   createdAt: string;
   updatedAt: string;

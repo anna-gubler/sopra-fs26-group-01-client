@@ -53,6 +53,9 @@ export class ApiService {
       error.details = errorDetail;
       throw error;
     }
+    if (res.status === 204 || res.headers.get("Content-Length") === "0") {
+      return Promise.resolve(undefined as T);
+    }
     return res.headers.get("Content-Type")?.includes("application/json")
       ? (res.json() as Promise<T>)
       : Promise.resolve(res as T);

@@ -10,7 +10,7 @@ const colorMap: Record<string, string> = {
   default:   "#252540",
 };
 
-const GradientEdge: React.FC<EdgeProps> = ({ id, sourceX, sourceY, targetX, targetY, source, target }) => {
+const GradientEdge: React.FC<EdgeProps> = ({ id, sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, source, target }) => {
   const [hovered, setHovered] = useState(false);
   const nodes = useNodes();
   const sourceNode = nodes.find((n) => n.id === source);
@@ -24,7 +24,7 @@ const GradientEdge: React.FC<EdgeProps> = ({ id, sourceX, sourceY, targetX, targ
 
   const gradientId = `gradient-${id}`;
 
-  const [edgePath] = getSmoothStepPath({ sourceX, sourceY, targetX, targetY, borderRadius: 0 });
+  const [edgePath] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, borderRadius: 0 });
 
   return (
     <g onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>

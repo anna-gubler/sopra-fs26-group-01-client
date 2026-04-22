@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { createSkillMap } from "@/api/skillmapApi";
 import { ApplicationError } from "@/types/error";
 import { motion } from "framer-motion";
@@ -15,11 +16,12 @@ const NewSkillMapPage: React.FC = () => {
   const api = useApi();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [numberOfLevels, setNumberOfLevels] = useState(1);
+  const [numberOfLevels, setNumberOfLevels] = useState("1");
+  const descriptionResize = useAutoResize(description);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const map = await createSkillMap(api, { title, description, numberOfLevels, isPublic: false });
+      const map = await createSkillMap(api, { title, description, numberOfLevels: Number(numberOfLevels), isPublic: false });
       router.push(`/skillmaps/${map.id}`);
     } catch (err) {
       const status = (err as ApplicationError).status;
@@ -57,13 +59,13 @@ const NewSkillMapPage: React.FC = () => {
             </div>
             <div className="input-group">
               <label htmlFor="map-description">Description</label>
-              <textarea id="map-description" className="auth-input" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
+              <textarea id="map-description" className="auth-input" ref={descriptionResize.ref} onInput={descriptionResize.onInput} value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
             </div>
             <div className="input-group">
               <label htmlFor="map-levels">Number of Levels</label>
-              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels || ""} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
+              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(e.target.value)} required />
             </div>
-            <button type="submit" className="btn-gradient btn-full">Create</button>
+<button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>
           </form>
         </motion.div>
