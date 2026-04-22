@@ -10,7 +10,7 @@ import { getMe } from "@/api/userApi";
 import { ApplicationError } from "@/types/error";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
 const EditSkillMapPage: React.FC = () => {
@@ -114,6 +114,9 @@ const EditSkillMapPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          <button type="button" className="btn-back" onClick={() => router.push(`/skillmaps/${id}`)}>
+            <ArrowLeft size={14} /> Back
+          </button>
           <h2 className="form-heading">Edit Skill Map</h2>
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="input-group">
@@ -166,42 +169,28 @@ const EditSkillMapPage: React.FC = () => {
               {!showDeleteConfirm ? (
                 <button
                   type="button"
-                  className="btn-ghost btn-full"
-                  style={{ color: "#f87171", borderColor: "rgba(248,113,113,0.3)" }}
+                  className="btn-ghost btn-ghost--danger btn-full"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
                   Delete Skill Map
                 </button>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem", textAlign: "center", margin: 0 }}>
-                    Are you sure? This cannot be undone.
-                  </p>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button
-                      type="button"
-                      className="btn-ghost btn-full"
-                      onClick={() => setShowDeleteConfirm(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-full"
-                      style={{
-                        background: "linear-gradient(135deg, #ef4444, #b91c1c)",
-                        border: "none",
-                        borderRadius: "var(--radius-md, 8px)",
-                        color: "white",
-                        cursor: "pointer",
-                        fontWeight: 600,
-                        padding: "0.625rem 1rem",
-                      }}
-                      onClick={handleDelete}
-                    >
-                      Confirm Delete
-                    </button>
-                  </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    type="button"
+                    className="btn-ghost btn-full"
+                    style={{ justifyContent: "center" }}
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost btn-ghost--danger btn-full"
+                    onClick={handleDelete}
+                  >
+                    Confirm Delete
+                  </button>
                 </div>
               )}
             </div>
