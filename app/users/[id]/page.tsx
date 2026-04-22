@@ -104,6 +104,7 @@ const Profile: React.FC = () => {
       const updated = await updateAvatar(apiService, style, seed);
       setUser(updated);
       setShowAvatarPicker(false);
+      router.refresh();
       toast.success("Avatar updated!");
     } catch {
       toast.error("Failed to update avatar. Please try again.");
