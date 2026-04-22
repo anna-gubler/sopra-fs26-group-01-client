@@ -779,6 +779,54 @@
   color: var(--text-muted);
 }
 
+/* Zoom controls */
+
+.recenter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 5px 0;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.recenter-btn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.zoom-btn {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.zoom-btn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
 /* Lane separators SVG overlay */
 .lane-svg {
   position: absolute;

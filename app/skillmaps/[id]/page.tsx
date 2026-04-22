@@ -198,6 +198,7 @@ const SkillMapEditorPage: React.FC = () => {
 
   const isScrollable = (skillMap?.numberOfLevels ?? 0) > 4;
   const graphHeight = typeof window !== "undefined" ? window.innerHeight - NAV_HEIGHT : 600;
+  const graphWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
   const contentHeight = (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT;
   const bottomViewportY = graphHeight - contentHeight - 20;
 
@@ -478,12 +479,12 @@ const SkillMapEditorPage: React.FC = () => {
               fitView={!isScrollable}
               fitViewOptions={{ padding: 0.3 }}
               defaultViewport={isScrollable ? { x: 0, y: bottomViewportY, zoom: 1 } : undefined}
-              translateExtent={isScrollable ? [[-Infinity, -50], [Infinity, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
+              translateExtent={isScrollable ? [[-300, -50], [graphWidth + 300, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
               panOnDrag={false}
               panOnScroll={isScrollable}
-              panOnScrollMode={isScrollable ? PanOnScrollMode.Vertical : PanOnScrollMode.Free}
+              panOnScrollMode={PanOnScrollMode.Free}
               zoomOnScroll={false}
-              zoomOnPinch={true}
+              zoomOnPinch={false}
               zoomOnDoubleClick={false}
               zoomActivationKeyCode={null}
               proOptions={{ hideAttribution: true }}
