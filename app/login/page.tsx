@@ -47,6 +47,7 @@ const Login: React.FC = () => {
 
   return (
     <div className={styles['auth-page']}>
+      <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}
         initial={{ opacity: 0, y: 24 }}
@@ -104,6 +105,7 @@ const Login: React.FC = () => {
               <button
                 type="button"
                 className="toggle-password"
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

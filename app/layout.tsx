@@ -1,19 +1,26 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Onest } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider, theme } from "antd";
+import { antdTheme } from "@/styles/antdTheme";
+import { buildCssVariables } from "@/styles/cssVariables";
 import "@/styles/globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700", "800"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const onest = Onest({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
+
+const cssVars = buildCssVariables();
 
 export const metadata: Metadata = {
   title: "Mappd",
@@ -26,9 +33,20 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
-        {children}
+    <html
+      lang="en"
+      className={`${bricolage.variable} ${onest.variable}`}
+      style={cssVars}
+    >
+      <body>
+        <a className="skip-to-content" href="#main-content">
+          Skip to content
+        </a>
+        <AntdRegistry>
+          <ConfigProvider theme={{ ...antdTheme, algorithm: theme.darkAlgorithm }}>
+            {children}
+          </ConfigProvider>
+        </AntdRegistry>
         <Toaster position="top-right" />
       </body>
     </html>

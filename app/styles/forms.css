@@ -35,6 +35,11 @@ textarea {
   font-family: inherit;
 }
 
+textarea {
+  resize: none;
+  overflow: hidden;
+}
+
 input[type="text"]:focus,
 input[type="password"]:focus,
 textarea:focus {
@@ -79,10 +84,6 @@ textarea::placeholder {
   color: hsl(351, 80%, 60%);
 }
 
-/* textarea that can be resized vertically */
-.textarea-resize-v {
-  resize: vertical;
-}
 
 /* input-group in horizontal (checkbox) layout */
 .input-group--row {

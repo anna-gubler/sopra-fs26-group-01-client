@@ -60,7 +60,6 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             displayAggregated={aggregated}
             totalStudents={totalStudents}
             session={session}
-            skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
             onSkillClick={onSkillClick}
@@ -68,7 +67,6 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
         ) : (
           <StudentSidebar
             session={session}
-            skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
           />
@@ -79,7 +77,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           <span>Live</span>
         </div>
       </aside>
-      <div className={styles["collab-graph"]}>
+      <div className={styles["collab-graph"]} role="application" aria-label="Collaboration skill map canvas">
         <ReactFlow
           nodes={glowedNodes}
           edges={edges}
@@ -101,7 +99,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           proOptions={{ hideAttribution: true }}
         >
           <LaneSeparators levels={skillMap.numberOfLevels} laneHeight={LANE_HEIGHT} />
-          <Background color="var(--border-color)" gap={40} />
+          <Background color="#252540" gap={24} />
         </ReactFlow>
       </div>
 

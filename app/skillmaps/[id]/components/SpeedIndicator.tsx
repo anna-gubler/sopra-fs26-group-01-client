@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useApiContext } from "@/context/ApiContext";
-import { submitSpeedFeedback, SpeedFeedback } from "@/api/sessionApi";
+import { submitSpeedFeedback, getSpeedCounts, SpeedCounts, SpeedFeedback } from "@/api/sessionApi";
 import { CollaborationSession } from "@/types/session";
 import styles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 interface SpeedIndicatorProps {
   isOwner: boolean;
   session: CollaborationSession;
-  skillMapId: number;
 }
 
 const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
@@ -19,18 +18,33 @@ const SPEED_OPTIONS: { value: SpeedFeedback; label: string }[] = [
   { value: "TOO_FAST", label: "Too Fast" },
 ];
 
+const POLL_INTERVAL_MS = 3000;
 
-const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skillMapId }) => {
+const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session }) => {
   const api = useApiContext();
   const [selected, setSelected] = useState<SpeedFeedback | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [speedCounts, setSpeedCounts] = useState<SpeedCounts | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    const fetch = () => getSpeedCounts(api, session.id).then(setSpeedCounts).catch(() => {});
+    fetch();
+    intervalRef.current = setInterval(fetch, POLL_INTERVAL_MS);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [api, isOwner, session.id]);
 
   const handleSelect = async (value: SpeedFeedback) => {
     if (submitting || selected === value) return;
     setSelected(value);
+    setSubmitted(false);
     setSubmitting(true);
     try {
-      await submitSpeedFeedback(api, skillMapId, value);
+      await submitSpeedFeedback(api, session.id, value);
+      setSubmitted(true);
+      toast.success("Speed feedback submitted!");
     } catch {
       toast.error("Failed to submit speed feedback.");
       setSelected(null);
@@ -40,14 +54,13 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skill
   };
 
   const counts: Record<SpeedFeedback, number> = {
-    TOO_SLOW: session.tooSlowCount ?? 0,
-    OK: session.okCount ?? 0,
-    TOO_FAST: session.tooFastCount ?? 0,
+    TOO_SLOW: speedCounts?.tooSlow ?? 0,
+    TOO_FAST: speedCounts?.tooFast ?? 0,
+    OK: speedCounts ? speedCounts.totalResponses - speedCounts.tooSlow - speedCounts.tooFast : 0,
   };
 
   if (isOwner) {
     const total = counts.TOO_SLOW + counts.OK + counts.TOO_FAST;
-    // weighted score: TOO_SLOW=0, OK=50, TOO_FAST=100
     const score = total === 0 ? 50 : (counts.OK * 50 + counts.TOO_FAST * 100) / total;
     const isWarn = score > 75 || score < 25;
     const fillLeft = Math.min(50, score);
@@ -77,16 +90,19 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({ isOwner, session, skill
 
   return (
     <div className={styles["speed-buttons"]}>
-      {SPEED_OPTIONS.map(({ value, label }) => (
-        <button
-          key={value}
-          className={`${styles["speed-btn"]} ${styles[`speed-btn--${value}`]} ${selected === value ? styles["speed-btn--selected"] : ""}`}
-          onClick={() => handleSelect(value)}
-          disabled={submitting}
-        >
-          {label}
-        </button>
-      ))}
+      {SPEED_OPTIONS.map(({ value, label }) => {
+        const isSelected = selected === value;
+        return (
+          <button
+            key={value}
+            className={`${styles["speed-btn"]} ${styles[`speed-btn--${value}`]} ${isSelected ? styles["speed-btn--selected"] : ""} ${isSelected && submitted ? styles["speed-btn--submitted"] : ""}`}
+            onClick={() => handleSelect(value)}
+            disabled={submitting}
+          >
+            {isSelected && submitted ? `✓ ${label}` : label}
+          </button>
+        );
+      })}
     </div>
   );
 };

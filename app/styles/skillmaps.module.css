@@ -12,7 +12,7 @@
 .sm-nav-logo {
   font-size: 20px;
   font-weight: 700;
-  font-family: var(--font-space-grotesk), Arial, sans-serif;
+  font-family: var(--font-display), Arial, sans-serif;
   color: var(--text-bright);
 }
 
@@ -160,11 +160,13 @@
 }
 
 .sm-page {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
-  background-color: var(--bg-deep);
+  background: transparent;
   padding: 32px;
   color: var(--text-bright);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }
 
 .sm-loading {
@@ -172,7 +174,6 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-deep);
   color: var(--text-bright);
 }
 
@@ -186,6 +187,8 @@
 }
 
 .sm-stat-card {
+  position: relative;
+  z-index: 1;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -235,6 +238,8 @@
 /* Map Card */
 
 .sm-card {
+  position: relative;
+  z-index: 1;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -310,6 +315,16 @@
   margin-top: auto;
 }
 
+.sm-card--owner {
+  padding: 14px 16px;
+  gap: 8px;
+}
+
+.sm-card--owner .sm-card-footer {
+  margin-top: 0;
+}
+
+
 .sm-continue {
   font-size: 13px;
   color: var(--primary-light);
@@ -336,10 +351,10 @@
 
 .sm-card-new {
   border: 2px dashed var(--border-color);
-  background-color: transparent;
+  background-color: var(--bg-surface);
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 140px;
   gap: 8px;
 }
 
@@ -366,7 +381,7 @@
   flex-direction: column;
   width: 100vw;
   height: 100vh;
-  background: var(--bg-deep);
+  background: transparent;
 }
 
 .sm-map-nav {
@@ -551,7 +566,8 @@
   font-size: 14px;
   color: var(--text-bright);
   font-family: inherit;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   outline: none;
   width: 100%;
   box-sizing: border-box;

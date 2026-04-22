@@ -5,6 +5,10 @@ export function getSkill(api: ApiService, skillId: number): Promise<Skill> {
   return api.get<Skill>(`/skills/${skillId}`);
 }
 
+export function getSkills(api: ApiService, skillMapId: number): Promise<Skill[]> {
+  return api.get<Skill[]>(`/skillmaps/${skillMapId}/skills`);
+}
+
 export function createSkill(
   api: ApiService,
   skillMapId: number,

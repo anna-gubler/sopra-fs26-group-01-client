@@ -10,18 +10,29 @@
 .btn-collab:hover {
   border-color: var(--collab);
   background: var(--collab);
-  color: #fff;
+  color: #f8e3ff;
 }
 
 .btn-collab-filled {
-  border-color: var(--collab);
-  background: var(--collab);
-  color: #1e1e2e;
-  transition: opacity 0.15s;
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--collab);
+  background: transparent;
+  color: var(--collab);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .btn-collab-filled:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--collab);
+  border-color: var(--collab);
+  color: #ffffff;
 }
 
 .btn-collab-filled:disabled {
@@ -158,6 +169,10 @@
 .speed-btn--selected.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.2); }
 .speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
 .speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
+
+.speed-btn--submitted.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.45); }
+.speed-btn--submitted.speed-btn--OK       { background: rgba(64, 200, 150, 0.45); }
+.speed-btn--submitted.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.45); }
 
 /* Speed indicator — lecturer gauge */
 .speed-gauge {
@@ -305,7 +320,8 @@
   background: var(--bg-elevated);
   color: var(--text-primary);
   font-size: 13px;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   font-family: inherit;
   line-height: 1.4;
   box-sizing: border-box;
@@ -447,7 +463,7 @@
   font-weight: 700;
   line-height: 1.1;
   color: var(--text-bright);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-display), sans-serif;
   margin-top: 6px;
 }
 

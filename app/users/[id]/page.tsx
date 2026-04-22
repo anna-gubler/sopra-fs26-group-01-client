@@ -8,7 +8,7 @@ import { logout } from "@/api/authApi";
 import { User } from "@/types/user";
 import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { BookOpen, Eye, EyeOff } from "lucide-react";
+import { BookOpen, Eye, EyeOff, Camera, Pencil, Lock, ChevronRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { ApplicationError } from "@/types/error";
@@ -21,8 +21,8 @@ const Profile: React.FC = () => {
   const apiService = useApi();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editForm, setEditForm] = useState({ username: "", bio: "" });
+  const [editingField, setEditingField] = useState<'username' | 'bio' | null>(null);
+  const [editValue, setEditValue] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
@@ -34,21 +34,25 @@ const Profile: React.FC = () => {
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", "");
   const isOwnProfile = id === "me" || String(loggedInId) === String(id);
 
-  const openEditForm = () => {
-    setEditForm({ username: user?.username ?? "", bio: user?.bio ?? "" });
-    setShowEditForm(true);
+  const openEditField = (field: 'username' | 'bio') => {
+    setEditValue(field === 'username' ? (user?.username ?? "") : (user?.bio ?? ""));
+    setEditingField(field);
   };
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateField = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const updated = await updateMe(apiService, { username: editForm.username, bio: editForm.bio });
+      const patch = editingField === 'username'
+        ? { username: editValue }
+        : { bio: editValue };
+      const updated = await updateMe(apiService, patch);
       setUser(updated);
-      setShowEditForm(false);
+      setEditingField(null);
+      router.refresh();
       toast.success("Profile updated.");
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
-      if (status === 409) {
+      if (status === 409 && editingField === 'username') {
         toast.error("That username is already taken.");
       } else {
         toast.error("Failed to update profile. Please try again.");
@@ -141,6 +145,9 @@ const Profile: React.FC = () => {
 
   const renderPasswordForm = () => (
     <form onSubmit={handleChangePassword}>
+      <button type="button" className={styles['profile-back-btn']} onClick={resetPasswordForm}>
+        <ArrowLeft size={14} /> Back
+      </button>
       <div className="input-group">
         <label htmlFor="old-password">Old Password</label>
         <div className="password-field">
@@ -153,7 +160,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, oldPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, old: !s.old }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.old ? "Hide old password" : "Show old password"} onClick={() => setShowPasswords((s) => ({ ...s, old: !s.old }))}>
             {showPasswords.old ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
@@ -170,7 +177,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, newPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.new ? "Hide new password" : "Show new password"} onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}>
             {showPasswords.new ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
@@ -190,7 +197,7 @@ const Profile: React.FC = () => {
             onChange={(e) => setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))}
             required
           />
-          <button type="button" className="toggle-password" onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}>
+          <button type="button" className="toggle-password" aria-label={showPasswords.confirm ? "Hide confirm password" : "Show confirm password"} onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}>
             {showPasswords.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
@@ -201,64 +208,128 @@ const Profile: React.FC = () => {
       <button className="btn-gradient btn-full mt-12" type="submit">
         Confirm Password Change
       </button>
-      <button type="button" className="btn-ghost btn-full mt-12" onClick={resetPasswordForm}>
-        Cancel
-      </button>
     </form>
   );
 
-  const renderEditForm = () => (
-    <form onSubmit={handleUpdateProfile}>
+  const renderEditFieldForm = () => (
+    <form onSubmit={handleUpdateField}>
+      <button type="button" className={styles['profile-back-btn']} onClick={() => setEditingField(null)}>
+        <ArrowLeft size={14} /> Back
+      </button>
       <div className="input-group">
-        <label htmlFor="edit-username">Username</label>
+        <label htmlFor="edit-field">
+          {editingField === 'username' ? 'Username' : 'Bio'}
+        </label>
         <input
-          id="edit-username"
+          id="edit-field"
           type="text"
           className="auth-input"
-          value={editForm.username}
-          onChange={(e) => setEditForm((f) => ({ ...f, username: e.target.value }))}
-          required
-        />
-      </div>
-      <div className="input-group">
-        <label htmlFor="edit-bio">Bio</label>
-        <input
-          id="edit-bio"
-          type="text"
-          className="auth-input"
-          value={editForm.bio}
-          onChange={(e) => setEditForm((f) => ({ ...f, bio: e.target.value }))}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          required={editingField === 'username'}
         />
       </div>
       <button className="btn-gradient btn-full mt-12" type="submit">
         Save Changes
       </button>
-      <button type="button" className="btn-ghost btn-full mt-12" onClick={() => setShowEditForm(false)}>
-        Cancel
-      </button>
     </form>
   );
 
-  const renderOwnerActions = () => (
-    <>
-      <div className={styles['profile-divider']} />
-      {!showEditForm && !showPasswordForm && (
-        <button className="btn-ghost btn-full" onClick={openEditForm}>
-          Edit Profile
+  const renderOwnerActions = () => {
+    if (showAvatarPicker) return (
+      <>
+        <div className={styles['profile-divider']} />
+        <button type="button" className={styles['profile-back-btn']} onClick={() => setShowAvatarPicker(false)}>
+          <ArrowLeft size={14} /> Back
         </button>
-      )}
-      {showEditForm && renderEditForm()}
-      {!showEditForm && !showPasswordForm && (
-        <button
-          className="btn-ghost btn-full mt-12"
-          onClick={() => { setShowPasswordForm(true); setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" }); }}
-        >
-          Change Password
+        <p className={styles['profile-section-label']}>Pick a style:</p>
+        <div className={styles['avatar-picker-grid']}>
+          {avatarStyles.map((style) => (
+            <button
+              key={style}
+              className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
+              onClick={() => setSelectedStyle(style)}
+            >
+              <img src={getAvatarUrl(selectedSeed || user.seed, style)} className={styles['profile-avatar-img']} alt={style} />
+            </button>
+          ))}
+        </div>
+        <div className="input-group">
+          <label>Seed (leave blank to keep current)</label>
+          <input
+            type="text"
+            className="auth-input"
+            placeholder={user.seed ?? "Enter a seed"}
+            value={selectedSeed}
+            onChange={(e) => setSelectedSeed(e.target.value)}
+          />
+        </div>
+        <button className="btn-gradient btn-full mt-8" onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || (user.seed ?? user.username ?? ""))}>
+          Save Avatar
         </button>
-      )}
-      {showPasswordForm && renderPasswordForm()}
-    </>
-  );
+      </>
+    );
+
+    if (editingField !== null) return (
+      <>
+        <div className={styles['profile-divider']} />
+        {renderEditFieldForm()}
+      </>
+    );
+
+    if (showPasswordForm) return (
+      <>
+        <div className={styles['profile-divider']} />
+        {renderPasswordForm()}
+      </>
+    );
+
+    return (
+      <>
+        <div className={styles['profile-divider']} />
+        <div className={styles['profile-actions']}>
+          <button
+            className={styles['profile-action-row']}
+            onClick={() => { setSelectedStyle(user.style ?? "bottts-neutral"); setShowAvatarPicker(true); }}
+          >
+            <div className={styles['profile-action-icon']}><Camera size={16} /></div>
+            <div className={styles['profile-action-body']}>
+              <span className={styles['profile-action-label']}>Change Avatar</span>
+              <span className={styles['profile-action-desc']}>Choose a new avatar style and seed</span>
+            </div>
+            <ChevronRight size={16} className={styles['profile-action-chevron']} />
+          </button>
+          <button className={styles['profile-action-row']} onClick={() => openEditField('username')}>
+            <div className={styles['profile-action-icon']}><Pencil size={16} /></div>
+            <div className={styles['profile-action-body']}>
+              <span className={styles['profile-action-label']}>Edit Username</span>
+              <span className={styles['profile-action-desc']}>Change your display name</span>
+            </div>
+            <ChevronRight size={16} className={styles['profile-action-chevron']} />
+          </button>
+          <button className={styles['profile-action-row']} onClick={() => openEditField('bio')}>
+            <div className={styles['profile-action-icon']}><Pencil size={16} /></div>
+            <div className={styles['profile-action-body']}>
+              <span className={styles['profile-action-label']}>Edit Bio</span>
+              <span className={styles['profile-action-desc']}>Update your profile bio</span>
+            </div>
+            <ChevronRight size={16} className={styles['profile-action-chevron']} />
+          </button>
+          <button
+            className={styles['profile-action-row']}
+            onClick={() => { setShowPasswordForm(true); setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" }); }}
+          >
+            <div className={styles['profile-action-icon']}><Lock size={16} /></div>
+            <div className={styles['profile-action-body']}>
+              <span className={styles['profile-action-label']}>Change Password</span>
+              <span className={styles['profile-action-desc']}>Update your account password</span>
+            </div>
+            <ChevronRight size={16} className={styles['profile-action-chevron']} />
+          </button>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="page-deep">
@@ -296,6 +367,13 @@ const Profile: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          {/* back to skill maps */}
+          {!(showAvatarPicker || editingField !== null || showPasswordForm) && (
+            <button type="button" className={styles['profile-back-btn']} onClick={() => router.push('/skillmaps')}>
+              <ArrowLeft size={14} /> Back to Skill Maps
+            </button>
+          )}
+
           {/* avatar + username */}
           <div className={styles['profile-header']}>
             <div className={styles['profile-avatar']}>
@@ -311,86 +389,30 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* avatar picker - only for own profile */}
-          {isOwnProfile && !showAvatarPicker && (
-            <button
-              className="btn-ghost btn-full"
-              onClick={() => {
-                setSelectedStyle(user.style ?? "bottts-neutral");
-                setShowAvatarPicker(true);
-              }}
-            >
-              Change Avatar
-            </button>
-          )}
-
-          {isOwnProfile && showAvatarPicker && (
-            <div>
-              <p className={styles['profile-section-label']}>Pick a style:</p>
-              <div className={styles['avatar-picker-grid']}>
-                {avatarStyles.map((style) => (
-                  <button
-                    key={style}
-                    className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
-                    onClick={() => setSelectedStyle(style)}
-                  >
-                    <img
-                      src={getAvatarUrl(selectedSeed || user.seed, style)}
-                      className={styles['profile-avatar-img']}
-                      alt={style}
-                    />
-                  </button>
-                ))}
+          {/* bio + meta — hidden while editing */}
+          {!(showAvatarPicker || editingField !== null || showPasswordForm) && (
+            <>
+              <div className={styles['profile-divider']} />
+              <div className={styles["profile-section"]}>
+                <p className={styles["profile-section-label"]}>Bio</p>
+                <p className={styles["profile-section-text"]}>
+                  {user.bio || <span className={styles["profile-empty"]}>No bio yet.</span>}
+                </p>
               </div>
-              <div className="input-group">
-                <label>Seed (leave blank to keep current)</label>
-                <input
-                  type="text"
-                  className="auth-input"
-                  placeholder={user.seed ?? "Enter a seed"}
-                  value={selectedSeed}
-                  onChange={(e) => setSelectedSeed(e.target.value)}
-                />
+              <div className={styles["profile-meta-row"]}>
+                <div>
+                  <p className={styles["profile-meta-label"]}>Status</p>
+                  <span className={user.status === "ONLINE" ? styles["profile-status-online"] : styles["profile-status-offline"]}>
+                    ● {user.status}
+                  </span>
+                </div>
+                <div>
+                  <p className={styles["profile-meta-label"]}>Member Since</p>
+                  <span className={styles["profile-meta-value"]}>{dateFormat}</span>
+                </div>
               </div>
-              <button
-                className="btn-gradient btn-full mt-8"
-                onClick={() => handleAvatarUpdate(selectedStyle, selectedSeed || (user.seed ?? user.username ?? ""))}
-              >
-                Save Avatar
-              </button>
-              <button
-                className="btn-ghost btn-full mt-8"
-                onClick={() => setShowAvatarPicker(false)}
-              >
-                Cancel
-              </button>
-            </div>
+            </>
           )}
-
-          {/* divider */}
-          <div className={styles['profile-divider']} />
-
-          {/* bio */}
-          <div className={styles["profile-section"]}>
-            <p className={styles["profile-section-label"]}>Bio</p>
-            <p className={styles["profile-section-text"]}>
-              {user.bio || <span className={styles["profile-empty"]}>No bio yet.</span>}
-            </p>
-          </div>
-
-          {/* status + joined */}
-          <div className={styles["profile-meta-row"]}>
-            <div>
-              <p className={styles["profile-meta-label"]}>Status</p>
-              <span className={user.status === "ONLINE" ? styles["profile-status-online"] : styles["profile-status-offline"]}>
-                ● {user.status}
-              </span>
-            </div>
-            <div>
-              <p className={styles["profile-meta-label"]}>Member Since</p>
-              <span className={styles["profile-meta-value"]}>{dateFormat}</span>
-            </div>
-          </div>
 
           {/* own profile actions */}
           {isOwnProfile && renderOwnerActions()}

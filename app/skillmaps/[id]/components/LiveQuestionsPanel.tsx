@@ -67,14 +67,14 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
   return (
     <div className={styles["qa-list"]}>
       {sortedSkillIds.map((skillId) => {
-        const group = grouped[skillId].slice().sort((a, b) => b.upvotes - a.upvotes);
+        const group = grouped[skillId].slice().sort((a, b) => b.upvoteCount - a.upvoteCount);
         const skillName = skillNameMap[skillId] ?? `Skill #${skillId}`;
         return (
           <div key={skillId} className={styles["qa-skill-group"]}>
             <div className={styles["qa-skill-name"]}>{skillName}</div>
             {group.map((q) => (
               <div key={q.id} className={styles["qa-item"]}>
-                <span className={styles["qa-upvotes"]}>{q.upvotes}</span>
+                <span className={styles["qa-upvotes"]}>{q.upvoteCount}</span>
                 <span className={styles["qa-text"]}>{q.text}</span>
                 <button
                   className={styles["qa-addressed-btn"]}
@@ -102,7 +102,7 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
             <div className={styles["qa-addressed-list"]}>
               {addressedQuestions.map((q) => (
                 <div key={q.id} className={`${styles["qa-item"]} ${styles["qa-item--addressed"]}`}>
-                  <span className={styles["qa-upvotes"]}>{q.upvotes}</span>
+                  <span className={styles["qa-upvotes"]}>{q.upvoteCount}</span>
                   <span className={styles["qa-text"]}>{q.text}</span>
                   <button
                     className={styles["qa-putback-btn"]}

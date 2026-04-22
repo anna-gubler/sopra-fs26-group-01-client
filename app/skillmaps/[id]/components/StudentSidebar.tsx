@@ -10,14 +10,12 @@ import styles from "@/styles/collab.module.css";
 
 interface StudentSidebarProps {
   session: CollaborationSession;
-  skillMapId: number;
   liveSkills: Skill[];
   liveQuestions: Question[];
 }
 
 const StudentSidebar: React.FC<StudentSidebarProps> = ({
   session,
-  skillMapId,
   liveSkills,
   liveQuestions,
 }) => (
@@ -28,7 +26,7 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({
     </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Session Speed</h3>
-      <SpeedIndicator isOwner={false} session={session} skillMapId={skillMapId} />
+      <SpeedIndicator isOwner={false} session={session} />
     </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Ask a Question</h3>

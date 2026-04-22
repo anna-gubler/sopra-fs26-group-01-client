@@ -14,7 +14,6 @@ interface OwnerSidebarProps {
   displayAggregated: Map<number, { avg: number; count: number }>;
   totalStudents: number;
   session: CollaborationSession;
-  skillMapId: number;
   liveSkills: Skill[];
   liveQuestions: Question[];
   onSkillClick?: (skill: Skill, avg: number) => void;
@@ -24,7 +23,6 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({
   displayAggregated,
   totalStudents,
   session,
-  skillMapId,
   liveSkills,
   liveQuestions,
   onSkillClick,
@@ -40,7 +38,7 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({
     </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Speed Indicator</h3>
-      <SpeedIndicator isOwner={true} session={session} skillMapId={skillMapId} />
+      <SpeedIndicator isOwner={true} session={session} />
     </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Live Questions</h3>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { useApiContext } from "@/context/ApiContext";
 import { postQuestion, upvoteQuestion, removeUpvote } from "@/api/sessionApi";
 import { Question } from "@/types/question";
@@ -19,6 +20,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
   const api = useApiContext();
   const [skillId, setSkillId] = useState<number>(skills[0]?.id ?? 0);
   const [text, setText] = useState("");
+  const textResize = useAutoResize(text);
   const [submitting, setSubmitting] = useState(false);
   const [upvoted, setUpvoted] = useState<Set<number>>(new Set());
 
@@ -62,7 +64,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
 
   const active = questions
     .filter((q) => !q.isAddressed)
-    .sort((a, b) => b.upvotes - a.upvotes);
+    .sort((a, b) => b.upvoteCount - a.upvoteCount);
 
   return (
     <div className={styles["qa-ask"]}>
@@ -79,6 +81,8 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
         </select>
         <textarea
           className={styles["qa-textarea"]}
+          ref={textResize.ref}
+          onInput={textResize.onInput}
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Ask a question..."
@@ -86,7 +90,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
           disabled={submitting}
         />
         <button
-          className={`btn-ghost ${styles["btn-collab-filled"]}`}
+          className={styles["btn-collab-filled"]}
           onClick={handleSubmit}
           disabled={submitting || !text.trim()}
         >
@@ -101,7 +105,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
                 className={`${styles["qa-upvote-btn"]} ${upvoted.has(q.id) ? styles["qa-upvote-btn--active"] : ""}`}
                 onClick={() => handleUpvote(q.id)}
               >
-                ▲ {q.upvotes}
+                ▲ {q.upvoteCount}
               </button>
               <span className={styles["qa-text"]}>{q.text}</span>
             </div>

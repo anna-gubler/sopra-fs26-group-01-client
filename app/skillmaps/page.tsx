@@ -54,7 +54,7 @@ const SkillMapsPage: React.FC = () => {
     }
     try {
       const joined = await joinSkillMap(api, code);
-      router.push(`/skillmaps/${joined.id}`);
+      router.push(`/skillmaps/${joined.skillMapId}`);
     } catch (err) {
       if (err instanceof Error) {
         const status = (err as ApplicationError).status;
@@ -84,8 +84,8 @@ const SkillMapsPage: React.FC = () => {
             ]);
             return [map.id, {
               skillCount: graph.skills.length,
-              unlockedCount: graph.skills.filter((s) => !s.isLocked).length,
-              memberCount: members.length,
+              unlockedCount: graph.skills.filter((s) => s.isUnderstood).length,
+              memberCount: members.filter((m) => m.role === "STUDENT").length,
             }] as [number, MapStats];
           })
         );
@@ -108,6 +108,7 @@ const SkillMapsPage: React.FC = () => {
 
   return (
     <div className={styles['sm-page']}>
+      <div className="grid-overlay" />
 
       {/* Navbar */}
       <nav className={styles['sm-nav']}>
@@ -121,6 +122,7 @@ const SkillMapsPage: React.FC = () => {
           <button
             onClick={() => router.push("/users/me")}
             className={styles['sm-nav-avatar']}
+            aria-label="Go to profile"
           >
             <img
               src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
@@ -133,10 +135,13 @@ const SkillMapsPage: React.FC = () => {
         </div>
       </nav>
 
+      <main id="main-content">
+
       {/* Welcome */}
       <div className={styles['sm-welcome']}>
         <button
           className={styles['sm-welcome-avatar']}
+          aria-label="Go to profile"
           onClick={() => router.push("/users/me")}>
             <img
               src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
@@ -172,18 +177,18 @@ const SkillMapsPage: React.FC = () => {
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
           <span className={`${styles['sm-stat-value']} ${styles.green}`}>
-            {Object.values(mapStats).reduce((s, m) => s + m.unlockedCount, 0)}
-            /{Object.values(mapStats).reduce((s, m) => s + m.skillCount, 0)}
+            {skillMaps.filter((m) => m.ownerId !== user?.id).reduce((s, m) => s + (mapStats[m.id]?.unlockedCount ?? 0), 0)}
+            /{skillMaps.filter((m) => m.ownerId !== user?.id).reduce((s, m) => s + (mapStats[m.id]?.skillCount ?? 0), 0)}
           </span>
         </div>
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS REMAINING</span>
           <span className={`${styles['sm-stat-value']} ${styles.orange}`}>
-            {Object.values(mapStats).reduce((s, m) => s + (m.skillCount - m.unlockedCount), 0)}
+            {skillMaps.filter((m) => m.ownerId !== user?.id).reduce((s, m) => s + ((mapStats[m.id]?.skillCount ?? 0) - (mapStats[m.id]?.unlockedCount ?? 0)), 0)}
           </span>
         </div>
         <div className={styles['sm-stat-card']}>
-          <span className={styles['sm-stat-label']}>MAPS JOINED</span>
+          <span className={styles['sm-stat-label']}>TOTAL MAPS</span>
           <span className={`${styles['sm-stat-value']} ${styles.orange}`}>{skillMaps.length}</span>
         </div>
       </div>
@@ -193,7 +198,7 @@ const SkillMapsPage: React.FC = () => {
 
       <div className={styles['sm-grid']}>
         {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
-          <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+          <div key={map.id} className={`${styles['sm-card']} ${styles['sm-card--owner']}`} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
                 <div className={styles['sm-card-title']}>{map.title}</div>
@@ -201,7 +206,7 @@ const SkillMapsPage: React.FC = () => {
               </div>
             </div>
 
-            {map.isPublic && map.inviteCode && (
+            {map.inviteCode && (
               <div className={styles['sm-invite-row']}>
                 <span className={styles['sm-invite-code']}>
                   Code: <strong>{map.inviteCode}</strong>
@@ -224,20 +229,8 @@ const SkillMapsPage: React.FC = () => {
               <span>👤 {mapStats[map.id]?.memberCount ?? "—"} Students</span>
             </div>
 
-            <div className={styles['sm-progress-bar']}>
-              <div
-                className={styles['sm-progress-fill']}
-                style={{ width: mapStats[map.id]?.skillCount
-                  ? `${Math.round((mapStats[map.id].unlockedCount / mapStats[map.id].skillCount) * 100)}%`
-                  : "0%" }}
-              />
-            </div>
-            <div className={styles['sm-progress-label']}>
-              {mapStats[map.id]?.unlockedCount ?? 0}/{mapStats[map.id]?.skillCount ?? "—"} skills completed
-            </div>
-
             <div className={styles['sm-card-footer']}>
-              <span className={styles['sm-continue']}>Continue Learning &gt;</span>
+              <span className={styles['sm-continue']}>Continue Mapping &gt;</span>
               <button
                 className={styles['sm-edit-btn']}
                 onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
@@ -248,7 +241,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
@@ -260,7 +253,7 @@ const SkillMapsPage: React.FC = () => {
           <div className={styles['sm-section-title']}>JOINED MAPS</div>
           <div className={styles['sm-grid']}>
             {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
-              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
                 <div className={styles['sm-card-top']}>
                   <div>
                     <div className={styles['sm-card-title']}>{map.title}</div>
@@ -269,23 +262,32 @@ const SkillMapsPage: React.FC = () => {
                 </div>
 
                 <div className={styles['sm-card-meta']}>
-                  <span>📖 XX Skills</span>
-                  <span>👤 XX Students</span>
+                  <span>📖 {mapStats[map.id]?.skillCount ?? "—"} Skills</span>
+                  <span>👤 {mapStats[map.id]?.memberCount ?? "—"} Students</span>
                 </div>
 
                 <div className={styles['sm-progress-bar']}>
-                  <div className={styles['sm-progress-fill']} />
+                  <div
+                    className={styles['sm-progress-fill']}
+                    style={{ width: mapStats[map.id]?.skillCount
+                      ? `${Math.round((mapStats[map.id].unlockedCount / mapStats[map.id].skillCount) * 100)}%`
+                      : "0%" }}
+                  />
                 </div>
-                <div className={styles['sm-progress-label']}>0/XX skills completed</div>
+                <div className={styles['sm-progress-label']}>
+                  {mapStats[map.id]?.unlockedCount ?? 0}/{mapStats[map.id]?.skillCount ?? "—"} skills completed
+                </div>
 
                 <div className={styles['sm-card-footer']}>
-                  <span className={styles['sm-continue']}>Continue Learning &gt;</span>
+                  <span className={styles['sm-continue']}>Continue Mapping &gt;</span>
                 </div>
               </div>
             ))}
           </div>
         </>
       )}
+
+      </main>
     </div>
   );
 };
