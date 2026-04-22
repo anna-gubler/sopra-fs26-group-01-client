@@ -121,7 +121,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | 20.04.2026   | [Refactoring to Components & smaller Bugs](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/73f7a35e8f050ea6bd1e75b7b9617bcc5a8597a4) | Based on Lucios Feedback, I fixed some of the heavy inline optional view items, making them components instead for readability and easy adjustment (Mainly for Collaboration Mode) | Improves readability and makes it easier to fix bugs & understand the code |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | 21.04.2026   | [Speedfeedback Endpoint](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/79cfaaf3a7e4659ea6daab6ce2d6e36b8df7340e) | [Added Speedfeedback endpoint and corresponding tests] | [Why this contribution is relevant] |
+|                    | [22.04.2026]   | [DB diagram](https://lucid.app/lucidchart/77f6dd98-0bce-4d70-895d-0fc7e0f63343/edit?viewport_loc=-1144%2C-297%2C3684%2C2105%2C0_0&invitationId=inv_ac16e11e-92d4-4e2f-a520-0232e71d2a14) | [Constructed DB Diagram] | [Why this contribution is relevant] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 
