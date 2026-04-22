@@ -129,6 +129,40 @@
   transition: all 0.2s ease;
 }
 
+/* back button — borderless, muted text, arrow + label */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.btn-back:hover {
+  color: var(--text-bright);
+}
+
+/* modifier: danger/destructive ghost button — matches .btn-delete in skillmaps */
+.btn-ghost--danger {
+  color: hsl(351, 80%, 65%);
+  background: hsla(351, 80%, 60%, 0.08);
+  border-color: hsla(351, 80%, 60%, 0.3);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-ghost--danger:hover {
+  background: hsla(351, 80%, 60%, 0.15);
+  border-color: hsl(351, 80%, 60%);
+  color: hsl(351, 80%, 65%);
+}
+
 /* modifier: suppress the translateY lift on hover */
 .btn-no-lift:hover {
   transform: none;
