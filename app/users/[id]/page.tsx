@@ -73,10 +73,8 @@ const Profile: React.FC = () => {
     }
     try {
       await changePassword(apiService, oldPassword, newPassword);
-      await logout(apiService);
-      clearToken();
-      clearId();
-      router.push("/login");
+      toast.success("Password changed successfully.");
+      resetPasswordForm();
     } catch (err: unknown) {
       const error = err as ApplicationError;
       const knownCodes = [400, 401, 403, 409];
