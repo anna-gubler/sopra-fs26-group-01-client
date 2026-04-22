@@ -77,7 +77,9 @@ const SkillModal: React.FC<SkillModalProps> = ({
       if (skill) {
         await updateSkill(api, skill.id, { name, description, difficulty, resources });
       } else {
-        const positionX = 100 + skills.filter((s) => s.level === level).length * 200;
+        const existing = skills.filter((s) => s.level === level).length;
+        const centerX = typeof window !== "undefined" ? Math.round(window.innerWidth / 2) - 80 : 400;
+        const positionX = centerX + existing * 200;
         await createSkill(api, skillMapId, { name, description, level, difficulty, resources, positionX });
       }
       onSaved();
