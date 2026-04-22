@@ -86,7 +86,7 @@ const EditSkillMapPage: React.FC = () => {
             </div>
             <div className="input-group">
               <label htmlFor="map-levels">Number of Levels</label>
-              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
+              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels || ""} onChange={(e) => setNumberOfLevels(Number(e.target.value))} required />
             </div>
             <div className="input-group input-group--row">
               <input type="checkbox" id="isPublic" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
