@@ -18,7 +18,7 @@ export function changePassword(
   oldPassword: string,
   newPassword: string,
 ): Promise<void> {
-  return api.patch<void>("/users/me/password", { oldPassword, newPassword });
+  return api.patch<void>("/users/me/password", { oldPassword, newPassword, confirmPassword: newPassword });
 }
 
 export function updateAvatar(api: ApiService, style: string, seed?: string): Promise<User> {
