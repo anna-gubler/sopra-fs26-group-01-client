@@ -64,7 +64,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
 
   const active = questions
     .filter((q) => !q.isAddressed)
-    .sort((a, b) => b.upvotes - a.upvotes);
+    .sort((a, b) => b.upvoteCount - a.upvoteCount);
 
   return (
     <div className={styles["qa-ask"]}>
@@ -105,7 +105,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
                 className={`${styles["qa-upvote-btn"]} ${upvoted.has(q.id) ? styles["qa-upvote-btn--active"] : ""}`}
                 onClick={() => handleUpvote(q.id)}
               >
-                ▲ {q.upvotes}
+                ▲ {q.upvoteCount}
               </button>
               <span className={styles["qa-text"]}>{q.text}</span>
             </div>

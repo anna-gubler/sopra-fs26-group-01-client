@@ -170,6 +170,10 @@
 .speed-btn--selected.speed-btn--OK       { background: rgba(64, 200, 150, 0.2); }
 .speed-btn--selected.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.2); }
 
+.speed-btn--submitted.speed-btn--TOO_SLOW { background: rgba(139, 166, 235, 0.45); }
+.speed-btn--submitted.speed-btn--OK       { background: rgba(64, 200, 150, 0.45); }
+.speed-btn--submitted.speed-btn--TOO_FAST { background: rgba(210, 70, 90, 0.45); }
+
 /* Speed indicator — lecturer gauge */
 .speed-gauge {
   display: flex;

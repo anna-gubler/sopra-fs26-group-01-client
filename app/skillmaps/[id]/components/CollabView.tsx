@@ -60,7 +60,6 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             displayAggregated={aggregated}
             totalStudents={totalStudents}
             session={session}
-            skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
             onSkillClick={onSkillClick}
@@ -68,7 +67,6 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
         ) : (
           <StudentSidebar
             session={session}
-            skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
           />
