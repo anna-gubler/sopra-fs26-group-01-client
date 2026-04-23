@@ -150,7 +150,11 @@ const SkillMapsPage: React.FC = () => {
             />
         </button>
         <div>
-          <div className={styles['sm-welcome-title']}>Welcome back, {user?.username}!</div>
+          <div className={styles['sm-welcome-title']}>
+            {user?.creationDate && Date.now() - new Date(user.creationDate).getTime() < 60_000
+              ? `Welcome, ${user?.username}!`
+              : `Welcome back, ${user?.username}!`}
+          </div>
           <div className={styles['sm-welcome-sub']}>{user?.bio || "No bio yet"}</div>
         </div>
         <div className={styles['sm-join-area']}>

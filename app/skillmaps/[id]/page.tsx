@@ -14,6 +14,7 @@ import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
 import { ApplicationError } from "@/types/error";
+import { getAvatarUrl } from "@/utils/avatar";
 import { User } from "@/types/user";
 import { Skill, Dependency } from "@/types/skill";
 import { SkillMap } from "@/types/skillmap";
@@ -436,7 +437,11 @@ const SkillMapEditorPage: React.FC = () => {
             onClick={() => router.push("/users/me")}
             onKeyDown={(e) => e.key === "Enter" && router.push("/users/me")}
           >
-            <span>{user?.username?.[0]?.toUpperCase() ?? "?"}</span>
+            <img
+              src={getAvatarUrl(user?.seed ?? null, user?.style ?? null)}
+              alt={user?.username ?? "avatar"}
+              className={styles["sm-nav-avatar-img"]}
+            />
           </div>
           <span className={styles["sm-nav-username"]}>{user?.username ?? ""}</span>
           <button className={styles["sm-nav-icon"]} onClick={handleLogout} title="Log Out">

@@ -9,7 +9,7 @@ import { ApplicationError } from "@/types/error";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ArrowLeft } from "lucide-react";
 
 const NewSkillMapPage: React.FC = () => {
   const router = useRouter();
@@ -51,6 +51,9 @@ const NewSkillMapPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          <button type="button" className="btn-back" onClick={() => router.push("/skillmaps")}>
+            <ArrowLeft size={14} /> Back
+          </button>
           <h2 className="form-heading">Create Skill Map</h2>
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="input-group">
