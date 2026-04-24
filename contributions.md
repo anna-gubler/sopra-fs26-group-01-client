@@ -123,5 +123,5 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@sebdahub** | 21.04.2026   | [Speedfeedback Endpoint](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/79cfaaf3a7e4659ea6daab6ce2d6e36b8df7340e) | [Added Speedfeedback endpoint and corresponding tests] | [Why this contribution is relevant] |
 |                    | [22.04.2026]   | [DB diagram](https://lucid.app/lucidchart/77f6dd98-0bce-4d70-895d-0fc7e0f63343/edit?viewport_loc=-1144%2C-297%2C3684%2C2105%2C0_0&invitationId=inv_ac16e11e-92d4-4e2f-a520-0232e71d2a14) | [Constructed DB Diagram] | [Why this contribution is relevant] |
-| **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-
+| **@haslam** | [24.04.2026]   | [Backend User Story 6 Tests](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/25d1ef8f484192a15eadf499bf2bddebd8b00839) | [Added tests for S6] | [Why this contribution is relevant] |
+| **@haslam** | [22.04.2026]   | [Link to Commit 1](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/262060641d0d77f32330844310e2929c91d45727, https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/fe54f1982c6333e7078629a3caa751ab74740b66) | [User changes (username, avatar, bio, etc.) were not being persisted, which was fixed here + adjusted tests (sorry for the seperate commits, only realised the tests needed adjusting later)] | [Why this contribution is relevant] |
