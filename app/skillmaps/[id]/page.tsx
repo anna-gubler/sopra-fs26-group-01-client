@@ -4,13 +4,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut } from "lucide-react";
+import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap, exportSkillMap } from "@/api/skillmapApi";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
 import { ApplicationError } from "@/types/error";
@@ -180,6 +180,10 @@ const SkillMapEditorPage: React.FC = () => {
     clearToken();
     clearId();
     router.push("/login");
+  };
+
+  const handleExport = async () => {
+    await exportSkillMap(api, id);
   };
 
   const handleAddSkill = () => {
@@ -360,6 +364,12 @@ const SkillMapEditorPage: React.FC = () => {
             <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
               <Pencil size={14} />
               Edit
+            </button>
+          )}
+          {!isActive && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleExport}>
+              <Download size={14} />
+              Export
             </button>
           )}
           {isOwner && skillMap?.inviteCode && (

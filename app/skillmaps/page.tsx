@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, exportSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, Download } from "lucide-react";
 
 type MapStats = {
   skillCount: number;
@@ -31,6 +31,10 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
+
+  const handleExport = async (mapId: number) => {
+    await exportSkillMap(api, mapId);
+  };
 
   const handleLogout = async () => {
     try {
@@ -235,12 +239,21 @@ const SkillMapsPage: React.FC = () => {
 
             <div className={styles['sm-card-footer']}>
               <span className={styles['sm-continue']}>Continue Mapping &gt;</span>
-              <button
-                className={styles['sm-edit-btn']}
-                onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
-              >
-                Edit
-              </button>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  className={styles['sm-edit-btn']}
+                  title="Export skill map"
+                  onClick={(e) => { e.stopPropagation(); handleExport(map.id); }}
+                >
+                  <Download size={13} />
+                </button>
+                <button
+                  className={styles['sm-edit-btn']}
+                  onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
+                >
+                  Edit
+                </button>
+              </div>
             </div>
           </div>
         ))}

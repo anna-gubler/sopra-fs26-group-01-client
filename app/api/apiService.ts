@@ -136,6 +136,24 @@ export class ApiService {
     );
   }
 
+  public async download(endpoint: string): Promise<Blob> {
+    const url = `${this.baseURL}${endpoint}`;
+    const res = await fetch(url, { method: "GET", headers: this.defaultHeaders, cache: "no-store" });
+    if (!res.ok) {
+      let errorDetail = res.statusText;
+      try {
+        const errorInfo = await res.json();
+        if (errorInfo?.message) errorDetail = errorInfo.message;
+      } catch { /* keep statusText */ }
+      const error: ApplicationError = new Error(`Download failed (${res.status}: ${errorDetail})`) as ApplicationError;
+      error.info = JSON.stringify({ status: res.status, statusText: res.statusText }, null, 2);
+      error.status = res.status;
+      error.details = errorDetail;
+      throw error;
+    }
+    return res.blob();
+  }
+
   /**
    * DELETE request.
    * @param endpoint - The API endpoint (e.g. "/users/123").
