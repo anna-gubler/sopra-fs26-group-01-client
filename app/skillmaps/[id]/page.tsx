@@ -25,6 +25,7 @@ import SkillModal from "./components/SkillModal";
 import CollabView from "./components/CollabView";
 import SkillDetailPanel from "./components/SkillDetailPanel";
 import SkillLegend from "./components/SkillLegend";
+import ExportModal from "./components/ExportModal";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
@@ -87,6 +88,7 @@ const SkillMapEditorPage: React.FC = () => {
   const isOwner = skillMap?.ownerId === user?.id;
   const canPublish = isOwner && !skillMap?.isPublic;
   const [modalOpen, setModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [selectedSkillRating, setSelectedSkillRating] = useState<number | null>(null);
@@ -183,7 +185,18 @@ const SkillMapEditorPage: React.FC = () => {
   };
 
   const handleExport = async () => {
-    await exportSkillMap(api, id);
+    try {
+      const blob = await exportSkillMap(api, id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${skillMap?.title ?? "skillmap"}-export.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Skill map exported!");
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
+    }
   };
 
   const handleAddSkill = () => {
@@ -367,7 +380,7 @@ const SkillMapEditorPage: React.FC = () => {
             </button>
           )}
           {!isActive && (
-            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleExport}>
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setExportModalOpen(true)}>
               <Download size={14} />
               Export
             </button>
@@ -532,6 +545,13 @@ const SkillMapEditorPage: React.FC = () => {
           )}
         </>
       )}
+
+      <ExportModal
+        open={exportModalOpen}
+        mapTitle={skillMap?.title ?? ""}
+        onExport={handleExport}
+        onClose={() => setExportModalOpen(false)}
+      />
 
       {selectedSkill && (
         <SkillDetailPanel

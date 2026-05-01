@@ -8,6 +8,7 @@ import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
 import { BookOpen, LogOut, Download } from "lucide-react";
+import ExportModal from "@/skillmaps/[id]/components/ExportModal";
 
 type MapStats = {
   skillCount: number;
@@ -31,9 +32,21 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
+  const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
 
-  const handleExport = async (mapId: number) => {
-    await exportSkillMap(api, mapId);
+  const handleExport = async (mapId: number, title: string) => {
+    try {
+      const blob = await exportSkillMap(api, mapId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title}-export.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Skill map exported!");
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
+    }
   };
 
   const handleLogout = async () => {
@@ -243,7 +256,7 @@ const SkillMapsPage: React.FC = () => {
                 <button
                   className={styles['sm-edit-btn']}
                   title="Export skill map"
-                  onClick={(e) => { e.stopPropagation(); handleExport(map.id); }}
+                  onClick={(e) => { e.stopPropagation(); setExportingMap(map); }}
                 >
                   <Download size={13} />
                 </button>
@@ -305,6 +318,13 @@ const SkillMapsPage: React.FC = () => {
       )}
 
       </main>
+
+      <ExportModal
+        open={exportingMap !== null}
+        mapTitle={exportingMap?.title ?? ""}
+        onExport={() => handleExport(exportingMap!.id, exportingMap!.title)}
+        onClose={() => setExportingMap(null)}
+      />
     </div>
   );
 };
