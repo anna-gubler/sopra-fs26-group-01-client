@@ -59,6 +59,7 @@ const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
 const NAV_HEIGHT = 56;
 
+
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
 
@@ -233,7 +234,7 @@ const SkillMapEditorPage: React.FC = () => {
 
       try {
         await updateSkill(api, Number(node.id), { positionX: newPositionX, level: newLevel });
-      } catch {
+      } catch (err) {
         setNodes((nds) =>
           nds.map((n) =>
             n.id === node.id
@@ -244,7 +245,9 @@ const SkillMapEditorPage: React.FC = () => {
         setSkills((prev) =>
           prev.map((s) => (s.id === Number(node.id) ? originalSkill : s))
         );
-        toast.error("Failed to move skill.");
+        const raw = (err as ApplicationError).details ?? "Failed to move skill.";
+        const msg = raw.replace(/^New level violates dependency:\s*/i, "").replace(/^Illegal level change:\s*/i, "");
+        toast.error(msg.charAt(0).toUpperCase() + msg.slice(1));
       }
     },
     [api, skillMap, skills]
