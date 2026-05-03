@@ -749,6 +749,33 @@
   font-variant-numeric: tabular-nums;
 }
 
+.understood-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.understood-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.understood-toggle-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+
+.understood-toggle:has(.understood-checkbox:checked) .understood-toggle-label {
+  color: var(--primary-light, hsl(258, 70%, 70%));
+  font-weight: 500;
+}
+
 /* Skill legend overlay */
 
 .skill-legend {

@@ -17,6 +17,7 @@ type SkillDetailPanelProps = {
   onClose: () => void;
   isOwner?: boolean;
   onEdit?: () => void;
+  onUnderstoodChange?: (skillId: number, isUnderstood: boolean) => void;
   api: ApiService;
   sessionId: number | null;
   liveRating?: number | null;
@@ -46,16 +47,36 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, api, sessionId, liveRating }) => {
+const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, onUnderstoodChange, api, sessionId, liveRating }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
   const notesResize = useAutoResize(notes);
+  const [understood, setUnderstood] = useState(skill.isUnderstood);
+  const [toggling, setToggling] = useState(false);
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
   const prevSessionIdRef = useRef<number | null>(null);
 
-  // Initialize slider from persisted understanding; sync to session if one is active
+  useEffect(() => {
+    setUnderstood(skill.isUnderstood);
+  }, [skill.id, skill.isUnderstood]);
+
+  const handleToggleUnderstood = async () => {
+    const next = !understood;
+    setUnderstood(next);
+    setToggling(true);
+    try {
+      await updateProgress(api, skill.id, next);
+      onUnderstoodChange?.(skill.id, next);
+    } catch {
+      setUnderstood(!next);
+    } finally {
+      setToggling(false);
+    }
+  };
+
+  // Initialize slider from understood state; sync to session if one is active
   useEffect(() => {
     const initial = skill.isUnderstood ? 100 : 0;
     setUnderstanding(initial);
@@ -81,14 +102,12 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       understandingRef.current = val;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(async () => {
-        try {
-          if (sessionId !== null) {
+        if (sessionId !== null) {
+          try {
             await submitSkillRating(api, sessionId, skill.id, val);
-          } else {
-            await updateProgress(api, skill.id, val > 0);
+          } catch {
+            // ratings are best-effort; silently ignore failures
           }
-        } catch {
-          // ratings are best-effort; silently ignore failures
         }
       }, 600);
     },
@@ -167,7 +186,25 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
       {!isOwner && (
         <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Understanding</h3>
+          <h3 className={styles["detail-panel-label"]}>Mark as Understood</h3>
+          <label className={styles["understood-toggle"]}>
+            <input
+              type="checkbox"
+              className={styles["understood-checkbox"]}
+              checked={understood}
+              onChange={handleToggleUnderstood}
+              disabled={toggling}
+            />
+            <span className={styles["understood-toggle-label"]}>
+              {understood ? "Understood" : "Not yet understood"}
+            </span>
+          </label>
+        </section>
+      )}
+
+      {!isOwner && sessionId !== null && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Session Rating</h3>
           <UnderstandingSlider value={understanding} onChange={handleUnderstandingChange} />
         </section>
       )}

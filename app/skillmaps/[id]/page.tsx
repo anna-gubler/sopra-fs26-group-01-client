@@ -535,6 +535,14 @@ const SkillMapEditorPage: React.FC = () => {
             setSelectedSkillRating(null);
             setModalOpen(true);
           }}
+          onUnderstoodChange={(skillId, isUnderstood) => {
+            setSkills((prev) =>
+              prev.map((s) => s.id === skillId ? { ...s, isUnderstood } : s)
+            );
+            setSelectedSkill((prev) =>
+              prev && prev.id === skillId ? { ...prev, isUnderstood } : prev
+            );
+          }}
           api={api}
           sessionId={isActive && session ? session.id : null}
           liveRating={selectedSkillRating}
