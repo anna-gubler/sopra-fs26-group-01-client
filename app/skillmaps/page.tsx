@@ -35,8 +35,13 @@ const SkillMapsPage: React.FC = () => {
   const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImport = async (_file: File) => {
-    await importSkillMap(api, _file);
+  const handleImport = async (file: File) => {
+    try {
+      const map = await importSkillMap(api, file);
+      router.push(`/skillmaps/${map.id}`);
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to import skill map.");
+    }
   };
 
   const handleExport = async (mapId: number, title: string) => {
