@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, exportSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, exportSkillMap, importSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
@@ -33,6 +33,11 @@ const SkillMapsPage: React.FC = () => {
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImport = async (_file: File) => {
+    await importSkillMap(api, _file);
+  };
 
   const handleExport = async (mapId: number, title: string) => {
     try {
@@ -176,6 +181,14 @@ const SkillMapsPage: React.FC = () => {
         </div>
         <div className={styles['sm-join-area']}>
           <form className={styles['sm-join-form']} onSubmit={handleJoin}>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".json"
+              style={{ display: "none" }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImport(f); e.target.value = ""; }}
+            />
+            <button type="button" className="btn-ghost" onClick={() => importInputRef.current?.click()}>Import Map</button>
             <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
             {showJoinInput && (
               <input
