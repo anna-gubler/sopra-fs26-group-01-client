@@ -8,4 +8,7 @@ export interface User {
   status: string | null;
   seed: string | null;  //avatar seed
   style: string | null; //avatar style
+  hasSeenDashboard: boolean | null;
+  hasSeenMapOwner: boolean | null;
+  hasSeenMapUser: boolean | null;
 }

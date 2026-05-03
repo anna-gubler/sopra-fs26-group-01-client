@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap } from "@/api/skillmapApi";
@@ -8,6 +8,7 @@ import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
 import { BookOpen, LogOut } from "lucide-react";
+import DashboardTour from "@/components/tours/DashboardTour";
 
 type MapStats = {
   skillCount: number;
@@ -31,6 +32,9 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
+  const [showTour, setShowTour] = useState(false);
+  const tourShownRef = useRef(false);
+  const userIdRef = useRef<number | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -75,6 +79,13 @@ const SkillMapsPage: React.FC = () => {
         ]);
         setSkillMaps(maps);
         setUser(me);
+        userIdRef.current = me.id;
+        const tourKey = `tour_seen_dashboard_${me.id}`;
+        const alreadySeen = typeof window !== "undefined" && localStorage.getItem(tourKey) === "true";
+        if (!tourShownRef.current && !alreadySeen) {
+          tourShownRef.current = true;
+          setShowTour(true);
+        }
 
         const statsEntries = await Promise.all(
           maps.map(async (map) => {
@@ -118,7 +129,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
           <span className="nav-logo-text">SkillMaps</span>
         </div>
-        <div className={styles['sm-nav-right']}>
+        <div className={styles['sm-nav-right']} data-tour="user-info-nav">
           <button
             onClick={() => router.push("/users/me")}
             className={styles['sm-nav-avatar']}
@@ -159,7 +170,7 @@ const SkillMapsPage: React.FC = () => {
         </div>
         <div className={styles['sm-join-area']}>
           <form className={styles['sm-join-form']} onSubmit={handleJoin}>
-            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
+            <button type="button" className="btn-ghost" data-tour="join-map-btn" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
             {showJoinInput && (
               <input
                 className={styles['sm-join-input']}
@@ -177,7 +188,7 @@ const SkillMapsPage: React.FC = () => {
       </div>
 
       {/* Stats Row */}
-      <div className={styles['sm-stats-row']}>
+      <div className={styles['sm-stats-row']} data-tour="stats-row">
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
           <span className={`${styles['sm-stat-value']} ${styles.green}`}>
@@ -245,7 +256,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} data-tour="create-map-btn" role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
@@ -292,6 +303,13 @@ const SkillMapsPage: React.FC = () => {
       )}
 
       </main>
+
+      {showTour && (
+        <DashboardTour api={api} onDone={() => {
+          setShowTour(false);
+          if (userIdRef.current !== null) localStorage.setItem(`tour_seen_dashboard_${userIdRef.current}`, "true");
+        }} />
+      )}
     </div>
   );
 };

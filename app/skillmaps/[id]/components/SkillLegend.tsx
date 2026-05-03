@@ -17,15 +17,17 @@ const SkillLegend: React.FC = () => {
 
   return (
     <Panel position="bottom-right">
-      <button className={styles["recenter-btn"]} onClick={() => fitView({ padding: 0.3 })} aria-label="Recenter">
-        <Maximize2 size={14} />
-        Recenter
-      </button>
-      <div className={styles["zoom-controls"]}>
-        <button className={styles["zoom-btn"]} onClick={() => zoomOut()} aria-label="Zoom out">−</button>
-        <button className={styles["zoom-btn"]} onClick={() => zoomIn()} aria-label="Zoom in">+</button>
+      <div data-tour="map-controls">
+        <button className={styles["recenter-btn"]} onClick={() => fitView({ padding: 0.3 })} aria-label="Recenter">
+          <Maximize2 size={14} />
+          Recenter
+        </button>
+        <div className={styles["zoom-controls"]}>
+          <button className={styles["zoom-btn"]} onClick={() => zoomOut()} aria-label="Zoom out">−</button>
+          <button className={styles["zoom-btn"]} onClick={() => zoomIn()} aria-label="Zoom in">+</button>
+        </div>
       </div>
-      <div className={styles["skill-legend"]}>
+      <div className={styles["skill-legend"]} data-tour="map-legend">
         {ENTRIES.map(({ label, color }) => (
           <div key={label} className={styles["skill-legend-item"]}>
             <span className={styles["skill-legend-dot"]} style={{ background: color }} />

@@ -82,7 +82,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   }, []);
 
   return (
-    <div className={styles["detail-panel"]}>
+    <div className={styles["detail-panel"]} data-tour="skill-detail-panel">
       <button className={styles["detail-panel-close"]} onClick={onClose} aria-label="Close panel">
         <X size={18} />
       </button>
