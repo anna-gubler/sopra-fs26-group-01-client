@@ -125,6 +125,7 @@ const SkillMapEditorPage: React.FC = () => {
           data: {
             label: skill.name,
             status: difficultyStatus[skill.difficulty] ?? "default",
+            isLocked: skill.isLocked,
           },
         }));
 

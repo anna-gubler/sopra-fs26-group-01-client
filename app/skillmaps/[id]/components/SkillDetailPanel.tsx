@@ -187,16 +187,16 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {!isOwner && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Mark as Understood</h3>
-          <label className={styles["understood-toggle"]}>
+          <label className={`${styles["understood-toggle"]} ${skill.isLocked ? styles["understood-toggle--locked"] : ""}`}>
             <input
               type="checkbox"
               className={styles["understood-checkbox"]}
               checked={understood}
               onChange={handleToggleUnderstood}
-              disabled={toggling}
+              disabled={toggling || skill.isLocked}
             />
             <span className={styles["understood-toggle-label"]}>
-              {understood ? "Understood" : "Not yet understood"}
+              {skill.isLocked ? "Complete prerequisites first" : understood ? "Understood" : "Not yet understood"}
             </span>
           </label>
         </section>

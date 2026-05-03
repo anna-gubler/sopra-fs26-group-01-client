@@ -11,10 +11,12 @@ type SkillNodeData = {
   status?: "done" | "active" | "secondary" | "default";
   glowColor?: string;
   heatPercent?: number;
+  isLocked?: boolean;
 };
 
 const SkillNode: React.FC<NodeProps> = ({ data }) => {
-  const { label, progress, status = "default", glowColor, heatPercent } = data as SkillNodeData;
+  const { label, progress, status = "default", glowColor, heatPercent, isLocked } = data as SkillNodeData;
+  const resolvedStatus = isLocked ? "locked" : status;
 
   const glowStyle = glowColor
     ? { boxShadow: `0 0 22px 7px ${glowColor}88, 0 0 7px 2px ${glowColor}bb` }
@@ -38,7 +40,7 @@ const SkillNode: React.FC<NodeProps> = ({ data }) => {
           {heatPercent}%
         </div>
       )}
-      <div className={clsx(styles["skill-node"], styles[`status-${status}`])} style={glowStyle}>
+      <div className={clsx(styles["skill-node"], styles[`status-${resolvedStatus}`])} style={glowStyle}>
         <Handle type="source" position={Position.Top} className={styles["skill-node-handle"]} />
         <span className={styles["skill-node__dot"]} />
         <span className={styles["skill-node__label"]}>{label}</span>

@@ -776,6 +776,15 @@
   font-weight: 500;
 }
 
+.understood-toggle--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.understood-toggle--locked .understood-checkbox {
+  cursor: not-allowed;
+}
+
 /* Skill legend overlay */
 
 .skill-legend {

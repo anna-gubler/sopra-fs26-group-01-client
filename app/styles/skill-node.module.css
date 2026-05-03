@@ -20,6 +20,13 @@
   --skill-node-glow: transparent;
 }
 
+.status-locked {
+  --skill-node-color: var(--border-color);
+  --skill-node-glow: transparent;
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
 .skill-node {
   background: var(--bg-surface);
   border: 1.5px solid var(--skill-node-color, var(--border-color));
