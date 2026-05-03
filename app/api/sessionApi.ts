@@ -53,3 +53,21 @@ export function markQuestionAddressed(api: ApiService, questionId: number): Prom
 export function submitSkillRating(api: ApiService, sessionId: number, skillId: number, rating: number): Promise<void> {
   return api.put<void>(`/sessions/${sessionId}/skills/${skillId}/rating`, { rating });
 }
+
+export interface CurrentUnderstandingResult {
+  avg: number;
+  count: number;
+  totalStudents: number;
+}
+
+export function triggerCurrentUnderstanding(api: ApiService, sessionId: number): Promise<void> {
+  return api.post<void>(`/sessions/${sessionId}/current-understanding/trigger`, {});
+}
+
+export function submitCurrentUnderstanding(api: ApiService, sessionId: number, rating: number): Promise<void> {
+  return api.put<void>(`/sessions/${sessionId}/current-understanding`, { rating });
+}
+
+export function getCurrentUnderstandingResults(api: ApiService, sessionId: number): Promise<CurrentUnderstandingResult> {
+  return api.get<CurrentUnderstandingResult>(`/sessions/${sessionId}/current-understanding`);
+}

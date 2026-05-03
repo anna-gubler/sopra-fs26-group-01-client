@@ -6,7 +6,6 @@ import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
-import { submitSkillRating } from "@/api/sessionApi";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -53,27 +52,12 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
-  const prevSessionIdRef = useRef<number | null>(null);
 
-  // Initialize slider from persisted understanding; sync to session if one is active
   useEffect(() => {
-    const initial = skill.isUnderstood ? 100 : 0;
+    const initial = skill.skillUnderstandingRating ?? 0;
     setUnderstanding(initial);
     understandingRef.current = initial;
-    if (!isOwner && sessionId !== null && initial > 0) {
-      submitSkillRating(api, sessionId, skill.id, initial).catch(() => {});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skill.id, skill.isUnderstood]);
-
-  // When a session starts while the panel is open, submit the current understanding
-  useEffect(() => {
-    const prev = prevSessionIdRef.current;
-    prevSessionIdRef.current = sessionId;
-    if (prev === null && sessionId !== null && !isOwner && understandingRef.current > 0) {
-      submitSkillRating(api, sessionId, skill.id, understandingRef.current).catch(() => {});
-    }
-  }, [sessionId, api, skill.id, isOwner]);
+  }, [skill.id, skill.skillUnderstandingRating]);
 
   const handleUnderstandingChange = useCallback(
     (val: number) => {
@@ -82,17 +66,13 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(async () => {
         try {
-          if (sessionId !== null) {
-            await submitSkillRating(api, sessionId, skill.id, val);
-          } else {
-            await updateProgress(api, skill.id, val > 0);
-          }
+          await updateProgress(api, skill.id, val);
         } catch {
           // ratings are best-effort; silently ignore failures
         }
       }, 600);
     },
-    [api, sessionId, skill.id],
+    [api, skill.id],
   );
 
   useEffect(() => {

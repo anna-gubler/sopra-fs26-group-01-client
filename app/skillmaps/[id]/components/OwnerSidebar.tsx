@@ -8,6 +8,7 @@ import SpeedIndicator from "./SpeedIndicator";
 import LiveQuestionsPanel from "./LiveQuestionsPanel";
 import UnderstandingHeatmap from "./UnderstandingHeatmap";
 import SessionStatsBar from "./SessionStatsBar";
+import CurrentUnderstandingPanel from "./CurrentUnderstandingPanel";
 import styles from "@/styles/collab.module.css";
 
 interface OwnerSidebarProps {
@@ -31,6 +32,10 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Session Overview</h3>
       <SessionStatsBar aggregated={displayAggregated} totalStudents={totalStudents} />
+    </div>
+    <div className={styles["collab-panel"]}>
+      <h3 className={styles["collab-panel-title"]}>Current Understanding</h3>
+      <CurrentUnderstandingPanel session={session} />
     </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Understanding Heatmap</h3>
