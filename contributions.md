@@ -133,8 +133,8 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **@chiawld** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@chiawld** | 01.05.2026 | [feat(#62)](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/3ee0009), [feat(#63)](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/6972719), [fix(#47)](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/66c736b) | Implemented skill map export: added export button to overview nav and dashboard card, built confirmation modal with format card layout, and surfaced backend dependency validation errors in drag toast | Enables users to download their skill map as a JSON file; completes S18 and closes S13 validation gap |
+|                    | 03.05.2026 | [feat(#64)](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/ae13a02), [feat(#65,#66)](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/f7094f9) | Implemented skill map import: file upload button triggers OS file picker, posts JSON as multipart/form-data, redirects to the newly created map on success, and shows backend validation errors on failure | Completes S19: users can now import a previously exported skill map, which gets a fresh ID and invite code with them as owner |
 | **@anna-gubler** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
