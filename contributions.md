@@ -139,6 +139,6 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **@elsithewizzard** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **@sebdahub** | [03.05.2026]   | [there's no commit] | [Strategy for Proceeding with Remaining Tasks] | [Re-analyzed the remaining tasks and assignment 4 to work out a proposition how to prioritize existing tasks and identify bugs] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **@sebdahub** | [03.05.2026]   | [planm4](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/7da9ee54d043811cd3ebf72defe877744f9e2b6c) | [Strategy for Proceeding with Remaining Tasks] | [Re-analyzed the remaining tasks and assignment 4 to work out a proposition how to prioritize existing tasks and identify bugs] |
+|                    | [03.05.2026]   | [feat(#185)](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/fb6d722e7f606d67684e5ac3f66dca4f14270372) | [added hasSeenDashboard and hasSeenMap, adapted tests] | [gives the basis for creating user onboardings] |
 | **@haslam** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
