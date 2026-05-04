@@ -3,12 +3,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, exportSkillMap, importSkillMap } from "@/api/skillmapApi";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
-import { BookOpen, LogOut } from "lucide-react";
-import DashboardTour from "@/components/tours/DashboardTour";
+import { BookOpen, LogOut, Download } from "lucide-react";
+import ExportModal from "@/skillmaps/[id]/components/ExportModal";
 
 type MapStats = {
   skillCount: number;
@@ -32,9 +32,32 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
-  const [showTour, setShowTour] = useState(false);
-  const tourShownRef = useRef(false);
-  const userIdRef = useRef<number | null>(null);
+  const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImport = async (file: File) => {
+    try {
+      const map = await importSkillMap(api, file);
+      router.push(`/skillmaps/${map.id}`);
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to import skill map.");
+    }
+  };
+
+  const handleExport = async (mapId: number, title: string) => {
+    try {
+      const blob = await exportSkillMap(api, mapId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title}-export.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Skill map exported!");
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -170,7 +193,15 @@ const SkillMapsPage: React.FC = () => {
         </div>
         <div className={styles['sm-join-area']}>
           <form className={styles['sm-join-form']} onSubmit={handleJoin}>
-            <button type="button" className="btn-ghost" data-tour="join-map-btn" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".json"
+              style={{ display: "none" }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImport(f); e.target.value = ""; }}
+            />
+            <button type="button" className="btn-ghost" onClick={() => importInputRef.current?.click()}>Import Map</button>
+            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
             {showJoinInput && (
               <input
                 className={styles['sm-join-input']}
@@ -246,12 +277,21 @@ const SkillMapsPage: React.FC = () => {
 
             <div className={styles['sm-card-footer']}>
               <span className={styles['sm-continue']}>Continue Mapping &gt;</span>
-              <button
-                className={styles['sm-edit-btn']}
-                onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
-              >
-                Edit
-              </button>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  className={styles['sm-edit-btn']}
+                  title="Export skill map"
+                  onClick={(e) => { e.stopPropagation(); setExportingMap(map); }}
+                >
+                  <Download size={13} />
+                </button>
+                <button
+                  className={styles['sm-edit-btn']}
+                  onClick={(e) => { e.stopPropagation(); router.push(`/skillmaps/${map.id}/edit`); }}
+                >
+                  Edit
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -304,12 +344,12 @@ const SkillMapsPage: React.FC = () => {
 
       </main>
 
-      {showTour && (
-        <DashboardTour api={api} onDone={() => {
-          setShowTour(false);
-          if (userIdRef.current !== null) localStorage.setItem(`tour_seen_dashboard_${userIdRef.current}`, "true");
-        }} />
-      )}
+      <ExportModal
+        open={exportingMap !== null}
+        mapTitle={exportingMap?.title ?? ""}
+        onExport={() => handleExport(exportingMap!.id, exportingMap!.title)}
+        onClose={() => setExportingMap(null)}
+      />
     </div>
   );
 };

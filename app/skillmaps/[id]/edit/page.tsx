@@ -165,7 +165,7 @@ const EditSkillMapPage: React.FC = () => {
             </div>
             <button type="submit" className="btn-gradient btn-full">Save</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push(`/skillmaps/${id}`)}>Cancel</button>
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", marginTop: "0.5rem" }}>
+<div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", marginTop: "0.5rem" }}>
               {!showDeleteConfirm ? (
                 <button
                   type="button"

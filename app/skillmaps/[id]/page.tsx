@@ -4,13 +4,13 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut } from "lucide-react";
+import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap, exportSkillMap } from "@/api/skillmapApi";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
 import { ApplicationError } from "@/types/error";
@@ -25,8 +25,7 @@ import SkillModal from "./components/SkillModal";
 import CollabView from "./components/CollabView";
 import SkillDetailPanel from "./components/SkillDetailPanel";
 import SkillLegend from "./components/SkillLegend";
-import MapOwnerTour from "@/components/tours/MapOwnerTour";
-import MapUserTour from "@/components/tours/MapUserTour";
+import ExportModal from "./components/ExportModal";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
@@ -61,6 +60,7 @@ const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
 const NAV_HEIGHT = 56;
 
+
 const nodeTypes = { skill: SkillNode };
 const edgeTypes = { gradient: GradientEdge };
 
@@ -88,6 +88,7 @@ const SkillMapEditorPage: React.FC = () => {
   const isOwner = skillMap?.ownerId === user?.id;
   const canPublish = isOwner && !skillMap?.isPublic;
   const [modalOpen, setModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [selectedSkillRating, setSelectedSkillRating] = useState<number | null>(null);
@@ -198,6 +199,21 @@ const SkillMapEditorPage: React.FC = () => {
     router.push("/login");
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await exportSkillMap(api, id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${skillMap?.title ?? "skillmap"}-export.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Skill map exported!");
+    } catch (err) {
+      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
+    }
+  };
+
   const handleAddSkill = () => {
     setEditingSkill(null);
     setModalOpen(true);
@@ -250,7 +266,7 @@ const SkillMapEditorPage: React.FC = () => {
 
       try {
         await updateSkill(api, Number(node.id), { positionX: newPositionX, level: newLevel });
-      } catch {
+      } catch (err) {
         setNodes((nds) =>
           nds.map((n) =>
             n.id === node.id
@@ -261,7 +277,9 @@ const SkillMapEditorPage: React.FC = () => {
         setSkills((prev) =>
           prev.map((s) => (s.id === Number(node.id) ? originalSkill : s))
         );
-        toast.error("Failed to move skill.");
+        const raw = (err as ApplicationError).details ?? "Failed to move skill.";
+        const msg = raw.replace(/^New level violates dependency:\s*/i, "").replace(/^Illegal level change:\s*/i, "");
+        toast.error(msg.charAt(0).toUpperCase() + msg.slice(1));
       }
     },
     [api, skillMap, skills]
@@ -374,6 +392,12 @@ const SkillMapEditorPage: React.FC = () => {
             <button data-tour="nav-edit-btn" className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
               <Pencil size={14} />
               Edit
+            </button>
+          )}
+          {!isActive && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setExportModalOpen(true)}>
+              <Download size={14} />
+              Export
             </button>
           )}
           {isOwner && skillMap?.inviteCode && (
@@ -540,6 +564,13 @@ const SkillMapEditorPage: React.FC = () => {
           )}
         </>
       )}
+
+      <ExportModal
+        open={exportModalOpen}
+        mapTitle={skillMap?.title ?? ""}
+        onExport={handleExport}
+        onClose={() => setExportModalOpen(false)}
+      />
 
       {selectedSkill && (
         <SkillDetailPanel
