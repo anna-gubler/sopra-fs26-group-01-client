@@ -128,6 +128,7 @@ const SkillMapEditorPage: React.FC = () => {
           data: {
             label: skill.name,
             status: difficultyStatus[skill.difficulty] ?? "default",
+            isLocked: skill.isLocked,
           },
         }));
 
@@ -567,6 +568,14 @@ const SkillMapEditorPage: React.FC = () => {
             setSelectedSkill(null);
             setSelectedSkillRating(null);
             setModalOpen(true);
+          }}
+          onUnderstoodChange={(skillId, isUnderstood) => {
+            setSkills((prev) =>
+              prev.map((s) => s.id === skillId ? { ...s, isUnderstood } : s)
+            );
+            setSelectedSkill((prev) =>
+              prev && prev.id === skillId ? { ...prev, isUnderstood } : prev
+            );
           }}
           api={api}
           sessionId={isActive && session ? session.id : null}
