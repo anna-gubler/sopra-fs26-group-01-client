@@ -136,6 +136,35 @@ export class ApiService {
     );
   }
 
+  public async postFormData<T>(endpoint: string, data: FormData): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const { "Content-Type": _, ...headersWithoutContentType } = this.defaultHeaders as Record<string, string>;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: headersWithoutContentType,
+      body: data,
+    });
+    return this.processResponse<T>(res, "An error occurred while uploading the data.\n");
+  }
+
+  public async download(endpoint: string): Promise<Blob> {
+    const url = `${this.baseURL}${endpoint}`;
+    const res = await fetch(url, { method: "GET", headers: this.defaultHeaders, cache: "no-store" });
+    if (!res.ok) {
+      let errorDetail = res.statusText;
+      try {
+        const errorInfo = await res.json();
+        if (errorInfo?.message) errorDetail = errorInfo.message;
+      } catch { /* keep statusText */ }
+      const error: ApplicationError = new Error(`Download failed (${res.status}: ${errorDetail})`) as ApplicationError;
+      error.info = JSON.stringify({ status: res.status, statusText: res.statusText }, null, 2);
+      error.status = res.status;
+      error.details = errorDetail;
+      throw error;
+    }
+    return res.blob();
+  }
+
   /**
    * DELETE request.
    * @param endpoint - The API endpoint (e.g. "/users/123").

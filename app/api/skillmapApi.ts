@@ -40,3 +40,13 @@ export function getSkillMapMembers(api: ApiService, id: number): Promise<SkillMa
 export function deleteSkillMap(api: ApiService, id: number): Promise<void> {
   return api.delete<void>(`/skillmaps/${id}`);
 }
+
+export function exportSkillMap(api: ApiService, id: number): Promise<Blob> {
+  return api.download(`/skillmaps/${id}/export`);
+}
+
+export function importSkillMap(api: ApiService, file: File): Promise<SkillMap> {
+  const form = new FormData();
+  form.append("file", file);
+  return api.postFormData<SkillMap>("/skillmaps/import", form);
+}
