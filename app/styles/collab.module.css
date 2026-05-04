@@ -78,6 +78,7 @@
 
 .collab-graph {
   flex: 1;
+  position: relative;
 }
 
 .collab-sidebar {
@@ -531,4 +532,131 @@
   height: 100%;
   border-radius: 0;
   transition: width 0.4s ease;
+}
+
+/* ── Current Understanding popup (student) ── */
+
+.cu-popup {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 12px 20px 20px;
+  background: linear-gradient(to top, var(--bg-base, #13131f) 70%, transparent);
+  pointer-events: none;
+}
+
+.cu-popup-inner {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--collab);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: all;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.cu-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cu-popup-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--collab);
+}
+
+.cu-popup-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cu-timer {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.cu-submit-btn {
+  align-self: flex-end;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--collab);
+  background: transparent;
+  color: var(--collab);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cu-submit-btn:hover:not(:disabled) {
+  background: var(--collab);
+  color: #fff;
+}
+
+.cu-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Current Understanding results (owner sidebar) ── */
+
+.cu-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cu-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cu-results-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.cu-results-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cu-results-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.cu-results-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.cu-results-avg-value {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: right;
 }

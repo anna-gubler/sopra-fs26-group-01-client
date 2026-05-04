@@ -102,6 +102,13 @@ const SkillMapsPage: React.FC = () => {
         ]);
         setSkillMaps(maps);
         setUser(me);
+        userIdRef.current = me.id;
+        const tourKey = `tour_seen_dashboard_${me.id}`;
+        const alreadySeen = typeof window !== "undefined" && localStorage.getItem(tourKey) === "true";
+        if (!tourShownRef.current && !alreadySeen) {
+          tourShownRef.current = true;
+          setShowTour(true);
+        }
 
         const statsEntries = await Promise.all(
           maps.map(async (map) => {
@@ -145,7 +152,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
           <span className="nav-logo-text">SkillMaps</span>
         </div>
-        <div className={styles['sm-nav-right']}>
+        <div className={styles['sm-nav-right']} data-tour="user-info-nav">
           <button
             onClick={() => router.push("/users/me")}
             className={styles['sm-nav-avatar']}
@@ -212,7 +219,7 @@ const SkillMapsPage: React.FC = () => {
       </div>
 
       {/* Stats Row */}
-      <div className={styles['sm-stats-row']}>
+      <div className={styles['sm-stats-row']} data-tour="stats-row">
         <div className={styles['sm-stat-card']}>
           <span className={styles['sm-stat-label']}>SKILLS COMPLETED</span>
           <span className={`${styles['sm-stat-value']} ${styles.green}`}>
@@ -289,7 +296,7 @@ const SkillMapsPage: React.FC = () => {
           </div>
         ))}
 
-        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
+        <div className={`${styles['sm-card']} ${styles['sm-card-new']}`} data-tour="create-map-btn" role="button" tabIndex={0} aria-label="Create new skill map" onClick={() => router.push("/skillmaps/new")} onKeyDown={(e) => e.key === "Enter" && router.push("/skillmaps/new")}>
           <span className={styles['sm-card-new-icon']}>+</span>
           <span className={styles['sm-card-new-label']}>Create New Map</span>
         </div>
