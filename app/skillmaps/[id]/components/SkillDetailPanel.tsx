@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAutoResize } from "@/hooks/useAutoResize";
 import { X } from "lucide-react";
-import { Skill } from "@/types/skill";
+import { Skill, SkillQuizRef } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
+import { getLatestAttempt } from "@/api/quizApi";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -57,6 +58,24 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
   const prevSessionIdRef = useRef<number | null>(null);
+
+  // Quiz state
+  const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
+  const [quizEditorOpen, setQuizEditorOpen] = useState(false);
+  const [quizTakeOpen, setQuizTakeOpen] = useState(false);
+  const [hasAttempt, setHasAttempt] = useState(false);
+
+  useEffect(() => {
+    setLocalQuiz(skill.quiz ?? null);
+  }, [skill.id]);
+
+  // Determine if student has a previous attempt (for button label)
+  useEffect(() => {
+    if (isOwner || !localQuiz) return;
+    getLatestAttempt(api, localQuiz.id)
+      .then((result) => setHasAttempt(result !== null))
+      .catch(() => {});
+  }, [api, isOwner, localQuiz?.id]);
 
   useEffect(() => {
     setUnderstood(skill.isUnderstood);
@@ -221,6 +240,37 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           placeholder="Add your personal notes here..."
         />
       </section>
+
+      {/* Quiz section */}
+      {isOwner && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
+          <button
+            className="btn-ghost"
+            onClick={() => {
+              console.log("Open quiz editor for quiz:", localQuiz?.id ?? "(new)", "skill:", skill.id);
+              setQuizEditorOpen(true);
+            }}
+          >
+            {localQuiz ? "Edit Quiz" : "Create Quiz"}
+          </button>
+        </section>
+      )}
+
+      {!isOwner && localQuiz && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
+          <button
+            className="btn-ghost"
+            onClick={() => {
+              console.log("Open quiz take for quiz:", localQuiz.id);
+              setQuizTakeOpen(true);
+            }}
+          >
+            {hasAttempt ? "Retake Quiz" : "Take Quiz"}
+          </button>
+        </section>
+      )}
 
       {isOwner && onEdit && sessionId === null && (
         <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>
