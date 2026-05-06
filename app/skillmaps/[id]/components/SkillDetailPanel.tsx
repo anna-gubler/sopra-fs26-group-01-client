@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
+import { submitSkillRating } from "@/api/sessionApi";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -65,7 +66,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     setUnderstood(next);
     setToggling(true);
     try {
-      await updateProgress(api, skill.id, next);
+      await updateProgress(api, skill.id, next ? 100 : 0);
       onUnderstoodChange?.(skill.id, next);
     } catch {
       setUnderstood(!next);
@@ -91,6 +92,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           await updateProgress(api, skill.id, val);
         } catch {
           // ratings are best-effort; silently ignore failures
+        }
         if (sessionId !== null) {
           try {
             await submitSkillRating(api, sessionId, skill.id, val);
