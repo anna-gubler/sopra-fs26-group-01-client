@@ -9,6 +9,7 @@ import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
 import { BookOpen, LogOut, Download } from "lucide-react";
 import ExportModal from "@/skillmaps/[id]/components/ExportModal";
+import DashboardTour from "@/components/tours/DashboardTour";
 
 type MapStats = {
   skillCount: number;
@@ -33,6 +34,9 @@ const SkillMapsPage: React.FC = () => {
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
+  const [showTour, setShowTour] = useState(false);
+  const tourShownRef = useRef(false);
+  const userIdRef = useRef<number | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = async (file: File) => {
@@ -350,6 +354,13 @@ const SkillMapsPage: React.FC = () => {
         onExport={() => handleExport(exportingMap!.id, exportingMap!.title)}
         onClose={() => setExportingMap(null)}
       />
+
+      {showTour && (
+        <DashboardTour api={api} onDone={() => {
+          setShowTour(false);
+          if (userIdRef.current !== null) localStorage.setItem(`tour_seen_dashboard_${userIdRef.current}`, "true");
+        }} />
+      )}
     </div>
   );
 };

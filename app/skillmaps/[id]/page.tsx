@@ -26,6 +26,8 @@ import CollabView from "./components/CollabView";
 import SkillDetailPanel from "./components/SkillDetailPanel";
 import SkillLegend from "./components/SkillLegend";
 import ExportModal from "./components/ExportModal";
+import MapOwnerTour from "@/components/tours/MapOwnerTour";
+import MapUserTour from "@/components/tours/MapUserTour";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
