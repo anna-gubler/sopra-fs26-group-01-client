@@ -9,6 +9,7 @@ import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
 import { getLatestAttempt } from "@/api/quizApi";
 import QuizEditorModal from "./QuizEditorModal";
+import QuizTakeModal from "./QuizTakeModal";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -279,6 +280,15 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           setQuizEditorOpen(false);
         }}
       />
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizTakeOpen}
+          quizId={localQuiz.id}
+          onClose={() => setQuizTakeOpen(false)}
+        />
+      )}
     </div>
   );
 };
