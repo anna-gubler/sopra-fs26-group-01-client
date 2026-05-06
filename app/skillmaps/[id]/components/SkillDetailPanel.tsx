@@ -8,6 +8,7 @@ import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
 import { getLatestAttempt } from "@/api/quizApi";
+import QuizEditorModal from "./QuizEditorModal";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -245,13 +246,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {isOwner && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          <button
-            className="btn-ghost"
-            onClick={() => {
-              console.log("Open quiz editor for quiz:", localQuiz?.id ?? "(new)", "skill:", skill.id);
-              setQuizEditorOpen(true);
-            }}
-          >
+          <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
             {localQuiz ? "Edit Quiz" : "Create Quiz"}
           </button>
         </section>
@@ -260,13 +255,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {!isOwner && localQuiz && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          <button
-            className="btn-ghost"
-            onClick={() => {
-              console.log("Open quiz take for quiz:", localQuiz.id);
-              setQuizTakeOpen(true);
-            }}
-          >
+          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
             {hasAttempt ? "Retake Quiz" : "Take Quiz"}
           </button>
         </section>
@@ -277,6 +266,19 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           Edit Skill
         </button>
       )}
+
+      <QuizEditorModal
+        api={api}
+        open={quizEditorOpen}
+        skillMapId={skill.skillMapId}
+        skillId={skill.id}
+        quizId={localQuiz?.id ?? null}
+        onClose={() => setQuizEditorOpen(false)}
+        onSaved={(quiz) => {
+          setLocalQuiz(quiz);
+          setQuizEditorOpen(false);
+        }}
+      />
     </div>
   );
 };
