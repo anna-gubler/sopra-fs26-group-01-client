@@ -143,3 +143,51 @@ reason).
 |                    | [03.05.2026]   | [feat(#185)](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/fb6d722e7f606d67684e5ac3f66dca4f14270372) | [added hasSeenDashboard and hasSeenMap, adapted tests] | [gives the basis for creating user onboardings] |
 | **@haslam** | 04.05.2026   | FE: [S14 #49 & #50 Add understood checkbox and persist state per student](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/460e2b1c633e1ee8bab9d8f81585a4fa30e29ff4) | Added understood checkbox to skill detail sidebar, connected toggle to API, and persisted/restored state per student across sessions. | Allows students to mark skills as understood with progress saved and restored on revisit. |
 |                    | 04.05.2026   | FE: [S14 #51 Show locked skills as grayed out with checkbox disabled](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/bade5051ddecb790e7843f6c97bcb4d1605c4247) | Showed locked skills as grayed out with checkbox disabled. | Prevents students from marking locked skills as understood. |
+
+## Contributions Week 7 - 04.05. to 10.05.
+* Scrum meeting 7: 11.05.
+
+| **Student** | **Date** | **Link to Commit** | **Description** | **Relevance** |
+| ----------- | -------- | ------------------ | --------------- | ------------- |
+| **@chiawld** | [Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@anna-gubler** |05.05.2026|[feat(#15): quiz entities, repo, dto's and mapper](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/52b522aff157430fb9f55263c2470da4a40eba48) | Creating Quiz Entities| New Functionality |
+|              | 07.05.2026 |[feat(#15, #16): quiz services, controllers and tests ](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/ccf904607e9de469ca95cf40320c3af9ac636c9d) |Services, Controllers and Tests  |Ensure functionality |
+| **@elsithewizzard** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@sebdahub** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@haslam** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+
+## Contributions Week 8 - 11.05. to 17.05.
+* Scrum meeting 8: 18.05.
+
+| **Student** | **Date** | **Link to Commit** | **Description** | **Relevance** |
+| ----------- | -------- | ------------------ | --------------- | ------------- |
+| **@chiawld** | [Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@anna-gubler** | [Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@elsithewizzard** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@sebdahub** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@haslam** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+
+## Contributions Week 9 - 18.05. to 22.05.
+* Deadline M4: 22.05.
+
+| **Student** | **Date** | **Link to Commit** | **Description** | **Relevance** |
+| ----------- | -------- | ------------------ | --------------- | ------------- |
+| **@chiawld** | [Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@anna-gubler** | [Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@elsithewizzard** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@sebdahub** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
+| **@haslam** |[Date] |[Commit 1] | | |
+|              | [Date] |[Commit 2] | | |
