@@ -50,9 +50,6 @@ const dotColor: Record<string, string> = {
   hard:   "hsl(330, 70%, 56%)",
 };
 
-// Set to { id: 1 } to test student quiz flow without backend
-const DEV_MOCK_QUIZ: SkillQuizRef | null = { id: 1 };
-
 const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, onUnderstoodChange, api, sessionId, liveRating }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
   const [notes, setNotes] = useState("");
@@ -64,13 +61,13 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const understandingRef = useRef(0);
   const prevSessionIdRef = useRef<number | null>(null);
 
-  const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(DEV_MOCK_QUIZ ?? skill.quiz ?? null);
+  const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
   const [quizTakeOpen, setQuizTakeOpen] = useState(false);
   const [hasAttempt, setHasAttempt] = useState(false);
 
   useEffect(() => {
-    setLocalQuiz(DEV_MOCK_QUIZ ?? skill.quiz ?? null);
+    setLocalQuiz(skill.quiz ?? null);
   }, [skill.id]);
 
   // Determine if student has a previous attempt (for button label)
@@ -286,6 +283,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         <QuizTakeModal
           api={api}
           open={quizTakeOpen}
+          skillId={skill.id}
           quizId={localQuiz.id}
           onClose={() => setQuizTakeOpen(false)}
         />
