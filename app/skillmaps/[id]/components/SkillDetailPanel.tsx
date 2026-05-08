@@ -64,7 +64,9 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
   const [quizTakeOpen, setQuizTakeOpen] = useState(false);
+  const [quizPreviewOpen, setQuizPreviewOpen] = useState(false);
   const [hasAttempt, setHasAttempt] = useState(false);
+  const [lastScore, setLastScore] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,13 +79,16 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     return () => { cancelled = true; };
   }, [skill.id, api]);
 
-  // Determine if student has a previous attempt (for button label)
+  // Fetch latest attempt for button label and last score; re-runs when modal closes
   useEffect(() => {
-    if (isOwner || !localQuiz) return;
+    if (!localQuiz || quizTakeOpen) return;
     getLatestAttempt(api, localQuiz.id)
-      .then((result) => setHasAttempt(result !== null))
+      .then((result) => {
+        setHasAttempt(result !== null);
+        setLastScore(result?.passed !== null && result?.score != null ? result.score : null);
+      })
       .catch(() => {});
-  }, [api, isOwner, localQuiz?.id]);
+  }, [api, localQuiz?.id, quizTakeOpen]);
 
   useEffect(() => {
     setUnderstood(skill.isUnderstood);
@@ -262,18 +267,53 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {isOwner && localQuiz && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
+          {lastScore !== null && (
+            <div className={styles["live-rating-row"]}>
+              <div className={styles["live-rating-bar-track"]}>
+                <div
+                  className={styles["live-rating-bar-fill"]}
+                  style={{ width: `${lastScore}%`, background: ratingColor(lastScore) }}
+                />
+              </div>
+              <span className={styles["live-rating-value"]} style={{ color: ratingColor(lastScore) }}>
+                {lastScore}%
+              </span>
+            </div>
+          )}
+          <button className="btn-ghost" onClick={() => setQuizPreviewOpen(true)}>
             Preview Quiz
+          </button>
+          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
+            Take Quiz
           </button>
         </section>
       )}
 
-      {!isOwner && localQuiz && (
+      {!isOwner && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
-            {hasAttempt ? "Retake Quiz" : "Take Quiz"}
-          </button>
+          {localQuiz ? (
+            <>
+              {lastScore !== null && (
+                <div className={styles["live-rating-row"]}>
+                  <div className={styles["live-rating-bar-track"]}>
+                    <div
+                      className={styles["live-rating-bar-fill"]}
+                      style={{ width: `${lastScore}%`, background: ratingColor(lastScore) }}
+                    />
+                  </div>
+                  <span className={styles["live-rating-value"]} style={{ color: ratingColor(lastScore) }}>
+                    {lastScore}%
+                  </span>
+                </div>
+              )}
+              <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
+                {hasAttempt ? "Retake Quiz" : "Take Quiz"}
+              </button>
+            </>
+          ) : (
+            <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>
+          )}
         </section>
       )}
 
@@ -309,6 +349,17 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           skillId={skill.id}
           quizId={localQuiz.id}
           onClose={() => setQuizTakeOpen(false)}
+        />
+      )}
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizPreviewOpen}
+          skillId={skill.id}
+          quizId={localQuiz.id}
+          onClose={() => setQuizPreviewOpen(false)}
+          previewOnly
         />
       )}
     </div>

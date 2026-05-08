@@ -7,7 +7,7 @@ import { QuizQuestion, QuizAttempt } from "@/types/quiz";
 import { getQuiz, getLatestAttempt, getQuizQuestions, createAttempt, submitAttempt } from "@/api/quizApi";
 import styles from "@/styles/skillmaps.module.css";
 
-type Phase = "loading" | "taking" | "result" | "locked";
+type Phase = "loading" | "taking" | "result" | "locked" | "preview";
 
 type Props = {
   api: ApiService;
@@ -15,9 +15,10 @@ type Props = {
   skillId: number;
   quizId: number;
   onClose: () => void;
+  previewOnly?: boolean;
 };
 
-const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose }) => {
+const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, previewOnly }) => {
   const [phase, setPhase] = useState<Phase>("loading");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [selections, setSelections] = useState<Map<number, number>>(new Map());
@@ -31,6 +32,13 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose })
     setSelections(new Map());
     setResult(null);
     setPendingAttemptId(null);
+
+    if (previewOnly) {
+      getQuizQuestions(api, quizId)
+        .then((qs) => { setQuestions(qs); setPhase("preview"); })
+        .catch(() => { toast.error("Failed to load quiz."); onClose(); });
+      return;
+    }
 
     Promise.all([
       getQuiz(api, skillId),
@@ -47,7 +55,6 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose })
 
         if (latestAttempt) {
           if (latestAttempt.passed === null) {
-            // resume an unsubmitted attempt from a previous session
             setPendingAttemptId(latestAttempt.id);
             setPhase("taking");
           } else {
@@ -62,7 +69,7 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose })
         toast.error("Failed to load quiz.");
         onClose();
       });
-  }, [open, quizId, skillId]);
+  }, [open, quizId, skillId, previewOnly]);
 
   if (!open) return null;
 
@@ -136,6 +143,31 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose })
           <>
             <h2 className="form-heading">Quiz</h2>
             <p className={styles["quiz-loading"]}>This quiz is currently inactive.</p>
+            <div className={styles["quiz-modal-actions"]}>
+              <button type="button" className="btn-ghost" onClick={onClose}>Close</button>
+            </div>
+          </>
+        )}
+
+        {phase === "preview" && (
+          <>
+            <h2 className="form-heading">Quiz Preview</h2>
+            <div className={styles["quiz-question-list"]}>
+              {questions.map((q, qi) => (
+                <div key={q.id} className={styles["quiz-take-question"]}>
+                  <p className={styles["quiz-take-question-text"]}>
+                    {qi + 1}. {q.quizQuestionText}
+                  </p>
+                  <div className={styles["quiz-take-options"]}>
+                    {q.answers.map((a) => (
+                      <div key={a.id} className={styles["quiz-take-option"]}>
+                        <span>{a.answerText}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
             <div className={styles["quiz-modal-actions"]}>
               <button type="button" className="btn-ghost" onClick={onClose}>Close</button>
             </div>
