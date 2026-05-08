@@ -872,8 +872,11 @@
 }
 
 /* Edit skill button at bottom of detail panel */
-.detail-panel-edit-btn {
+.detail-panel-bottom-actions {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Live rating display (owner only) */

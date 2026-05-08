@@ -7,7 +7,7 @@ import { Skill, SkillQuizRef } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
-import { getLatestAttempt } from "@/api/quizApi";
+import { getQuiz, getLatestAttempt } from "@/api/quizApi";
 import QuizEditorModal from "./QuizEditorModal";
 import QuizTakeModal from "./QuizTakeModal";
 import UnderstandingSlider from "./UnderstandingSlider";
@@ -67,8 +67,15 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const [hasAttempt, setHasAttempt] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     setLocalQuiz(skill.quiz ?? null);
-  }, [skill.id]);
+    if (!skill.quiz) {
+      getQuiz(api, skill.id)
+        .then((q) => { if (!cancelled) setLocalQuiz({ id: q.id }); })
+        .catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [skill.id, api]);
 
   // Determine if student has a previous attempt (for button label)
   useEffect(() => {
@@ -243,17 +250,21 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       </section>
 
       {/* Quiz section */}
-      {isOwner && (
+      {isOwner && !localQuiz && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Quiz</h3>
           <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
-            {localQuiz ? "Edit Quiz" : "Create Quiz"}
+            Create Quiz
           </button>
-          {localQuiz && (
-            <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
-              Preview Quiz
-            </button>
-          )}
+        </section>
+      )}
+
+      {isOwner && localQuiz && (
+        <section className={styles["detail-panel-section"]}>
+          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
+          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
+            Preview Quiz
+          </button>
         </section>
       )}
 
@@ -266,11 +277,18 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         </section>
       )}
 
-      {isOwner && onEdit && sessionId === null && (
-        <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>
-          Edit Skill
-        </button>
-      )}
+      <div className={styles["detail-panel-bottom-actions"]}>
+        {isOwner && localQuiz && (
+          <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
+            Edit Quiz
+          </button>
+        )}
+        {isOwner && onEdit && sessionId === null && (
+          <button className="btn-ghost" onClick={onEdit}>
+            Edit Skill
+          </button>
+        )}
+      </div>
 
       <QuizEditorModal
         api={api}
