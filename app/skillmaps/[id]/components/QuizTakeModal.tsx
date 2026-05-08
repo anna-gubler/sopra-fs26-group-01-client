@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ApiService } from "@/api/apiService";
-import { QuizQuestion, AttemptResult } from "@/types/quiz";
+import { QuizQuestion, QuizAttempt } from "@/types/quiz";
 import { getLatestAttempt, getQuizQuestions, submitAttempt } from "@/api/quizApi";
 import styles from "@/styles/skillmaps.module.css";
 
@@ -20,7 +20,7 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, quizId, onClose }) => {
   const [phase, setPhase] = useState<Phase>("loading");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [selections, setSelections] = useState<Map<number, number>>(new Map());
-  const [result, setResult] = useState<AttemptResult | null>(null);
+  const [result, setResult] = useState<QuizAttempt | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -75,8 +75,6 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, quizId, onClose }) => {
     setPhase("taking");
   };
 
-  const getResultAnswer = (questionId: number) =>
-    result?.answers.find((a) => a.quizQuestionId === questionId);
 
   return (
     <div
@@ -151,57 +149,57 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, quizId, onClose }) => {
           <>
             <h2 className="form-heading">Your Result</h2>
             <p className={styles["quiz-result-score"]}>
-              {result.score} / {questions.length} correct
+              Score: {result.score ?? "—"}% — {result.passed ? "Passed ✓" : "Failed ✗"}
             </p>
-            <div className={styles["quiz-question-list"]}>
-              {questions.map((q, qi) => {
-                const resultAnswer = getResultAnswer(q.id);
-                return (
-                  <div key={q.id} className={styles["quiz-take-question"]}>
-                    <p className={styles["quiz-take-question-text"]}>
-                      {qi + 1}. {q.quizQuestionText}
-                    </p>
-                    <div className={styles["quiz-take-options"]}>
-                      {q.answers.map((a) => {
-                        const wasSelected = resultAnswer?.selectedAnswerId === a.id;
-                        // isCorrect may be present if backend exposes it post-submission
-                        const isCorrectAnswer = a.isCorrect === true;
-                        const showAsWrongSelected =
-                          wasSelected && resultAnswer && !resultAnswer.isCorrect;
-                        const showAsCorrect =
-                          (wasSelected && resultAnswer?.isCorrect) ||
-                          (isCorrectAnswer && showAsWrongSelected);
-
-                        return (
-                          <div
-                            key={a.id}
-                            className={`${styles["quiz-result-answer-row"]} ${
-                              showAsCorrect
-                                ? styles["quiz-result-answer-row--correct"]
-                                : showAsWrongSelected
-                                  ? styles["quiz-result-answer-row--wrong"]
-                                  : ""
-                            }`}
-                          >
-                            <span>{a.answerText}</span>
-                            {wasSelected && (
-                              <span className={styles["quiz-result-your-answer"]}>
-                                {resultAnswer?.isCorrect ? " ✓" : " ✗ your answer"}
-                              </span>
-                            )}
-                            {isCorrectAnswer && showAsWrongSelected && (
-                              <span className={styles["quiz-result-correct-hint"]}>
-                                {" "}correct answer
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
+            {selections.size > 0 && (
+              <div className={styles["quiz-question-list"]}>
+                {questions.map((q, qi) => {
+                  const selectedId = selections.get(q.id);
+                  const selectedWasWrong =
+                    selectedId !== undefined &&
+                    !(q.answers.find((a) => a.id === selectedId)?.isCorrect ?? false);
+                  return (
+                    <div key={q.id} className={styles["quiz-take-question"]}>
+                      <p className={styles["quiz-take-question-text"]}>
+                        {qi + 1}. {q.quizQuestionText}
+                      </p>
+                      <div className={styles["quiz-take-options"]}>
+                        {q.answers.map((a) => {
+                          const wasSelected = selectedId === a.id;
+                          const showAsCorrect = wasSelected && a.isCorrect;
+                          const showAsWrong = wasSelected && !a.isCorrect;
+                          const showCorrectHint = !wasSelected && a.isCorrect && selectedWasWrong;
+                          return (
+                            <div
+                              key={a.id}
+                              className={`${styles["quiz-result-answer-row"]} ${
+                                showAsCorrect
+                                  ? styles["quiz-result-answer-row--correct"]
+                                  : showAsWrong
+                                    ? styles["quiz-result-answer-row--wrong"]
+                                    : ""
+                              }`}
+                            >
+                              <span>{a.answerText}</span>
+                              {wasSelected && (
+                                <span className={styles["quiz-result-your-answer"]}>
+                                  {a.isCorrect ? " ✓" : " ✗ your answer"}
+                                </span>
+                              )}
+                              {showCorrectHint && (
+                                <span className={styles["quiz-result-correct-hint"]}>
+                                  {" "}correct answer
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
             <div className={styles["quiz-modal-actions"]}>
               <button type="button" className="btn-gradient" onClick={handleRetake}>
                 Retake

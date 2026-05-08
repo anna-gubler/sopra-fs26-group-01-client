@@ -218,7 +218,7 @@ const QuizEditorModal: React.FC<Props> = ({
       let currentQuizId = quizId;
 
       if (currentQuizId === null) {
-        const quiz = await createQuiz(api, skillMapId, skillId);
+        const quiz = await createQuiz(api, skillId);
         currentQuizId = quiz.id;
       }
 
@@ -286,7 +286,7 @@ const QuizEditorModal: React.FC<Props> = ({
 
   const handleDeleteQuiz = async () => {
     try {
-      await deleteQuiz(api, skillMapId, skillId);
+      await deleteQuiz(api, quizId!);
       toast.success("Quiz deleted.");
       onSaved(null);
     } catch {
