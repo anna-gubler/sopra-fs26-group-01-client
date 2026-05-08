@@ -716,6 +716,28 @@
   margin-bottom: 12px;
 }
 
+.quiz-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.quiz-settings-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--ctp-subtext1);
+}
+
+.quiz-settings-input {
+  width: 70px !important;
+  text-align: center;
+}
+
 .quiz-question-block {
   border: 1px solid var(--border-color);
   border-radius: 8px;

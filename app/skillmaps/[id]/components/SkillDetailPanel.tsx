@@ -249,6 +249,11 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
             {localQuiz ? "Edit Quiz" : "Create Quiz"}
           </button>
+          {localQuiz && (
+            <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
+              Preview Quiz
+            </button>
+          )}
         </section>
       )}
 

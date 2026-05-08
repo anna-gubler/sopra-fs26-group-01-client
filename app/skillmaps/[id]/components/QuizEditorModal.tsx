@@ -5,7 +5,9 @@ import toast from "react-hot-toast";
 import { ApiService } from "@/api/apiService";
 import { SkillQuizRef } from "@/types/skill";
 import {
+  getQuiz,
   createQuiz,
+  updateQuiz,
   deleteQuiz,
   getQuizQuestions,
   createQuizQuestion,
@@ -97,6 +99,8 @@ const QuizEditorModal: React.FC<Props> = ({
   onSaved,
 }) => {
   const [questions, setQuestions] = useState<LocalQuestion[]>([emptyQuestion()]);
+  const [passMark, setPassMark] = useState(70);
+  const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -107,13 +111,17 @@ const QuizEditorModal: React.FC<Props> = ({
     if (!open) return;
     if (quizId === null) {
       setQuestions([emptyQuestion()]);
+      setPassMark(70);
+      setIsActive(true);
       origQuestionIds.current = new Set();
       origAnswerIds.current = new Map();
       return;
     }
     setLoading(true);
-    getQuizQuestions(api, quizId)
-      .then((qs) => {
+    Promise.all([getQuiz(api, skillId), getQuizQuestions(api, quizId)])
+      .then(([quiz, qs]) => {
+        setPassMark(quiz.passMark);
+        setIsActive(quiz.isActive);
         const qIds = new Set<number>();
         const aIds = new Map<number, Set<number>>();
         const loaded: LocalQuestion[] = qs.map((q) => {
@@ -216,8 +224,10 @@ const QuizEditorModal: React.FC<Props> = ({
       let currentQuizId = quizId;
 
       if (currentQuizId === null) {
-        const quiz = await createQuiz(api, skillId);
+        const quiz = await createQuiz(api, skillId, { isActive, passMark });
         currentQuizId = quiz.id;
+      } else {
+        await updateQuiz(api, currentQuizId, { isActive, passMark });
       }
 
       // Delete questions removed by the lecturer
@@ -314,6 +324,28 @@ const QuizEditorModal: React.FC<Props> = ({
           <p className={styles["quiz-loading"]}>Loading…</p>
         ) : (
           <>
+            <div className={styles["quiz-settings-row"]}>
+              <label className={styles["quiz-settings-label"]}>
+                Pass mark (%)
+                <input
+                  className={`auth-input ${styles["quiz-settings-input"]}`}
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={passMark}
+                  onChange={(e) => setPassMark(Math.min(100, Math.max(0, Number(e.target.value))))}
+                />
+              </label>
+              <label className={styles["quiz-settings-label"]}>
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+                Active
+              </label>
+            </div>
+
             <div className={styles["quiz-question-list"]}>
               {questions.map((q, qi) => (
                 <div key={q.key} className={styles["quiz-question-block"]}>
