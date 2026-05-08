@@ -35,7 +35,6 @@ type LocalQuestion = {
 type Props = {
   api: ApiService;
   open: boolean;
-  skillMapId: number;
   skillId: number;
   quizId: number | null;
   onClose: () => void;
@@ -92,7 +91,6 @@ const DeleteQuizButton: React.FC<{ onDelete: () => void; disabled: boolean }> = 
 const QuizEditorModal: React.FC<Props> = ({
   api,
   open,
-  skillMapId,
   skillId,
   quizId,
   onClose,
@@ -121,13 +119,13 @@ const QuizEditorModal: React.FC<Props> = ({
         const loaded: LocalQuestion[] = qs.map((q) => {
           qIds.add(q.id);
           const answerIdSet = new Set<number>();
-          const answers: LocalAnswer[] = (q.answers ?? []).map((a) => {
+          const answers: LocalAnswer[] = q.answers.map((a) => {
             answerIdSet.add(a.id);
             return {
               key: String(a.id),
               id: a.id,
               answerText: a.answerText,
-              isCorrect: a.isCorrect ?? false,
+              isCorrect: a.isCorrect,
             };
           });
           aIds.set(q.id, answerIdSet);

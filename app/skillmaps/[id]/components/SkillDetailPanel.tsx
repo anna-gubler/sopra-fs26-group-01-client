@@ -273,7 +273,6 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       <QuizEditorModal
         api={api}
         open={quizEditorOpen}
-        skillMapId={skill.skillMapId}
         skillId={skill.id}
         quizId={localQuiz?.id ?? null}
         onClose={() => setQuizEditorOpen(false)}
