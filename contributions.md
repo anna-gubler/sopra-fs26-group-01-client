@@ -159,7 +159,7 @@ reason).
 | **@sebdahub** |[08.05.2026] |[Added live feedback feature](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/a2315ae3c25ada928f9c533408002be8c66c713b) |Live feedback feature, similar to speed understanding but for general understanding of lecture | - |
 |              | [10.05.2026] |[Join Private Maps Bug Fix](https://github.com/anna-gubler/sopra-fs26-group-01-server/pull/228/changes/c245c62f4a8f9f5f2a07f773357a18db62cdfa8d) | Fixed a bug where students could join maps set to private | |
 | **@haslam** |[10.05.2026] |[Frontend bug fixes](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/c51cbe2b56f6c052a537c2dadd3381e4f4036580)|Fixed multiple bugs, main ones are: setting limits & counters for naming of skill map, skill node, username, bio; redirection to login page when user is no longer signed in; added option for "general" question to be asked, limited number of levels per map | Ensure functionality & nice format udner extreme cases |
-|              | [Date] |[Commit 2] | | |
+|              | [10.05.2026] |[Animation for loading page & minor bugs](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/bea72d1e7263784693a7eadb2d06af9b743fa7c1) |Added loading page that user seesm when registartion is taking time (usually takes a while in deployed version) & fixed issue that fast typing didn't load avatar previews| improved usability |
 
 ## Contributions Week 8 - 11.05. to 17.05.
 * Scrum meeting 8: 18.05.
