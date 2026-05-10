@@ -205,7 +205,7 @@ const SkillMapsPage: React.FC = () => {
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImport(f); e.target.value = ""; }}
             />
             <button type="button" className="btn-ghost" onClick={() => importInputRef.current?.click()}>Import Map</button>
-            <button type="button" className="btn-ghost" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
+            <button type="button" className="btn-ghost" data-tour="join-map-btn" onClick={() => { setShowJoinInput(!showJoinInput); setInviteCode(""); }}>{showJoinInput ? "Cancel" : "+ Join Map"}</button>
             {showJoinInput && (
               <input
                 className={styles['sm-join-input']}

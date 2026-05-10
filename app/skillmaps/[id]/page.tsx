@@ -96,8 +96,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [selectedSkillRating, setSelectedSkillRating] = useState<number | null>(null);
   const [liveAggregated, setLiveAggregated] = useState<Map<number, { avg: number; count: number }>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showOwnerTour, setShowOwnerTour] = useState(false);
-  const [showStudentTour, setShowStudentTour] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const tourCheckedRef = useRef(false);
 
   const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
@@ -122,10 +121,8 @@ const SkillMapEditorPage: React.FC = () => {
           const studentKey = `tour_seen_map_user_${me.id}`;
           const seenOwner = typeof window !== "undefined" && localStorage.getItem(ownerKey) === "true";
           const seenUser = typeof window !== "undefined" && localStorage.getItem(studentKey) === "true";
-          if (ownerNow && !seenOwner) {
-            setShowOwnerTour(true);
-          } else if (!ownerNow && !seenUser) {
-            setShowStudentTour(true);
+          if ((ownerNow && !seenOwner) || (!ownerNow && !seenUser)) {
+            setShowTour(true);
           }
         }
 
@@ -604,21 +601,21 @@ const SkillMapEditorPage: React.FC = () => {
         />
       )}
 
-      {showOwnerTour && (
+      {showTour && isOwner && (
         <MapOwnerTour
           api={api}
           onDone={() => {
-            setShowOwnerTour(false);
+            setShowTour(false);
             if (user) localStorage.setItem(`tour_seen_map_owner_${user.id}`, "true");
           }}
         />
       )}
 
-      {showStudentTour && (
+      {showTour && !isOwner && (
         <MapUserTour
           api={api}
           onDone={() => {
-            setShowStudentTour(false);
+            setShowTour(false);
             if (user) localStorage.setItem(`tour_seen_map_user_${user.id}`, "true");
           }}
         />

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight } from "lucide-react";
+import styles from "@/styles/tour.module.css";
 
 export interface TourSection {
   heading: string;
@@ -26,151 +27,191 @@ interface TourOverlayProps {
 
 const TOOLTIP_W = 320;
 const TOOLTIP_W_WIDE = 480;
+// Estimated tooltip height used for viewport collision detection
+const TOOLTIP_H = 260;
+const GAP = 14;
 
-function tooltipPosition(rect: DOMRect | null, padding: number, w: number): { left: number; top: number } {
+interface SpotlightRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+interface OverlayLayout {
+  spotlight: SpotlightRect | null;
+  tooltip: { left: number; top: number };
+}
+
+// Computes the padded spotlight bounds around the target element, and the best
+// tooltip position. Preference order: below → above → right → left the spotlight.
+function computeOverlayLayout(rect: DOMRect | null, padding: number, w: number): OverlayLayout {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const TH = 260;
-  const gap = 14;
 
-  if (!rect) return { left: Math.max(8, (vw - w) / 2), top: Math.max(8, (vh - TH) / 2) };
+  if (!rect) {
+    return {
+      spotlight: null,
+      tooltip: { left: Math.max(8, (vw - w) / 2), top: Math.max(8, (vh - TOOLTIP_H) / 2) },
+    };
+  }
 
+  // Padded bounding box that will be cut out of the overlay to reveal the target
+  const spotlight: SpotlightRect = {
+    left: rect.left - padding,
+    top: rect.top - padding,
+    width: rect.width + padding * 2,
+    height: rect.height + padding * 2,
+  };
+
+  // Clamp helpers keep the tooltip fully inside the viewport with an 8px margin
   const clampL = (x: number) => Math.min(Math.max(x, 8), vw - w - 8);
-  const clampT = (y: number) => Math.min(Math.max(y, 8), vh - TH - 8);
-  const sBottom = rect.bottom + padding;
-  const sTop = rect.top - padding;
+  const clampT = (y: number) => Math.min(Math.max(y, 8), vh - TOOLTIP_H - 8);
 
-  if (sBottom + gap + TH <= vh) return { left: clampL(rect.left - padding), top: sBottom + gap };
-  if (sTop - gap - TH >= 0) return { left: clampL(rect.left - padding), top: sTop - gap - TH };
-  if (rect.right + padding + gap + w <= vw) return { left: rect.right + padding + gap, top: clampT(rect.top - padding) };
-  return { left: Math.max(8, rect.left - padding - gap - w), top: clampT(rect.top - padding) };
+  const belowEdge = rect.bottom + padding;
+  const aboveEdge = rect.top - padding;
+
+  let tooltip: { left: number; top: number };
+
+  if (belowEdge + GAP + TOOLTIP_H <= vh) {
+    // Enough room below the spotlight
+    tooltip = { left: clampL(rect.left - padding), top: belowEdge + GAP };
+  } else if (aboveEdge - GAP - TOOLTIP_H >= 0) {
+    // Enough room above the spotlight
+    tooltip = { left: clampL(rect.left - padding), top: aboveEdge - GAP - TOOLTIP_H };
+  } else if (rect.right + padding + GAP + w <= vw) {
+    // Enough room to the right
+    tooltip = { left: rect.right + padding + GAP, top: clampT(rect.top - padding) };
+  } else {
+    // Fall back to the left side
+    tooltip = { left: Math.max(8, rect.left - padding - GAP - w), top: clampT(rect.top - padding) };
+  }
+
+  return { spotlight, tooltip };
 }
+
+interface TourTooltipProps {
+  step: TourStep;
+  currentStep: number;
+  totalSteps: number;
+  isLast: boolean;
+  top: number;
+  left: number;
+  width: number;
+  onSkip: () => void;
+  onNext: () => void;
+}
+
+const TourTooltip: React.FC<TourTooltipProps> = ({
+  step, currentStep, totalSteps, isLast, top, left, width, onSkip, onNext,
+}) => (
+  <AnimatePresence mode="wait">
+    <motion.div
+      key={currentStep}
+      className={styles.tooltip}
+      style={{ top, left, width }}
+      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+    >
+      <div className={styles.tooltipHeader}>
+        <span className={styles.progress}>{currentStep + 1} / {totalSteps}</span>
+        <button className={styles.closeBtn} onClick={onSkip} aria-label="Skip tour">
+          <X size={15} />
+        </button>
+      </div>
+
+      <h4 className={styles.title}>{step.title}</h4>
+
+      {step.sections ? (
+        <div className={`${styles.sectionGrid} ${step.sections.length > 3 ? styles.sectionGridTwo : ""}`}>
+          {step.sections.map((s) => (
+            <div key={s.heading}>
+              <div className={styles.sectionHeading}>{s.heading}</div>
+              <div className={styles.sectionBody}>{s.body}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className={styles.content}>{step.content}</p>
+      )}
+
+      <div className={styles.footer}>
+        <div className={styles.dots}>
+          {Array.from({ length: totalSteps }, (_, i) => (
+            <div
+              key={i}
+              className={`${styles.dot} ${
+                i === currentStep ? styles.dotActive
+                  : i < currentStep ? styles.dotPast
+                  : styles.dotFuture
+              }`}
+            />
+          ))}
+        </div>
+        <button className={styles.nextBtn} onClick={onNext}>
+          {isLast ? "Done" : "Next"}
+          {!isLast && <ChevronRight size={12} />}
+        </button>
+      </div>
+    </motion.div>
+  </AnimatePresence>
+);
 
 const TourOverlay: React.FC<TourOverlayProps> = ({ steps, onFinish, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
   const step = steps[currentStep];
-  const padding = step?.padding ?? 8;
   const isLast = currentStep === steps.length - 1;
-  const w = step?.wide ? TOOLTIP_W_WIDE : TOOLTIP_W;
 
   useEffect(() => {
-    if (!step?.target) { setTargetRect(null); return; }
-    const el = document.querySelector(`[data-tour="${step.target}"]`);
-    setTargetRect(el ? el.getBoundingClientRect() : null);
+    const recalc = () => {
+      if (!step?.target) { setTargetRect(null); return; }
+      const el = document.querySelector(`[data-tour="${step.target}"]`);
+      setTargetRect(el ? el.getBoundingClientRect() : null);
+    };
+    recalc();
+    window.addEventListener("resize", recalc);
+    return () => window.removeEventListener("resize", recalc);
   }, [currentStep, step?.target]);
+
+  if (!step) return null;
+
+  const padding = step.padding ?? 8;
+  const w = step.wide ? TOOLTIP_W_WIDE : TOOLTIP_W;
+  const { spotlight, tooltip } = computeOverlayLayout(targetRect, padding, w);
 
   const goNext = () => {
     if (isLast) onFinish();
     else setCurrentStep((s) => s + 1);
   };
 
-  if (!step) return null;
-
-  const sl = targetRect ? targetRect.left - padding : 0;
-  const st = targetRect ? targetRect.top - padding : 0;
-  const sw = targetRect ? targetRect.width + padding * 2 : 0;
-  const sh = targetRect ? targetRect.height + padding * 2 : 0;
-  const tp = tooltipPosition(targetRect, padding, w);
-
   return (
     <>
-      {targetRect ? (
+      {spotlight ? (
         <motion.div
-          style={{
-            position: "fixed", zIndex: 9998, borderRadius: 6, pointerEvents: "none",
-            boxShadow: "0 0 0 9999px rgba(10, 10, 18, 0.78)",
-            outline: "2px solid rgba(233, 30, 140, 0.35)",
-          }}
+          className={styles.spotlight}
           initial={false}
-          animate={{ left: sl, top: st, width: sw, height: sh }}
+          animate={{ ...spotlight }}
           transition={{ type: "spring", damping: 30, stiffness: 380 }}
         />
       ) : (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 9997,
-          background: "rgba(10, 10, 18, 0.78)", pointerEvents: "none",
-        }} />
+        <div className={styles.overlay} />
       )}
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 8, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -6, scale: 0.97 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          style={{
-            position: "fixed", left: tp.left, top: tp.top, width: w,
-            zIndex: 9999, pointerEvents: "all",
-            background: "var(--bg-elevated)", border: "1px solid var(--border-color)",
-            borderRadius: 12, padding: "16px 18px 14px",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(233,30,140,0.12)",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--primary)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              {currentStep + 1} / {steps.length}
-            </span>
-            <button onClick={onSkip} aria-label="Skip tour" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 2, display: "flex", alignItems: "center", borderRadius: 4 }}>
-              <X size={15} />
-            </button>
-          </div>
-
-          <h4 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700, color: "var(--text-bright)", fontFamily: "var(--font-display)", lineHeight: 1.3 }}>
-            {step.title}
-          </h4>
-
-          {step.sections ? (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: step.sections.length > 3 ? "1fr 1fr" : "1fr",
-              gap: "10px 20px",
-              marginBottom: 14,
-            }}>
-              {step.sections.map((s) => (
-                <div key={s.heading}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>
-                    {s.heading}
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                    {s.body}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ margin: "0 0 14px", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              {step.content}
-            </p>
-          )}
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: 5 }}>
-              {steps.map((_, i) => (
-                <div key={i} style={{
-                  height: 5, width: i === currentStep ? 16 : 5, borderRadius: 3,
-                  background: i === currentStep ? "var(--primary)" : i < currentStep ? "var(--text-muted)" : "var(--border-color)",
-                  transition: "all 0.25s",
-                }} />
-              ))}
-            </div>
-            <button
-              onClick={goNext}
-              style={{
-                display: "flex", alignItems: "center", gap: 4, padding: "6px 14px",
-                background: "linear-gradient(135deg, var(--primary), var(--secondary))",
-                border: "none", borderRadius: 8, color: "#fff",
-                fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em",
-              }}
-            >
-              {isLast ? "Done" : "Next"}
-              {!isLast && <ChevronRight size={12} />}
-            </button>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      <TourTooltip
+        step={step}
+        currentStep={currentStep}
+        totalSteps={steps.length}
+        isLast={isLast}
+        top={tooltip.top}
+        left={tooltip.left}
+        width={w}
+        onSkip={onSkip}
+        onNext={goNext}
+      />
     </>
   );
 };
