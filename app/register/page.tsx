@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/auth.module.css";
+import MappdLoader from "@/components/LoadingAnimation";
 
 
 const Register: React.FC = () => {
@@ -22,21 +23,22 @@ const Register: React.FC = () => {
   const [bio, setBio] = useState("");
   const bioResize = useAutoResize(bio);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await register(apiService, {
         username,
         password,
         ...(bio && { bio }),
       });
-      // store credentials returned by the server
       if (response.token) setToken(response.token);
-      if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
+      if (response.id) setId(String(response.id));
       router.push("/skillmaps");
     } catch (error) {
       const status = (error as ApplicationError).status;
@@ -47,11 +49,14 @@ const Register: React.FC = () => {
       } else {
         toast.error("Registration failed. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles['auth-page']}>
+      {loading && <MappdLoader overlay label="Creating your account..." />}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}

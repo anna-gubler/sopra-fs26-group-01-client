@@ -29,6 +29,7 @@ const Profile: React.FC = () => {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<string>("bottts-neutral");
   const [selectedSeed, setSelectedSeed] = useState<string>("");
+  const [debouncedSeed, setDebouncedSeed] = useState<string>("");
   const avatarStyles = ["adventurer","adventurer-neutral","avataaars","avataaars-neutral","big-ears","big-ears-neutral","big-smile","bottts","bottts-neutral","croodles","croodles-neutral","dylan","fun-emoji","glass","icons","identicon","initials","lorelei","lorelei-neutral","micah","miniavs","notionists","notionists-neutral","open-peeps","personas","pixel-art","pixel-art-neutral","rings","shapes","thumbs","toon-head"];
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", "");
@@ -115,6 +116,11 @@ const Profile: React.FC = () => {
       router.push("/login");
     }
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSeed(selectedSeed), 400);
+    return () => clearTimeout(timer);
+  }, [selectedSeed]);
 
   useEffect(() => {
     if (!token) return;
@@ -257,12 +263,12 @@ const Profile: React.FC = () => {
               className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
               onClick={() => setSelectedStyle(style)}
             >
-              <img src={getAvatarUrl(selectedSeed || user.seed, style)} className={styles['profile-avatar-img']} alt={style} />
+              <img src={getAvatarUrl(debouncedSeed || user.seed, style)} className={styles['profile-avatar-img']} alt={style} />
             </button>
           ))}
         </div>
         <div className="input-group">
-          <label>Seed (leave blank to keep current)</label>
+          <label>Seed (input for avatar generation)</label>
           <input
             type="text"
             className="auth-input"
