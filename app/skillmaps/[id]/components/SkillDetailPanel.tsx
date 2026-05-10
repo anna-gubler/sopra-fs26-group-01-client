@@ -166,17 +166,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {isOwner && liveRating != null && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Class Understanding</h3>
-          <div className={styles["live-rating-row"]}>
-            <div className={styles["live-rating-bar-track"]}>
-              <div
-                className={styles["live-rating-bar-fill"]}
-                style={{ width: `${liveRating}%`, background: ratingColor(liveRating) }}
-              />
-            </div>
-            <span className={styles["live-rating-value"]} style={{ color: ratingColor(liveRating) }}>
-              {liveRating}%
-            </span>
-          </div>
+          <ScoreBar score={liveRating} />
         </section>
       )}
 
@@ -254,68 +244,24 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         />
       </section>
 
-      {/* Quiz section */}
-      {isOwner && !localQuiz && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
-            Create Quiz
-          </button>
-        </section>
-      )}
-
-      {isOwner && localQuiz && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          {lastScore !== null && (
-            <div className={styles["live-rating-row"]}>
-              <div className={styles["live-rating-bar-track"]}>
-                <div
-                  className={styles["live-rating-bar-fill"]}
-                  style={{ width: `${lastScore}%`, background: ratingColor(lastScore) }}
-                />
-              </div>
-              <span className={styles["live-rating-value"]} style={{ color: ratingColor(lastScore) }}>
-                {lastScore}%
-              </span>
-            </div>
-          )}
-          <button className="btn-ghost" onClick={() => setQuizPreviewOpen(true)}>
-            Preview Quiz
-          </button>
-          <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
-            Take Quiz
-          </button>
-        </section>
-      )}
-
-      {!isOwner && (
-        <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Quiz</h3>
-          {localQuiz ? (
-            <>
-              {lastScore !== null && (
-                <div className={styles["live-rating-row"]}>
-                  <div className={styles["live-rating-bar-track"]}>
-                    <div
-                      className={styles["live-rating-bar-fill"]}
-                      style={{ width: `${lastScore}%`, background: ratingColor(lastScore) }}
-                    />
-                  </div>
-                  <span className={styles["live-rating-value"]} style={{ color: ratingColor(lastScore) }}>
-                    {lastScore}%
-                  </span>
-                </div>
-              )}
-              <button className="btn-ghost" onClick={() => setQuizTakeOpen(true)}>
-                {hasAttempt ? "Retake Quiz" : "Take Quiz"}
-              </button>
-            </>
-          ) : (
-            <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>
-          )}
-        </section>
-      )}
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Quiz</h3>
+        {isOwner
+          ? <OwnerQuizContent
+              localQuiz={localQuiz}
+              lastScore={lastScore}
+              onOpenEditor={() => setQuizEditorOpen(true)}
+              onPreview={() => setQuizPreviewOpen(true)}
+              onTake={() => setQuizTakeOpen(true)}
+            />
+          : <StudentQuizContent
+              localQuiz={localQuiz}
+              lastScore={lastScore}
+              hasAttempt={hasAttempt}
+              onTake={() => setQuizTakeOpen(true)}
+            />
+        }
+      </section>
 
       <div className={styles["detail-panel-bottom-actions"]}>
         {isOwner && localQuiz && (
@@ -367,3 +313,65 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 };
 
 export default SkillDetailPanel;
+
+function ScoreBar({ score }: { score: number }) {
+  return (
+    <div className={styles["live-rating-row"]}>
+      <div className={styles["live-rating-bar-track"]}>
+        <div
+          className={styles["live-rating-bar-fill"]}
+          style={{ width: `${score}%`, background: ratingColor(score) }}
+        />
+      </div>
+      <span className={styles["live-rating-value"]} style={{ color: ratingColor(score) }}>
+        {score}%
+      </span>
+    </div>
+  );
+}
+
+type OwnerQuizContentProps = {
+  localQuiz: SkillQuizRef | null;
+  lastScore: number | null;
+  onOpenEditor: () => void;
+  onPreview: () => void;
+  onTake: () => void;
+};
+
+function OwnerQuizContent({ localQuiz, lastScore, onOpenEditor, onPreview, onTake }: OwnerQuizContentProps) {
+  if (!localQuiz) {
+    return (
+      <button className="btn-ghost" onClick={onOpenEditor}>
+        Create Quiz
+      </button>
+    );
+  }
+  return (
+    <>
+      {lastScore !== null && <ScoreBar score={lastScore} />}
+      <button className="btn-ghost" onClick={onPreview}>Preview Quiz</button>
+      <button className="btn-ghost" onClick={onTake}>Take Quiz</button>
+    </>
+  );
+}
+
+type StudentQuizContentProps = {
+  localQuiz: SkillQuizRef | null;
+  lastScore: number | null;
+  hasAttempt: boolean;
+  onTake: () => void;
+};
+
+function StudentQuizContent({ localQuiz, lastScore, hasAttempt, onTake }: StudentQuizContentProps) {
+  if (!localQuiz) {
+    return <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>;
+  }
+  return (
+    <>
+      {lastScore !== null && <ScoreBar score={lastScore} />}
+      <button className="btn-ghost" onClick={onTake}>
+        {hasAttempt ? "Retake Quiz" : "Take Quiz"}
+      </button>
+    </>
+  );
+}
