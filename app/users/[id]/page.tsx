@@ -218,15 +218,23 @@ const Profile: React.FC = () => {
       <div className="input-group">
         <label htmlFor="edit-field">
           {editingField === 'username' ? 'Username' : 'Bio'}
+          {editingField === 'username' && <span className="field-hint"> (max 30 characters)</span>}
+          {editingField === 'bio' && <span className="field-hint"> (max 200 characters)</span>}
         </label>
-        <input
-          id="edit-field"
-          type="text"
-          className="auth-input"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          required={editingField === 'username'}
-        />
+        <div className="input-with-counter">
+          <input
+            id="edit-field"
+            type="text"
+            className="auth-input"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            required={editingField === 'username'}
+            maxLength={editingField === 'username' ? 30 : 200}
+          />
+          <span className="input-counter">
+            {editValue.length}/{editingField === 'username' ? 30 : 200}
+          </span>
+        </div>
       </div>
       <button className="btn-gradient btn-full mt-12" type="submit">
         Save Changes

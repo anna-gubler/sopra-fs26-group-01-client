@@ -103,7 +103,7 @@ const SkillModal: React.FC<SkillModalProps> = ({
       <div className={styles["modal"]} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
         <h2 className="form-heading">{skill ? "Edit Skill" : "Add Skill"}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="input-group">
+          <div className="input-with-counter">
             <label htmlFor="skill-name">Name</label>
             <input
               id="skill-name"
@@ -113,7 +113,9 @@ const SkillModal: React.FC<SkillModalProps> = ({
               onChange={(e) => setSkillForm((f) => ({ ...f, name: e.target.value }))}
               required
               autoFocus
+              maxLength={50}
             />
+            <span className="input-counter">{skillForm.name.length}/50</span>
           </div>
           <div className="input-group">
             <label htmlFor="skill-description">Description</label>

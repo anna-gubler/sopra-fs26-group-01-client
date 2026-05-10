@@ -94,6 +94,12 @@ const SkillMapsPage: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [maps, me] = await Promise.all([
@@ -118,7 +124,10 @@ const SkillMapsPage: React.FC = () => {
         );
         setMapStats(Object.fromEntries(statsEntries));
       } catch (error) {
-        if (error instanceof Error) {
+        const status = (error as ApplicationError).status;
+        if (status === 401 || status === 403){
+          router.push("/login");
+        } else if (error instanceof Error) {
           toast.error(`Failed to load skill maps: ${error.message}`);
         }
       } finally {

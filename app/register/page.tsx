@@ -78,16 +78,20 @@ const Register: React.FC = () => {
         {/* form */}
         <form className="auth-form" onSubmit={handleRegister}>
           <div className="input-group">
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              type="text"
-              className="auth-input"
-              placeholder="Choose a username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <label htmlFor="username">Username (max 30 characters)</label>
+            <div className="input-with-counter">
+              <input
+                id="username"
+                type="text"
+                className="auth-input"
+                placeholder="Create a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                maxLength={30}
+                required
+              />
+              <span className="input-counter">{username.length}/30</span>
+            </div>
           </div>
 
           <div className="input-group">
@@ -115,16 +119,20 @@ const Register: React.FC = () => {
 
           <div className="input-group">
             <label htmlFor="bio">Bio <span className="label-optional">(optional)</span></label>
-            <textarea
-              id="bio"
-              className="auth-input"
-              ref={bioResize.ref}
-              onInput={bioResize.onInput}
-              placeholder="Tell us a bit about yourself"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-            />
+            <div className="input-with-counter">
+              <textarea
+                id="bio"
+                className="auth-input"
+                ref={bioResize.ref}
+                onInput={bioResize.onInput}
+                placeholder="Tell us a bit about yourself"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={200}
+                rows={3}
+              />
+              <span className="input-counter">{bio.length}/200</span>
+            </div>
           </div>
 
           <button type="submit" className="btn-gradient btn-full">
