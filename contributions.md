@@ -156,8 +156,8 @@ reason).
 |              | 07.05.2026 |[feat(#15, #16): quiz services, controllers and tests ](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/ccf904607e9de469ca95cf40320c3af9ac636c9d) | Services, Controllers and Tests  | Ensure functionality |
 | **@elsithewizzard** |[Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
-| **@sebdahub** |[Date] |[Commit 1] | | |
-|              | [Date] |[Commit 2] | | |
+| **@sebdahub** |[08.05.2026] |[Added live feedback feature](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/a2315ae3c25ada928f9c533408002be8c66c713b) |Live feedback feature, similar to speed understanding but for general understanding of lecture | - |
+|              | [10.05.2026] |[Join Private Maps Bug Fix](https://github.com/anna-gubler/sopra-fs26-group-01-server/pull/228/changes/c245c62f4a8f9f5f2a07f773357a18db62cdfa8d) | Fixed a bug where students could join maps set to private | |
 | **@haslam** |[Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
 
