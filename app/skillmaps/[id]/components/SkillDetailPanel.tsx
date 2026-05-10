@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useAutoResize } from "@/hooks/useAutoResize";
 import { X } from "lucide-react";
 import { Skill } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
@@ -49,8 +48,6 @@ const dotColor: Record<string, string> = {
 
 const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, onUnderstoodChange, api, sessionId, liveRating }) => {
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
-  const [notes, setNotes] = useState("");
-  const notesResize = useAutoResize(notes);
   const [understood, setUnderstood] = useState(skill.isUnderstood);
   const [toggling, setToggling] = useState(false);
   const [understanding, setUnderstanding] = useState(0);
@@ -208,19 +205,6 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
           <UnderstandingSlider value={understanding} onChange={handleUnderstandingChange} />
         </section>
       )}
-
-      <section className={styles["detail-panel-section"]}>
-        <h3 className={styles["detail-panel-label"]}>Notes</h3>
-        <textarea
-          className={styles["detail-panel-notes"]}
-          ref={notesResize.ref}
-          onInput={notesResize.onInput}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={4}
-          placeholder="Add your personal notes here..."
-        />
-      </section>
 
       {isOwner && onEdit && sessionId === null && (
         <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>

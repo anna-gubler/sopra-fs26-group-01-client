@@ -58,7 +58,6 @@ const PublishButton: React.FC<{ onPublish: () => Promise<void> }> = ({ onPublish
 
 const LANE_HEIGHT = 200;
 const SKILL_Y_OFFSET = 70;
-const NAV_HEIGHT = 56;
 
 
 const nodeTypes = { skill: SkillNode };
@@ -217,10 +216,7 @@ const SkillMapEditorPage: React.FC = () => {
   };
 
   const isScrollable = (skillMap?.numberOfLevels ?? 0) > 4;
-  const graphHeight = typeof window !== "undefined" ? window.innerHeight - NAV_HEIGHT : 600;
   const graphWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
-  const contentHeight = (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT;
-  const bottomViewportY = graphHeight - contentHeight - 20;
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -508,10 +504,9 @@ const SkillMapEditorPage: React.FC = () => {
               onConnect={handleConnect}
               isValidConnection={isValidConnection}
               onEdgeClick={handleEdgeClick}
-              fitView={!isScrollable}
+              fitView
               fitViewOptions={{ padding: 0.3 }}
-              defaultViewport={isScrollable ? { x: 0, y: bottomViewportY, zoom: 1 } : undefined}
-              translateExtent={isScrollable ? [[-300, -50], [graphWidth + 300, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
+              translateExtent={isScrollable ? [[-500, -50], [graphWidth + 500, (skillMap?.numberOfLevels ?? 0) * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
               panOnDrag={false}
               panOnScroll={isScrollable}
               panOnScrollMode={PanOnScrollMode.Free}
