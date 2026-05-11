@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -26,6 +26,8 @@ import CollabView from "./components/CollabView";
 import SkillDetailPanel from "./components/SkillDetailPanel";
 import SkillLegend from "./components/SkillLegend";
 import ExportModal from "./components/ExportModal";
+import MapOwnerTour from "@/components/tours/MapOwnerTour";
+import MapUserTour from "@/components/tours/MapUserTour";
 import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
@@ -41,18 +43,18 @@ const PublishButton: React.FC<{ onPublish: () => Promise<void> }> = ({ onPublish
     );
   }
   return (
-    <>
+    <span className={styles["sm-publish-confirm"]}>
       <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirming(false)}>
         Cancel
       </button>
       <button
-        className={`btn-gradient btn-no-lift ${styles["sm-nav-btn"]}`}
+        className={`btn-gradient btn-no-lift ${styles["sm-nav-btn"]} ${styles["sm-publish-confirm-btn"]}`}
         onClick={async () => { await onPublish(); setConfirming(false); }}
       >
         <Globe size={14} />
         Confirm Publish
       </button>
-    </>
+    </span>
   );
 };
 
@@ -94,23 +96,35 @@ const SkillMapEditorPage: React.FC = () => {
   const [selectedSkillRating, setSelectedSkillRating] = useState<number | null>(null);
   const [liveAggregated, setLiveAggregated] = useState<Map<number, { avg: number; count: number }>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+  const tourCheckedRef = useRef(false);
 
   const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
 
   useEffect(() => {
-    getMe(api).then(setUser).catch(() => {});
-  }, [api]);
-
-  useEffect(() => {
     const fetchGraph = async () => {
       try {
-        const [map, graph] = await Promise.all([
+        const [map, graph, me] = await Promise.all([
           getSkillMap(api, id),
           getSkillMapGraph(api, id),
+          getMe(api),
         ]);
 
         setSkillMap(map);
+        setUser(me);
         setSkills(graph.skills);
+
+        if (!tourCheckedRef.current) {
+          tourCheckedRef.current = true;
+          const ownerNow = map.ownerId === me.id;
+          const ownerKey = `tour_seen_map_owner_${me.id}`;
+          const studentKey = `tour_seen_map_user_${me.id}`;
+          const seenOwner = typeof window !== "undefined" && localStorage.getItem(ownerKey) === "true";
+          const seenUser = typeof window !== "undefined" && localStorage.getItem(studentKey) === "true";
+          if ((ownerNow && !seenOwner) || (!ownerNow && !seenUser)) {
+            setShowTour(true);
+          }
+        }
 
         const difficultyStatus: Record<string, string> = {
           easy: "done",
@@ -369,13 +383,13 @@ const SkillMapEditorPage: React.FC = () => {
         )}
         <div className={styles["sm-nav-right"]}>
           {isOwner && !isActive && (
-            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
+            <button data-tour="nav-add-skill-btn" className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleAddSkill}>
               <Plus size={14} />
               Add Skill
             </button>
           )}
           {isOwner && !isActive && (
-            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
+            <button data-tour="nav-edit-btn" className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => router.push(`/skillmaps/${id}/edit`)}>
               <Pencil size={14} />
               Edit
             </button>
@@ -388,6 +402,7 @@ const SkillMapEditorPage: React.FC = () => {
           )}
           {isOwner && skillMap?.inviteCode && (
             <button
+              data-tour="nav-invite-code"
               className={`btn-ghost ${styles["sm-nav-btn"]}`}
               onClick={() => {
                 navigator.clipboard.writeText(skillMap.inviteCode).then(() => {
@@ -408,16 +423,18 @@ const SkillMapEditorPage: React.FC = () => {
             </button>
           )}
           {canPublish && (
-            <PublishButton
-              onPublish={async () => {
-                try {
-                  const updated = await updateSkillMap(api, id, { isPublic: true });
-                  setSkillMap(updated);
-                } catch {
-                  toast.error("Failed to publish map. Please try again.");
-                }
-              }}
-            />
+            <span data-tour="nav-publish-btn">
+              <PublishButton
+                onPublish={async () => {
+                  try {
+                    const updated = await updateSkillMap(api, id, { isPublic: true });
+                    setSkillMap(updated);
+                  } catch {
+                    toast.error("Failed to publish map. Please try again.");
+                  }
+                }}
+              />
+            </span>
           )}
           {isOwner && isActive && (
             <button
@@ -437,6 +454,7 @@ const SkillMapEditorPage: React.FC = () => {
           )}
           {isOwner && !isActive && skillMap?.isPublic && (
             <button
+              data-tour="nav-start-session"
               className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
               onClick={async () => {
                 try {
@@ -494,7 +512,7 @@ const SkillMapEditorPage: React.FC = () => {
         </ApiContext.Provider>
       ) : (
         <>
-          <div className={styles["sm-map-graph"]} role="application" aria-label="Skill map canvas">
+          <div className={styles["sm-map-graph"]} data-tour="skill-map-graph" role="application" aria-label="Skill map canvas">
             <ReactFlow
               key={refreshKey}
               nodes={nodes}
@@ -580,6 +598,26 @@ const SkillMapEditorPage: React.FC = () => {
           api={api}
           sessionId={isActive && session ? session.id : null}
           liveRating={selectedSkillRating}
+        />
+      )}
+
+      {showTour && isOwner && (
+        <MapOwnerTour
+          api={api}
+          onDone={() => {
+            setShowTour(false);
+            if (user) localStorage.setItem(`tour_seen_map_owner_${user.id}`, "true");
+          }}
+        />
+      )}
+
+      {showTour && !isOwner && (
+        <MapUserTour
+          api={api}
+          onDone={() => {
+            setShowTour(false);
+            if (user) localStorage.setItem(`tour_seen_map_user_${user.id}`, "true");
+          }}
         />
       )}
     </div>

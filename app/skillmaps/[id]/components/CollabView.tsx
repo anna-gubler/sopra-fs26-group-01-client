@@ -13,6 +13,7 @@ import LaneSeparators from "./LaneSeparators";
 import { ratingColor } from "./UnderstandingHeatmap";
 import OwnerSidebar from "./OwnerSidebar";
 import StudentSidebar from "./StudentSidebar";
+import CurrentUnderstandingPopup from "./CurrentUnderstandingPopup";
 import { useSessionRatings } from "@/hooks/useSessionRatings";
 import styles from "@/styles/collab.module.css";
 
@@ -78,6 +79,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
         </div>
       </aside>
       <div className={styles["collab-graph"]} role="application" aria-label="Collaboration skill map canvas">
+        {!isOwner && <CurrentUnderstandingPopup session={session} />}
         <ReactFlow
           nodes={glowedNodes}
           edges={edges}

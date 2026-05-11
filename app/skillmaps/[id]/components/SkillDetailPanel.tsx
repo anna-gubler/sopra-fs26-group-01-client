@@ -59,7 +59,6 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
-  const prevSessionIdRef = useRef<number | null>(null);
 
   const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
@@ -99,7 +98,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     setUnderstood(next);
     setToggling(true);
     try {
-      await updateProgress(api, skill.id, next);
+      await updateProgress(api, skill.id, next ? 100 : 0);
       onUnderstoodChange?.(skill.id, next);
     } catch {
       setUnderstood(!next);
@@ -110,23 +109,10 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
   // Initialize slider from understood state; sync to session if one is active
   useEffect(() => {
-    const initial = skill.isUnderstood ? 100 : 0;
+    const initial = skill.skillUnderstandingRating ?? 0;
     setUnderstanding(initial);
     understandingRef.current = initial;
-    if (!isOwner && sessionId !== null && initial > 0) {
-      submitSkillRating(api, sessionId, skill.id, initial).catch(() => {});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skill.id, skill.isUnderstood]);
-
-  // When a session starts while the panel is open, submit the current understanding
-  useEffect(() => {
-    const prev = prevSessionIdRef.current;
-    prevSessionIdRef.current = sessionId;
-    if (prev === null && sessionId !== null && !isOwner && understandingRef.current > 0) {
-      submitSkillRating(api, sessionId, skill.id, understandingRef.current).catch(() => {});
-    }
-  }, [sessionId, api, skill.id, isOwner]);
+  }, [skill.id, skill.skillUnderstandingRating]);
 
   const handleUnderstandingChange = useCallback(
     (val: number) => {
@@ -134,6 +120,11 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       understandingRef.current = val;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(async () => {
+        try {
+          await updateProgress(api, skill.id, val);
+        } catch {
+          // ratings are best-effort; silently ignore failures
+        }
         if (sessionId !== null) {
           try {
             await submitSkillRating(api, sessionId, skill.id, val);
@@ -143,7 +134,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         }
       }, 600);
     },
-    [api, sessionId, skill.id],
+    [api, skill.id],
   );
 
   useEffect(() => {
@@ -153,7 +144,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   }, []);
 
   return (
-    <div className={styles["detail-panel"]}>
+    <div className={styles["detail-panel"]} data-tour="skill-detail-panel">
       <button className={styles["detail-panel-close"]} onClick={onClose} aria-label="Close panel">
         <X size={18} />
       </button>
