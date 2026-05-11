@@ -146,3 +146,48 @@ textarea::placeholder {
 .toggle-password:hover {
   color: var(--text-secondary);
 }
+
+/* toggle switch (public/private) */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch[aria-checked="true"] {
+  background: linear-gradient(135deg, var(--primary, #e91e8c), var(--secondary, #9333ea));
+}
+
+.toggle-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+}
+
+.toggle-switch[aria-checked="true"] .toggle-switch-thumb {
+  left: 23px;
+}
+
+/* delete section divider at bottom of edit form */
+.form-section-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* confirm/cancel row inside form-section-divider */
+.form-confirm-row {
+  display: flex;
+  gap: 0.5rem;
+}

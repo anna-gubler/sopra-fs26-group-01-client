@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, exportSkillMap, importSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, importSkillMap } from "@/api/skillmapApi";
+import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
 import { User } from "@/types/user";
@@ -48,20 +49,7 @@ const SkillMapsPage: React.FC = () => {
     }
   };
 
-  const handleExport = async (mapId: number, title: string) => {
-    try {
-      const blob = await exportSkillMap(api, mapId);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${title}-export.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("Skill map exported!");
-    } catch (err) {
-      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
-    }
-  };
+  const handleExport = (mapId: number, title: string) => downloadSkillMapExport(api, mapId, title);
 
   const handleLogout = async () => {
     try {

@@ -10,7 +10,8 @@ import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, updateSkillMap, exportSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
+import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
 import { ApplicationError } from "@/types/error";
@@ -199,20 +200,7 @@ const SkillMapEditorPage: React.FC = () => {
     router.push("/login");
   };
 
-  const handleExport = async () => {
-    try {
-      const blob = await exportSkillMap(api, id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${skillMap?.title ?? "skillmap"}-export.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("Skill map exported!");
-    } catch (err) {
-      toast.error((err as ApplicationError).details ?? "Failed to export skill map.");
-    }
-  };
+  const handleExport = () => downloadSkillMapExport(api, id, skillMap?.title ?? "skillmap");
 
   const handleAddSkill = () => {
     setEditingSkill(null);
