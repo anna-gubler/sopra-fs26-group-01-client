@@ -10,4 +10,6 @@ export interface CollaborationSession {
   tooSlowCount?: number;
   okCount?: number;
   tooFastCount?: number;
+  currentUnderstandingActive?: boolean;
+  currentUnderstandingStartedAt?: string | null;
 }
