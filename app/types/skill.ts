@@ -1,3 +1,7 @@
+export interface SkillQuizRef {
+  id: number;
+}
+
 export interface Skill {
   id: number;
   name: string;
@@ -12,6 +16,7 @@ export interface Skill {
   skillMapId: number;
   createdAt: string;
   updatedAt: string;
+  quiz?: SkillQuizRef | null;
 }
 
 export interface Dependency {
