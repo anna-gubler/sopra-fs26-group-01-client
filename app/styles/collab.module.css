@@ -660,3 +660,82 @@
   min-width: 38px;
   text-align: right;
 }
+
+/* Quiz panel — lecturer */
+.quiz-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Quiz prompt — lecturer active state */
+.quiz-prompt-active {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.08);
+}
+
+.quiz-prompt-active__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.quiz-prompt-clear-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.quiz-prompt-clear-btn:hover:not(:disabled) {
+  border-color: var(--ctp-red);
+  color: var(--ctp-red);
+}
+
+.quiz-prompt-clear-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Quiz prompt banner — student sidebar */
+.quiz-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.06);
+}
+
+.quiz-banner__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--collab);
+  margin: 0;
+}
+
+.quiz-banner__skill {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+}
