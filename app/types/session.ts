@@ -10,4 +10,5 @@ export interface CollaborationSession {
   tooSlowCount?: number;
   okCount?: number;
   tooFastCount?: number;
+  promptedQuizSkillId: number | null;
 }

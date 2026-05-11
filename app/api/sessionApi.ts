@@ -1,6 +1,7 @@
 import { ApiService } from "./apiService";
 import { CollaborationSession } from "@/types/session";
 import { Question } from "@/types/question";
+import { DashboardQuizSummary } from "@/types/quiz";
 
 export function getActiveSession(api: ApiService, skillMapId: number): Promise<CollaborationSession> {
   return api.get<CollaborationSession>(`/skillmaps/${skillMapId}/sessions/active`);
@@ -52,4 +53,12 @@ export function markQuestionAddressed(api: ApiService, questionId: number): Prom
 
 export function submitSkillRating(api: ApiService, sessionId: number, skillId: number, rating: number): Promise<void> {
   return api.put<void>(`/sessions/${sessionId}/skills/${skillId}/rating`, { rating });
+}
+
+export function promptQuiz(api: ApiService, skillMapId: number, skillId: number | null): Promise<void> {
+  return api.put<void>(`/skillmaps/${skillMapId}/sessions/active/prompted-quiz`, { skillId });
+}
+
+export function getSessionQuizResults(api: ApiService, skillMapId: number): Promise<DashboardQuizSummary[]> {
+  return api.get<DashboardQuizSummary[]>(`/skillmaps/${skillMapId}/sessions/active/quiz-results`);
 }
