@@ -249,6 +249,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
               localQuiz={localQuiz}
               lastScore={lastScore}
               hasAttempt={hasAttempt}
+              inSession={sessionId !== null}
               onTake={() => setQuizTakeOpen(true)}
             />
         }
@@ -350,19 +351,23 @@ type StudentQuizContentProps = {
   localQuiz: SkillQuizRef | null;
   lastScore: number | null;
   hasAttempt: boolean;
+  inSession: boolean;
   onTake: () => void;
 };
 
-function StudentQuizContent({ localQuiz, lastScore, hasAttempt, onTake }: StudentQuizContentProps) {
+function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTake }: StudentQuizContentProps) {
   if (!localQuiz) {
     return <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>;
   }
   return (
     <>
       {lastScore !== null && <ScoreBar score={lastScore} />}
-      <button className="btn-ghost" onClick={onTake}>
-        {hasAttempt ? "Retake Quiz" : "Take Quiz"}
-      </button>
+      {inSession
+        ? <p className={styles["detail-panel-placeholder"]}>Quiz taking is handled via a lecturer's prompt during an active collaboration mode.</p>
+        : <button className="btn-ghost" onClick={onTake}>
+            {hasAttempt ? "Retake Quiz" : "Take Quiz"}
+          </button>
+      }
     </>
   );
 }

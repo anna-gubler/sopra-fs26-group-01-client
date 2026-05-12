@@ -5,7 +5,7 @@ import { useApiContext } from "@/context/ApiContext";
 import { CollaborationSession } from "@/types/session";
 import { Skill } from "@/types/skill";
 import { Question } from "@/types/question";
-import { getQuiz } from "@/api/quizApi";
+import { getQuiz, getLatestAttempt } from "@/api/quizApi";
 import SpeedIndicator from "./SpeedIndicator";
 import AskQuestionPanel from "./AskQuestionPanel";
 import QuizTakeModal from "./QuizTakeModal";
@@ -25,6 +25,8 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({
   const api = useApiContext();
   const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [promptedQuizId, setPromptedQuizId] = useState<number | null>(null);
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [savedSelections, setSavedSelections] = useState<Map<number, number>>(new Map());
 
   // Graph API does not include quiz data on skills — fetch the quiz directly
   // when the lecturer sets a prompt. Guards against undefined (backend not yet returning field).
@@ -34,29 +36,47 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({
   useEffect(() => {
     if (!session.promptedQuizSkillId) {
       setPromptedQuizId(null);
+      setQuizSubmitted(false);
+      setSavedSelections(new Map());
       return;
     }
+    setQuizSubmitted(false);
+    setSavedSelections(new Map());
     getQuiz(api, session.promptedQuizSkillId)
-      .then((q) => setPromptedQuizId(q.id))
+      .then(async (q) => {
+        setPromptedQuizId(q.id);
+        const latest = await getLatestAttempt(api, q.id).catch(() => null);
+        if (latest && latest.passed !== null && new Date(latest.attemptedAt) >= new Date(session.startedAt)) {
+          setQuizSubmitted(true);
+        }
+      })
       .catch(() => setPromptedQuizId(null));
-  }, [session.promptedQuizSkillId, api]);
+  }, [session.promptedQuizSkillId, session.startedAt, api]);
 
-  const renderQuizBanner = () => {
-    if (!isQuizPrompted || promptedQuizId === null) return null;
+  const renderQuizPanel = () => {
     return (
       <div className={styles["collab-panel"]}>
-        <div className={styles["quiz-banner"]}>
-          <span className={styles["quiz-banner__title"]}>Quiz Prompt</span>
-          <span className={styles["quiz-banner__skill"]}>{promptedSkill?.name ?? "Quiz"}</span>
-          <button
-            className={styles["btn-collab-filled"]}
-            onClick={() => setQuizModalOpen(true)}
-          >
-            Take Quiz
-          </button>
-        </div>
+        <h3 className={styles["collab-panel-title"]}>Quiz</h3>
+        {!isQuizPrompted || promptedQuizId === null ? (
+          <p className={styles["collab-panel-placeholder"]}>No quiz has been prompted yet.</p>
+        ) : (
+          <div className={styles["quiz-banner"]}>
+            <span className={styles["quiz-banner__skill"]}>{promptedSkill?.name ?? "Quiz"}</span>
+            <button
+              className={styles["btn-collab-filled"]}
+              onClick={() => setQuizModalOpen(true)}
+            >
+              {quizSubmitted ? "Quiz Done ✓" : "Take Quiz"}
+            </button>
+          </div>
+        )}
       </div>
     );
+  };
+
+  const handleQuizSubmitSuccess = (sels: Map<number, number>) => {
+    setQuizSubmitted(true);
+    setSavedSelections(sels);
   };
 
   const renderQuizModal = () => {
@@ -68,13 +88,16 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({
         skillId={promptedSkill.id}
         quizId={promptedQuizId}
         onClose={() => setQuizModalOpen(false)}
+        sessionStartedAt={session.startedAt}
+        savedSelections={savedSelections}
+        onSubmitSuccess={handleQuizSubmitSuccess}
       />
     );
   };
 
   return (
     <>
-      {renderQuizBanner()}
+      {renderQuizPanel()}
       <div className={styles["collab-panel"]}>
         <h3 className={styles["collab-panel-title"]}>Rate Understanding</h3>
         <p className={styles["collab-panel-placeholder"]}>Select a skill on the graph to rate your understanding.</p>
