@@ -167,8 +167,8 @@ reason).
 | ----------- | -------- | ------------------ | --------------- | ------------- |
 | **@chiawld** | [Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
-| **@anna-gubler** | [Date] |[Commit 1] | | |
-|              | [Date] |[Commit 2] | | |
+| **@anna-gubler** | 12.05.2026 |[S17: quiz in session](https://github.com/anna-gubler/sopra-fs26-group-01-server/pull/235/changes/fc4f67693d3cf98994e824397d3159eac258f378) |S17 quiz in collaboration session extension |professor can now request a quiz during a session |
+|              | 12.05.2026 |[ISSUE: extend export/import](https://github.com/anna-gubler/sopra-fs26-group-01-server/pull/235/changes/81b80b9a93986090d86884d6d682e62a14f7ce10) |fix(#232): adapt export/import functionality to also include quiz components | the whole map including quizes is now exportable/importable |
 | **@elsithewizzard** |[Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
 | **@sebdahub** |[Date] |[Commit 1] | | |
