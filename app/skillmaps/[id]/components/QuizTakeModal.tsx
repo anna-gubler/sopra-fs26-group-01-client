@@ -18,7 +18,7 @@ type QuizTakeModalProps = {
   previewOnly?: boolean;
   sessionStartedAt?: string;
   savedSelections?: Map<number, number>;
-  onSubmitSuccess?: (selections: Map<number, number>) => void;
+  onSubmitSuccess?: (selections: Map<number, number>, result: QuizAttempt) => void;
 };
 
 const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizId, onClose, previewOnly, sessionStartedAt, savedSelections, onSubmitSuccess }) => {
@@ -111,7 +111,7 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
       setPendingAttemptId(null);
       setResult(res);
       if (sessionStartedAt) setSubmittedInSession(true);
-      onSubmitSuccess?.(new Map(selections));
+      onSubmitSuccess?.(new Map(selections), res);
       setPhase("result");
     } catch {
       toast.error("Failed to submit quiz.");
