@@ -44,10 +44,6 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({
       <h3 className={styles["collab-panel-title"]}>Current Understanding</h3>
       <CurrentUnderstandingPanel session={session} />
     </div>
-    <div className={styles["collab-panel"]} data-tour="collab-heatmap">
-      <h3 className={styles["collab-panel-title"]}>Understanding Heatmap</h3>
-      <UnderstandingHeatmap aggregated={displayAggregated} skills={liveSkills} totalStudents={totalStudents} onSkillClick={onSkillClick} />
-    </div>
     <div className={styles["collab-panel"]}>
       <h3 className={styles["collab-panel-title"]}>Quiz</h3>
       <div className={styles["quiz-panel-content"]}>
@@ -64,6 +60,10 @@ const OwnerSidebar: React.FC<OwnerSidebarProps> = ({
         <h3 className={styles["collab-panel-title"]}>Live Questions</h3>
         <LiveQuestionsPanel questions={liveQuestions} skills={liveSkills} />
       </div>
+    </div>
+    <div className={styles["collab-panel"]} data-tour="collab-heatmap">
+      <h3 className={styles["collab-panel-title"]}>Understanding Heatmap</h3>
+      <UnderstandingHeatmap aggregated={displayAggregated} skills={liveSkills} totalStudents={totalStudents} onSkillClick={onSkillClick} />
     </div>
   </>
 );
