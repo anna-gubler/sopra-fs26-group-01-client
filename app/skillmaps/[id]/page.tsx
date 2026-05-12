@@ -278,7 +278,11 @@ const SkillMapEditorPage: React.FC = () => {
           prev.map((s) => (s.id === Number(node.id) ? originalSkill : s))
         );
         const raw = (err as ApplicationError).details ?? "Failed to move skill.";
-        const msg = raw.replace(/^New level violates dependency:\s*/i, "").replace(/^Illegal level change:\s*/i, "");
+        const msg = raw
+          .replace(/^New level violates dependency:\s*/i, "")
+          .replace(/^Illegal level change:\s*/i, "")
+          .replace(/\s*'[^']+'/g, "")
+          .trim();
         toast.error(msg.charAt(0).toUpperCase() + msg.slice(1));
       }
     },
