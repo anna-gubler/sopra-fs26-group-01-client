@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useApiContext } from "@/context/ApiContext";
 import { promptQuiz } from "@/api/sessionApi";
 import { getQuiz } from "@/api/quizApi";
@@ -23,8 +23,9 @@ interface PromptQuizButtonProps {
 
 const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session, liveSkills }) => {
   const api = useApiContext();
-  const [actionState, setActionState] = useState({ loading: false, selectValue: "" });
+  const [actionState, setActionState] = useState({ loading: false, selectValue: "", popupOpen: false });
   const [skillsWithQuiz, setSkillsWithQuiz] = useState<SkillWithQuiz[]>([]);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   // Graph API does not return quiz data on skills — probe each skill individually.
   // Use a stable string key so this only re-runs when the skill set changes,
@@ -44,12 +45,28 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillIdsKey, api]);
 
+  // Close popup when clicking outside
+  useEffect(() => {
+    if (!actionState.popupOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setActionState((prev) => ({ ...prev, popupOpen: false, selectValue: "" }));
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [actionState.popupOpen]);
+
   // Guard against backend not yet returning promptedQuizSkillId (undefined at runtime)
   const isQuizPrompted = session.promptedQuizSkillId != null;
   const promptedEntry = skillsWithQuiz.find((s) => s.skillId === session.promptedQuizSkillId);
 
+  const handleOpenPopup = () => {
+    setActionState((prev) => ({ ...prev, popupOpen: !prev.popupOpen, selectValue: "" }));
+  };
+
   const handlePrompt = async (skillId: number) => {
-    setActionState({ loading: true, selectValue: "" });
+    setActionState((prev) => ({ ...prev, loading: true, selectValue: "", popupOpen: false }));
     try {
       await promptQuiz(api, skillMapId, skillId);
       toast.success("Quiz prompt sent!");
@@ -77,18 +94,37 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
     if (e.target.value) handlePrompt(Number(e.target.value));
   };
 
-  const renderSelector = () => (
-    <select
-      className={styles["qa-skill-select"]}
-      value={actionState.selectValue}
-      onChange={handleSelect}
-      disabled={actionState.loading}
-    >
-      <option value="" disabled>Select a skill…</option>
-      {skillsWithQuiz.map((s) => (
-        <option key={s.skillId} value={s.skillId}>{s.skillName}</option>
-      ))}
-    </select>
+  const renderPopup = () => {
+    if (!actionState.popupOpen) return null;
+    return (
+      <div className={styles["quiz-prompt-popup"]}>
+        <select
+          className={styles["qa-skill-select"]}
+          value={actionState.selectValue}
+          onChange={handleSelect}
+          disabled={actionState.loading}
+          autoFocus
+        >
+          <option value="" disabled>Select a skill…</option>
+          {skillsWithQuiz.map((s) => (
+            <option key={s.skillId} value={s.skillId}>{s.skillName}</option>
+          ))}
+        </select>
+      </div>
+    );
+  };
+
+  const renderButton = () => (
+    <div className={styles["quiz-prompt-wrapper"]} ref={popupRef}>
+      <button
+        className={styles["btn-collab-filled"]}
+        onClick={handleOpenPopup}
+        disabled={actionState.loading}
+      >
+        Request Quiz
+      </button>
+      {renderPopup()}
+    </div>
   );
 
   const renderActive = () => (
@@ -101,7 +137,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
         onClick={handleClear}
         disabled={actionState.loading}
       >
-        Clear
+        End Prompt
       </button>
     </div>
   );
@@ -114,7 +150,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
     );
   }
 
-  return isQuizPrompted ? renderActive() : renderSelector();
+  return isQuizPrompted ? renderActive() : renderButton();
 };
 
 export default PromptQuizButton;

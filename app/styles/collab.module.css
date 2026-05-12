@@ -668,6 +668,24 @@
   gap: 12px;
 }
 
+/* Quiz prompt — button + popup wrapper */
+.quiz-prompt-wrapper {
+  position: relative;
+}
+
+.quiz-prompt-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--collab);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
 /* Quiz prompt — lecturer active state */
 .quiz-prompt-active {
   display: flex;
@@ -738,4 +756,10 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--text-bright);
+}
+
+.quiz-banner__done {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
 }
