@@ -145,33 +145,14 @@ const EditSkillMapPage: React.FC = () => {
                 role="switch"
                 aria-checked={isPublic}
                 onClick={() => setIsPublic(!isPublic)}
-                style={{
-                  position: "relative",
-                  width: 44,
-                  height: 24,
-                  borderRadius: 12,
-                  border: "none",
-                  cursor: "pointer",
-                  background: isPublic ? "linear-gradient(135deg, var(--primary, #e91e8c), var(--secondary, #9333ea))" : "rgba(255,255,255,0.15)",
-                  transition: "background 0.2s",
-                  flexShrink: 0,
-                }}
+                className="toggle-switch"
               >
-                <span style={{
-                  position: "absolute",
-                  top: 3,
-                  left: isPublic ? 23 : 3,
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  background: "white",
-                  transition: "left 0.2s",
-                }} />
+                <span className="toggle-switch-thumb" />
               </button>
             </div>
             <button type="submit" className="btn-gradient btn-full">Save</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push(`/skillmaps/${id}`)}>Cancel</button>
-<div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", marginTop: "0.5rem" }}>
+            <div className="form-section-divider">
               {!showDeleteConfirm ? (
                 <button
                   type="button"
@@ -181,11 +162,10 @@ const EditSkillMapPage: React.FC = () => {
                   Delete Skill Map
                 </button>
               ) : (
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div className="form-confirm-row">
                   <button
                     type="button"
                     className="btn-ghost btn-full"
-                    style={{ justifyContent: "center" }}
                     onClick={() => setShowDeleteConfirm(false)}
                   >
                     Cancel

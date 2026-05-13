@@ -5,9 +5,10 @@ import toast from "react-hot-toast";
 import { ApiService } from "@/api/apiService";
 import { QuizQuestion, QuizAttempt } from "@/types/quiz";
 import { getQuiz, getLatestAttempt, getQuizQuestions, createAttempt, submitAttempt } from "@/api/quizApi";
+import { formatCooldownLabel } from "./quizUtils";
 import styles from "@/styles/skillmaps.module.css";
 
-type Phase = "loading" | "taking" | "result" | "locked" | "preview";
+type Phase = "loading" | "taking" | "result" | "locked" | "preview" | "retakeConfirm";
 
 type QuizTakeModalProps = {
   api: ApiService;
@@ -16,12 +17,13 @@ type QuizTakeModalProps = {
   quizId: number;
   onClose: () => void;
   previewOnly?: boolean;
+  mode?: "normal" | "viewResult" | "retake";
   sessionStartedAt?: string;
   savedSelections?: Map<number, number>;
   onSubmitSuccess?: (selections: Map<number, number>, result: QuizAttempt) => void;
 };
 
-const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizId, onClose, previewOnly, sessionStartedAt, savedSelections, onSubmitSuccess }) => {
+const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizId, onClose, previewOnly, mode = "normal", sessionStartedAt, savedSelections, onSubmitSuccess }) => {
   const [phase, setPhase] = useState<Phase>("loading");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [selections, setSelections] = useState<Map<number, number>>(new Map());
@@ -41,6 +43,41 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
     if (previewOnly) {
       getQuizQuestions(api, quizId)
         .then((qs) => { setQuestions(qs); setPhase("preview"); })
+        .catch(() => { toast.error("Failed to load quiz."); onClose(); });
+      return;
+    }
+
+    if (mode === "viewResult") {
+      Promise.all([
+        getLatestAttempt(api, quizId).catch(() => null),
+        getQuizQuestions(api, quizId),
+      ])
+        .then(([latestAttempt, qs]) => {
+          setQuestions(qs);
+          if (latestAttempt && latestAttempt.passed !== null) {
+            setResult(latestAttempt);
+            setPhase("result");
+          } else {
+            toast.error("No completed attempt found.");
+            onClose();
+          }
+        })
+        .catch(() => { toast.error("Failed to load quiz."); onClose(); });
+      return;
+    }
+
+    if (mode === "retake") {
+      Promise.all([
+        getQuiz(api, skillId),
+        getLatestAttempt(api, quizId).catch(() => null),
+        getQuizQuestions(api, quizId),
+      ])
+        .then(([quiz, latestAttempt, qs]) => {
+          setQuestions(qs);
+          if (!quiz.isActive) { setPhase("locked"); return; }
+          if (latestAttempt) setResult(latestAttempt);
+          setPhase("retakeConfirm");
+        })
         .catch(() => { toast.error("Failed to load quiz."); onClose(); });
       return;
     }
@@ -84,7 +121,7 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
         toast.error("Failed to load quiz.");
         onClose();
       });
-  }, [open, quizId, skillId, previewOnly, sessionStartedAt]);
+  }, [open, quizId, skillId, previewOnly, sessionStartedAt, mode]);
 
   if (!open) return null;
 
@@ -122,13 +159,8 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
 
   const handleRetake = () => {
     if (result?.cooldownUntil) {
-      const until = new Date(result.cooldownUntil);
-      if (until > new Date()) {
-        // convert remaining ms into whole hours plus the leftover minutes
-        const diffMs = until.getTime() - Date.now();
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.ceil((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const label = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      const label = formatCooldownLabel(result.cooldownUntil);
+      if (label) {
         toast.error(`Cooldown active — available again in ${label}.`);
         return;
       }
@@ -158,6 +190,13 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
         {phase === "loading" && <LoadingPhase />}
         {phase === "locked" && <LockedPhase onClose={onClose} />}
         {phase === "preview" && <PreviewPhase questions={questions} onClose={onClose} />}
+        {phase === "retakeConfirm" && (
+          <RetakeConfirmPhase
+            lastScore={result?.score ?? null}
+            onRetake={handleRetake}
+            onClose={onClose}
+          />
+        )}
         {phase === "taking" && (
           <TakingPhase
             questions={questions}
@@ -173,10 +212,10 @@ const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizI
           <ResultPhase
             result={result}
             questions={questions}
-            selections={selections}
+            selections={mode === "viewResult" ? (savedSelections ?? new Map()) : selections}
             onRetake={handleRetake}
             onClose={onClose}
-            disableRetake={submittedInSession}
+            disableRetake={submittedInSession || mode === "viewResult"}
           />
         )}
       </div>
@@ -196,6 +235,21 @@ function LockedPhase({ onClose }: { onClose: () => void }) {
       <h2 className="form-heading">Quiz</h2>
       <p className={styles["quiz-loading"]}>This quiz is currently inactive.</p>
       <div className={styles["quiz-modal-actions"]}>
+        <button type="button" className="btn-ghost" onClick={onClose}>Close</button>
+      </div>
+    </>
+  );
+}
+
+function RetakeConfirmPhase({ lastScore, onRetake, onClose }: { lastScore: number | null; onRetake: () => void; onClose: () => void }) {
+  return (
+    <>
+      <h2 className="form-heading">Retake Quiz</h2>
+      {lastScore !== null && (
+        <p className={styles["quiz-result-score"]}>Your last score: {lastScore}%</p>
+      )}
+      <div className={styles["quiz-modal-actions"]}>
+        <button type="button" className="btn-gradient" onClick={onRetake}>Retake</button>
         <button type="button" className="btn-ghost" onClick={onClose}>Close</button>
       </div>
     </>

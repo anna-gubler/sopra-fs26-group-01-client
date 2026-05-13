@@ -80,3 +80,14 @@ export function removeAnswer(qs: LocalQuestion[], qKey: string, aKey: string): L
 export function addAnswer(qs: LocalQuestion[], qKey: string): LocalQuestion[] {
   return qs.map((q) => (q.key === qKey ? { ...q, answers: [...q.answers, emptyAnswer()] } : q));
 }
+
+// Returns a human-readable label like "2h 15m" if cooldown is still active, null if it has expired.
+export function formatCooldownLabel(cooldownUntil: string): string | null {
+  const until = new Date(cooldownUntil);
+  if (until <= new Date()) return null;
+  // convert remaining ms into whole hours plus the leftover minutes
+  const diffMs = until.getTime() - Date.now();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.ceil((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+}

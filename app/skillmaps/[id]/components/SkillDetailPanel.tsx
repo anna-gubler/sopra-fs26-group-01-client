@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import toast from "react-hot-toast";
+import { useAutoResize } from "@/hooks/useAutoResize";
 import { X } from "lucide-react";
 import { Skill, SkillQuizRef } from "@/types/skill";
+import { QuizAttempt } from "@/types/quiz";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
 import { getQuiz, getLatestAttempt } from "@/api/quizApi";
+import { formatCooldownLabel } from "./quizUtils";
 import QuizEditorModal from "./QuizEditorModal";
 import QuizTakeModal from "./QuizTakeModal";
 import UnderstandingSlider from "./UnderstandingSlider";
@@ -58,11 +62,9 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const understandingRef = useRef(0);
 
   const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
-  const [quizEditorOpen, setQuizEditorOpen] = useState(false);
-  const [quizTakeOpen, setQuizTakeOpen] = useState(false);
-  const [quizPreviewOpen, setQuizPreviewOpen] = useState(false);
-  const [hasAttempt, setHasAttempt] = useState(false);
-  const [lastScore, setLastScore] = useState<number | null>(null);
+  const [quizModal, setQuizModal] = useState<"editor" | "take" | "retake" | "viewResult" | "preview" | null>(null);
+  const [lastAttempt, setLastAttempt] = useState<QuizAttempt | null>(null);
+  const [savedSelections, setSavedSelections] = useState<Map<number, number>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -75,16 +77,33 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     return () => { cancelled = true; };
   }, [skill.id, api]);
 
-  // Fetch latest attempt for button label and last score; re-runs when modal closes
+  const hasAttempt = lastAttempt !== null;
+  const lastScore = lastAttempt?.score != null && lastAttempt?.passed != null ? lastAttempt.score : null;
+
+  // Fetch latest attempt for button label and last score; re-runs when take/retake modals close
   useEffect(() => {
-    if (!localQuiz || quizTakeOpen) return;
+    const submittingModal = quizModal === "take" || quizModal === "retake";
+    if (!localQuiz || submittingModal) return;
     getLatestAttempt(api, localQuiz.id)
-      .then((result) => {
-        setHasAttempt(result !== null);
-        setLastScore(result?.passed !== null && result?.score != null ? result.score : null);
-      })
+      .then((attempt) => { setLastAttempt(attempt ?? null); })
       .catch(() => {});
-  }, [api, localQuiz?.id, quizTakeOpen]);
+  }, [api, localQuiz?.id, quizModal]);
+
+  const handleSubmitSuccess = (sels: Map<number, number>, result: QuizAttempt) => {
+    setSavedSelections(sels);
+    setLastAttempt(result);
+  };
+
+  const handleRetakeClick = () => {
+    if (lastAttempt?.cooldownUntil) {
+      const label = formatCooldownLabel(lastAttempt.cooldownUntil);
+      if (label) {
+        toast.error(`Cooldown active — available again in ${label}.`);
+        return;
+      }
+    }
+    setQuizModal("retake");
+  };
 
   useEffect(() => {
     setUnderstood(skill.isUnderstood);
@@ -224,24 +243,29 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         {isOwner
           ? <OwnerQuizContent
               localQuiz={localQuiz}
+              hasAttempt={hasAttempt}
               lastScore={lastScore}
-              onOpenEditor={() => setQuizEditorOpen(true)}
-              onPreview={() => setQuizPreviewOpen(true)}
-              onTake={() => setQuizTakeOpen(true)}
+              onOpenEditor={() => setQuizModal("editor")}
+              onPreview={() => setQuizModal("preview")}
+              onTake={() => setQuizModal("take")}
+              onSeeLastAttempt={() => setQuizModal("viewResult")}
+              onRetake={handleRetakeClick}
             />
           : <StudentQuizContent
               localQuiz={localQuiz}
               lastScore={lastScore}
               hasAttempt={hasAttempt}
               inSession={sessionId !== null}
-              onTake={() => setQuizTakeOpen(true)}
+              onTake={() => setQuizModal("take")}
+              onSeeLastAttempt={() => setQuizModal("viewResult")}
+              onRetake={handleRetakeClick}
             />
         }
       </section>
 
       <div className={styles["detail-panel-bottom-actions"]}>
         {isOwner && localQuiz && (
-          <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
+          <button className="btn-ghost" onClick={() => setQuizModal("editor")}>
             Edit Quiz
           </button>
         )}
@@ -254,33 +278,58 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
       <QuizEditorModal
         api={api}
-        open={quizEditorOpen}
+        open={quizModal === "editor"}
         skillId={skill.id}
         quizId={localQuiz?.id ?? null}
-        onClose={() => setQuizEditorOpen(false)}
+        onClose={() => setQuizModal(null)}
         onSaved={(quiz) => {
           setLocalQuiz(quiz);
-          setQuizEditorOpen(false);
+          setQuizModal(null);
         }}
       />
 
       {localQuiz && (
         <QuizTakeModal
           api={api}
-          open={quizTakeOpen}
+          open={quizModal === "take"}
           skillId={skill.id}
           quizId={localQuiz.id}
-          onClose={() => setQuizTakeOpen(false)}
+          onClose={() => setQuizModal(null)}
+          onSubmitSuccess={handleSubmitSuccess}
         />
       )}
 
       {localQuiz && (
         <QuizTakeModal
           api={api}
-          open={quizPreviewOpen}
+          open={quizModal === "retake"}
           skillId={skill.id}
           quizId={localQuiz.id}
-          onClose={() => setQuizPreviewOpen(false)}
+          onClose={() => setQuizModal(null)}
+          mode="retake"
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      )}
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizModal === "viewResult"}
+          skillId={skill.id}
+          quizId={localQuiz.id}
+          onClose={() => setQuizModal(null)}
+          mode="viewResult"
+          savedSelections={savedSelections}
+        />
+      )}
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizModal === "preview"}
+          skillId={skill.id}
+          quizId={localQuiz.id}
+          onClose={() => setQuizModal(null)}
           previewOnly
         />
       )}
@@ -308,13 +357,16 @@ function ScoreBar({ score }: { score: number }) {
 
 type OwnerQuizContentProps = {
   localQuiz: SkillQuizRef | null;
+  hasAttempt: boolean;
   lastScore: number | null;
   onOpenEditor: () => void;
   onPreview: () => void;
   onTake: () => void;
+  onSeeLastAttempt: () => void;
+  onRetake: () => void;
 };
 
-function OwnerQuizContent({ localQuiz, lastScore, onOpenEditor, onPreview, onTake }: OwnerQuizContentProps) {
+function OwnerQuizContent({ localQuiz, hasAttempt, lastScore, onOpenEditor, onPreview, onTake, onSeeLastAttempt, onRetake }: OwnerQuizContentProps) {
   if (!localQuiz) {
     return (
       <button className="btn-ghost" onClick={onOpenEditor}>
@@ -326,7 +378,14 @@ function OwnerQuizContent({ localQuiz, lastScore, onOpenEditor, onPreview, onTak
     <>
       {lastScore !== null && <ScoreBar score={lastScore} />}
       <button className="btn-ghost" onClick={onPreview}>Preview Quiz</button>
-      <button className="btn-ghost" onClick={onTake}>Take Quiz</button>
+      {hasAttempt ? (
+        <>
+          <button className="btn-ghost" onClick={onSeeLastAttempt}>See Last Attempt</button>
+          <button className="btn-ghost" onClick={onRetake}>Retake Quiz</button>
+        </>
+      ) : (
+        <button className="btn-ghost" onClick={onTake}>Take Quiz</button>
+      )}
     </>
   );
 }
@@ -337,9 +396,11 @@ type StudentQuizContentProps = {
   hasAttempt: boolean;
   inSession: boolean;
   onTake: () => void;
+  onSeeLastAttempt: () => void;
+  onRetake: () => void;
 };
 
-function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTake }: StudentQuizContentProps) {
+function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTake, onSeeLastAttempt, onRetake }: StudentQuizContentProps) {
   if (!localQuiz) {
     return <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>;
   }
@@ -348,9 +409,14 @@ function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTak
       {lastScore !== null && <ScoreBar score={lastScore} />}
       {inSession
         ? <p className={styles["detail-panel-placeholder"]}>Quiz taking is handled via a lecturer&apos;s prompt during an active collaboration mode.</p>
-        : <button className="btn-ghost" onClick={onTake}>
-            {hasAttempt ? "Retake Quiz" : "Take Quiz"}
-          </button>
+        : hasAttempt
+          ? (
+            <>
+              <button className="btn-ghost" onClick={onSeeLastAttempt}>See Last Attempt</button>
+              <button className="btn-ghost" onClick={onRetake}>Retake Quiz</button>
+            </>
+          )
+          : <button className="btn-ghost" onClick={onTake}>Take Quiz</button>
       }
     </>
   );
