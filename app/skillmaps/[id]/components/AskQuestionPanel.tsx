@@ -66,14 +66,17 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
   const active = questions.filter((q) => !q.isAddressed);
 
   const grouped = active.reduce<Record<number, Question[]>>((acc, q) => {
-    if (!acc[q.skillId]) acc[q.skillId] = [];
-    acc[q.skillId].push(q);
+    const key = q.skillId ?? -1;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(q);
     return acc;
   }, {});
 
   const sortedSkillIds = Object.keys(grouped)
     .map(Number)
     .sort((a, b) => {
+      if (a === -1) return 1;
+      if (b === -1) return -1;
       const levelA = skills.find((s) => s.id === a)?.level ?? 0;
       const levelB = skills.find((s) => s.id === b)?.level ?? 0;
       return levelA - levelB;
@@ -117,7 +120,7 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
         <div className={styles["qa-list"]}>
           {sortedSkillIds.map((sid) => {
             const group = grouped[sid].slice().sort((a, b) => b.upvoteCount - a.upvoteCount);
-            const skillName = skillNameMap[sid] ?? `Skill #${sid}`;
+            const skillName = sid === -1 ? "General" : (skillNameMap[sid] ?? `Skill #${sid}`);
             return (
               <div key={sid} className={styles["qa-skill-group"]}>
                 <div className={styles["qa-skill-name"]}>{skillName}</div>
