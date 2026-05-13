@@ -363,7 +363,7 @@ function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTak
     <>
       {lastScore !== null && <ScoreBar score={lastScore} />}
       {inSession
-        ? <p className={styles["detail-panel-placeholder"]}>Quiz taking is handled via a lecturer's prompt during an active collaboration mode.</p>
+        ? <p className={styles["detail-panel-placeholder"]}>Quiz taking is handled via a lecturer&apos;s prompt during an active collaboration mode.</p>
         : <button className="btn-ghost" onClick={onTake}>
             {hasAttempt ? "Retake Quiz" : "Take Quiz"}
           </button>
