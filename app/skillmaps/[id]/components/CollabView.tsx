@@ -10,6 +10,7 @@ import { Question } from "@/types/question";
 import SkillNode from "./SkillNode";
 import GradientEdge from "./GradientEdge";
 import LaneSeparators from "./LaneSeparators";
+import SkillLegend from "./SkillLegend";
 import { ratingColor } from "./UnderstandingHeatmap";
 import OwnerSidebar from "./OwnerSidebar";
 import StudentSidebar from "./StudentSidebar";
@@ -96,7 +97,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
           nodesDraggable={false}
           panOnDrag={false}
           panOnScroll={skillMap.numberOfLevels > 4}
-          panOnScrollMode={PanOnScrollMode.Vertical}
+          panOnScrollMode={PanOnScrollMode.Free}
           translateExtent={skillMap.numberOfLevels > 4 ? [[-Infinity, -50], [Infinity, skillMap.numberOfLevels * LANE_HEIGHT + 50]] : [[-Infinity, -Infinity], [Infinity, Infinity]]}
           zoomOnScroll={false}
           zoomOnPinch={false}
@@ -106,6 +107,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
         >
           <LaneSeparators levels={skillMap.numberOfLevels} laneHeight={LANE_HEIGHT} />
           <Background color="#252540" gap={24} />
+          <SkillLegend />
         </ReactFlow>
       </div>
 

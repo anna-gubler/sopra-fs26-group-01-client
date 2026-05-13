@@ -35,7 +35,7 @@ export function getQuestions(api: ApiService, sessionId: number): Promise<Questi
   return api.get<Question[]>(`/sessions/${sessionId}/questions`);
 }
 
-export function postQuestion(api: ApiService, sessionId: number, skillId: number, text: string): Promise<Question> {
+export function postQuestion(api: ApiService, sessionId: number, skillId: number | null, text: string): Promise<Question> {
   return api.post<Question>(`/sessions/${sessionId}/questions`, { skillId, text });
 }
 

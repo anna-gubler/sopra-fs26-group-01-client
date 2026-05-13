@@ -27,8 +27,10 @@ const Profile: React.FC = () => {
   const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [showPasswords, setShowPasswords] = useState({ old: false, new: false, confirm: false });
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [confirmingUsernameChange, setConfirmingUsernameChange] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<string>("bottts-neutral");
   const [selectedSeed, setSelectedSeed] = useState<string>("");
+  const [debouncedSeed, setDebouncedSeed] = useState<string>("");
   const avatarStyles = ["adventurer","adventurer-neutral","avataaars","avataaars-neutral","big-ears","big-ears-neutral","big-smile","bottts","bottts-neutral","croodles","croodles-neutral","dylan","fun-emoji","glass","icons","identicon","initials","lorelei","lorelei-neutral","micah","miniavs","notionists","notionists-neutral","open-peeps","personas","pixel-art","pixel-art-neutral","rings","shapes","thumbs","toon-head"];
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: loggedInId, clear: clearId } = useLocalStorage<string>("id", "");
@@ -37,6 +39,7 @@ const Profile: React.FC = () => {
   const openEditField = (field: 'username' | 'bio') => {
     setEditValue(field === 'username' ? (user?.username ?? "") : (user?.bio ?? ""));
     setEditingField(field);
+    setConfirmingUsernameChange(false);
   };
 
   const handleUpdateField = async (e: React.FormEvent) => {
@@ -115,6 +118,11 @@ const Profile: React.FC = () => {
       router.push("/login");
     }
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSeed(selectedSeed), 400);
+    return () => clearTimeout(timer);
+  }, [selectedSeed]);
 
   useEffect(() => {
     if (!token) return;
@@ -210,29 +218,62 @@ const Profile: React.FC = () => {
     </form>
   );
 
-  const renderEditFieldForm = () => (
-    <form onSubmit={handleUpdateField}>
-      <button type="button" className={styles['profile-back-btn']} onClick={() => setEditingField(null)}>
-        <ArrowLeft size={14} /> Back
-      </button>
-      <div className="input-group">
-        <label htmlFor="edit-field">
-          {editingField === 'username' ? 'Username' : 'Bio'}
-        </label>
-        <input
-          id="edit-field"
-          type="text"
-          className="auth-input"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          required={editingField === 'username'}
-        />
-      </div>
-      <button className="btn-gradient btn-full mt-12" type="submit">
-        Save Changes
-      </button>
-    </form>
-  );
+  const renderEditFieldForm = () => {
+    if (editingField === 'username' && confirmingUsernameChange) {
+      return (
+        <form onSubmit={handleUpdateField}>
+          <button type="button" className={styles['profile-back-btn']} onClick={() => setConfirmingUsernameChange(false)}>
+            <ArrowLeft size={14} /> Back
+          </button>
+          <p className="field-hint" style={{ marginBottom: '12px' }}>
+            Disclaimer: <br></br>Changing the username changes the log in credentials.
+          </p>
+          <button className="btn-gradient btn-full mt-12" type="submit">
+            Confirm Change
+          </button>
+        </form>
+      );
+    }
+
+    return (
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        if (editingField === 'username') {
+          setConfirmingUsernameChange(true);
+        } else {
+          handleUpdateField(e);
+        }
+      }}>
+        <button type="button" className={styles['profile-back-btn']} onClick={() => { setEditingField(null); setConfirmingUsernameChange(false); }}>
+          <ArrowLeft size={14} /> Back
+        </button>
+        <div className="input-group">
+          <label htmlFor="edit-field">
+            {editingField === 'username' ? 'Username' : 'Bio'}
+            {editingField === 'username' && <span className="field-hint"> (max 30 characters)</span>}
+            {editingField === 'bio' && <span className="field-hint"> (max 200 characters)</span>}
+          </label>
+          <div className="input-with-counter">
+            <input
+              id="edit-field"
+              type="text"
+              className="auth-input"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              required={editingField === 'username'}
+              maxLength={editingField === 'username' ? 30 : 200}
+            />
+            <span className="input-counter">
+              {editValue.length}/{editingField === 'username' ? 30 : 200}
+            </span>
+          </div>
+        </div>
+        <button className="btn-gradient btn-full mt-12" type="submit">
+          Save Changes
+        </button>
+      </form>
+    );
+  };
 
   const renderOwnerActions = () => {
     if (showAvatarPicker) return (
@@ -249,12 +290,12 @@ const Profile: React.FC = () => {
               className={`${styles['avatar-picker-option']} ${selectedStyle === style ? styles['avatar-picker-option-selected'] : ""}`}
               onClick={() => setSelectedStyle(style)}
             >
-              <img src={getAvatarUrl(selectedSeed || user.seed, style)} className={styles['profile-avatar-img']} alt={style} />
+              <img src={getAvatarUrl(debouncedSeed || user.seed, style)} className={styles['profile-avatar-img']} alt={style} />
             </button>
           ))}
         </div>
         <div className="input-group">
-          <label>Seed (leave blank to keep current)</label>
+          <label>Seed (input for avatar generation)</label>
           <input
             type="text"
             className="auth-input"

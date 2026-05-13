@@ -333,6 +333,14 @@
   border-color: var(--collab);
 }
 
+.qa-counter {
+  display: block;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
 .qa-upvote-btn {
   flex-shrink: 0;
   font-size: 11px;

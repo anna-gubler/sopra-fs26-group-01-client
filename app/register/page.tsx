@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/auth.module.css";
+import MappdLoader from "@/components/LoadingAnimation";
 
 
 const Register: React.FC = () => {
@@ -22,21 +23,22 @@ const Register: React.FC = () => {
   const [bio, setBio] = useState("");
   const bioResize = useAutoResize(bio);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await register(apiService, {
         username,
         password,
         ...(bio && { bio }),
       });
-      // store credentials returned by the server
       if (response.token) setToken(response.token);
-      if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
+      if (response.id) setId(String(response.id));
       router.push("/skillmaps");
     } catch (error) {
       const status = (error as ApplicationError).status;
@@ -47,11 +49,14 @@ const Register: React.FC = () => {
       } else {
         toast.error("Registration failed. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles['auth-page']}>
+      {loading && <MappdLoader overlay label="Creating your account..." />}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}
@@ -78,16 +83,20 @@ const Register: React.FC = () => {
         {/* form */}
         <form className="auth-form" onSubmit={handleRegister}>
           <div className="input-group">
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              type="text"
-              className="auth-input"
-              placeholder="Choose a username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <label htmlFor="username">Username (max 30 characters)</label>
+            <div className="input-with-counter">
+              <input
+                id="username"
+                type="text"
+                className="auth-input"
+                placeholder="Create a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                maxLength={30}
+                required
+              />
+              <span className="input-counter">{username.length}/30</span>
+            </div>
           </div>
 
           <div className="input-group">
@@ -115,16 +124,20 @@ const Register: React.FC = () => {
 
           <div className="input-group">
             <label htmlFor="bio">Bio <span className="label-optional">(optional)</span></label>
-            <textarea
-              id="bio"
-              className="auth-input"
-              ref={bioResize.ref}
-              onInput={bioResize.onInput}
-              placeholder="Tell us a bit about yourself"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-            />
+            <div className="input-with-counter">
+              <textarea
+                id="bio"
+                className="auth-input"
+                ref={bioResize.ref}
+                onInput={bioResize.onInput}
+                placeholder="Tell us a bit about yourself"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={200}
+                rows={3}
+              />
+              <span className="input-counter">{bio.length}/200</span>
+            </div>
           </div>
 
           <button type="submit" className="btn-gradient btn-full">
