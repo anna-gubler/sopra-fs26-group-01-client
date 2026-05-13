@@ -66,7 +66,7 @@ const Login: React.FC = () => {
 
         {/* heading */}
         <div className={styles['auth-heading']}>
-          <h2>Welcome back</h2>
+          <h2>Hello</h2>
           <p>Sign in to continue your learning journey</p>
         </div>
 

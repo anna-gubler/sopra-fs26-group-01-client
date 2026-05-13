@@ -62,9 +62,23 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
     }
   };
 
-  const active = questions
-    .filter((q) => !q.isAddressed)
-    .sort((a, b) => b.upvoteCount - a.upvoteCount);
+  const skillNameMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
+
+  const active = questions.filter((q) => !q.isAddressed);
+
+  const grouped = active.reduce<Record<number, Question[]>>((acc, q) => {
+    if (!acc[q.skillId]) acc[q.skillId] = [];
+    acc[q.skillId].push(q);
+    return acc;
+  }, {});
+
+  const sortedSkillIds = Object.keys(grouped)
+    .map(Number)
+    .sort((a, b) => {
+      const levelA = skills.find((s) => s.id === a)?.level ?? 0;
+      const levelB = skills.find((s) => s.id === b)?.level ?? 0;
+      return levelA - levelB;
+    });
 
   return (
     <div className={styles["qa-ask"]}>
@@ -97,19 +111,28 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
           Submit
         </button>
       </div>
-      {active.length > 0 && (
+      {sortedSkillIds.length > 0 && (
         <div className={styles["qa-list"]}>
-          {active.map((q) => (
-            <div key={q.id} className={styles["qa-item"]}>
-              <button
-                className={`${styles["qa-upvote-btn"]} ${upvoted.has(q.id) ? styles["qa-upvote-btn--active"] : ""}`}
-                onClick={() => handleUpvote(q.id)}
-              >
-                ▲ {q.upvoteCount}
-              </button>
-              <span className={styles["qa-text"]}>{q.text}</span>
-            </div>
-          ))}
+          {sortedSkillIds.map((sid) => {
+            const group = grouped[sid].slice().sort((a, b) => b.upvoteCount - a.upvoteCount);
+            const skillName = skillNameMap[sid] ?? `Skill #${sid}`;
+            return (
+              <div key={sid} className={styles["qa-skill-group"]}>
+                <div className={styles["qa-skill-name"]}>{skillName}</div>
+                {group.map((q) => (
+                  <div key={q.id} className={styles["qa-item"]}>
+                    <button
+                      className={`${styles["qa-upvote-btn"]} ${upvoted.has(q.id) ? styles["qa-upvote-btn--active"] : ""}`}
+                      onClick={() => handleUpvote(q.id)}
+                    >
+                      ▲ {q.upvoteCount}
+                    </button>
+                    <span className={styles["qa-text"]}>{q.text}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

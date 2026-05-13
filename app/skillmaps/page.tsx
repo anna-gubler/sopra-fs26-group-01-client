@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, importSkillMap } from "@/api/skillmapApi";
+import { getActiveSession } from "@/api/sessionApi";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { getMe } from "@/api/userApi";
 import { SkillMap } from "@/types/skillmap";
@@ -16,6 +17,7 @@ type MapStats = {
   skillCount: number;
   unlockedCount: number;
   memberCount: number;
+  hasActiveSession: boolean;
 };
 import toast from "react-hot-toast";
 import styles from "@/styles/skillmaps.module.css";
@@ -104,14 +106,16 @@ const SkillMapsPage: React.FC = () => {
 
         const statsEntries = await Promise.all(
           maps.map(async (map) => {
-            const [graph, members] = await Promise.all([
+            const [graph, members, session] = await Promise.all([
               getSkillMapGraph(api, map.id),
               getSkillMapMembers(api, map.id),
+              getActiveSession(api, map.id).catch(() => null),
             ]);
             return [map.id, {
               skillCount: graph.skills.length,
               unlockedCount: graph.skills.filter((s) => s.isUnderstood).length,
               memberCount: members.filter((m) => m.role === "STUDENT").length,
+              hasActiveSession: session !== null,
             }] as [number, MapStats];
           })
         );
@@ -236,12 +240,15 @@ const SkillMapsPage: React.FC = () => {
 
       <div className={styles['sm-grid']}>
         {skillMaps.filter((m) => m.ownerId === user?.id).map((map) => (
-          <div key={map.id} className={`${styles['sm-card']} ${styles['sm-card--owner']}`} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+          <div key={map.id} className={`${styles['sm-card']} ${styles['sm-card--owner']} ${mapStats[map.id]?.hasActiveSession ? styles['sm-card--live'] : ''}`} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
             <div className={styles['sm-card-top']}>
               <div>
                 <div className={styles['sm-card-title']}>{map.title}</div>
                 <div className={styles['sm-card-subtitle']}>{map.description}</div>
               </div>
+              {mapStats[map.id]?.hasActiveSession && (
+                <span className={styles['sm-live-badge']}>● LIVE</span>
+              )}
             </div>
 
             {map.inviteCode && (
@@ -300,12 +307,15 @@ const SkillMapsPage: React.FC = () => {
           <div className={styles['sm-section-title']}>JOINED MAPS</div>
           <div className={styles['sm-grid']}>
             {skillMaps.filter((m) => m.ownerId !== user?.id).map((map) => (
-              <div key={map.id} className={styles['sm-card']} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
+              <div key={map.id} className={`${styles['sm-card']} ${mapStats[map.id]?.hasActiveSession ? styles['sm-card--live'] : ''}`} role="button" tabIndex={0} aria-label={`Open skill map: ${map.title}`} onClick={() => router.push(`/skillmaps/${map.id}`)} onKeyDown={(e) => e.key === "Enter" && router.push(`/skillmaps/${map.id}`)}>
                 <div className={styles['sm-card-top']}>
                   <div>
                     <div className={styles['sm-card-title']}>{map.title}</div>
                     <div className={styles['sm-card-subtitle']}>{map.description}</div>
                   </div>
+                  {mapStats[map.id]?.hasActiveSession && (
+                    <span className={styles['sm-live-badge']}>● LIVE</span>
+                  )}
                 </div>
 
                 <div className={styles['sm-card-meta']}>
