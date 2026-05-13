@@ -9,13 +9,10 @@ export interface RatingAggregate {
   count: number;
 }
 
-interface UnderstandingRating {
-  id: number;
-  sessionId: number;
+interface SkillUnderstandingAggregate {
   skillId: number;
-  rating: number;
-  submittedAt: string;
-  updatedAt: string;
+  avg: number;
+  count: number;
 }
 
 export interface SessionRatingsResult {
@@ -24,7 +21,7 @@ export interface SessionRatingsResult {
 }
 
 export function useSessionRatings(
-  sessionId: number,
+  _sessionId: number,
   skillMapId: number
 ): SessionRatingsResult {
   const api = useApiContext();
@@ -36,27 +33,21 @@ export function useSessionRatings(
 
   const fetchRatings = useCallback(async () => {
     try {
-      const [ratings, members]: [UnderstandingRating[], Awaited<ReturnType<typeof getSkillMapMembers>>] = await Promise.all([
-        api.get(`/sessions/${sessionId}/ratings`) as Promise<UnderstandingRating[]>,
+      const [understandings, members]: [SkillUnderstandingAggregate[], Awaited<ReturnType<typeof getSkillMapMembers>>] = await Promise.all([
+        api.get(`/skillmaps/${skillMapId}/skills/understanding`) as Promise<SkillUnderstandingAggregate[]>,
         getSkillMapMembers(api, skillMapId),
       ]);
       const studentCount = members.filter((m) => m.role === "STUDENT").length;
       setTotalStudents(studentCount);
-      const grouped = new Map<number, number[]>();
-      for (const r of ratings) {
-        if (!grouped.has(r.skillId)) grouped.set(r.skillId, []);
-        grouped.get(r.skillId)!.push(r.rating);
-      }
       const result = new Map<number, RatingAggregate>();
-      grouped.forEach((vals, skillId) => {
-        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-        result.set(skillId, { avg, count: vals.length });
-      });
+      for (const su of understandings) {
+        result.set(su.skillId, { avg: su.avg, count: su.count });
+      }
       setAggregated(result);
     } catch {
       // silently ignore poll errors
     }
-  }, [api, sessionId, skillMapId]);
+  }, [api, skillMapId]);
 
   useEffect(() => {
     fetchRatings();

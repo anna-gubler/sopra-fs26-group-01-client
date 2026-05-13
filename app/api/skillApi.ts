@@ -41,6 +41,6 @@ export function deleteDependency(api: ApiService, dependencyId: number): Promise
   return api.delete<void>(`/dependencies/${dependencyId}`);
 }
 
-export function updateProgress(api: ApiService, skillId: number, isUnderstood: boolean): Promise<void> {
-  return api.put<void>(`/skills/${skillId}/progress/me`, { isUnderstood });
+export function updateProgress(api: ApiService, skillId: number, rating: number): Promise<void> {
+  return api.put<void>(`/skills/${skillId}/progress/me`, { rating });
 }

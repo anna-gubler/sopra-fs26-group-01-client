@@ -78,6 +78,7 @@
 
 .collab-graph {
   flex: 1;
+  position: relative;
 }
 
 .collab-sidebar {
@@ -539,4 +540,305 @@
   height: 100%;
   border-radius: 0;
   transition: width 0.4s ease;
+}
+
+/* ── Current Understanding popup (student) ── */
+
+.cu-popup {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 12px 20px 20px;
+  background: linear-gradient(to top, var(--bg-base, #13131f) 70%, transparent);
+  pointer-events: none;
+}
+
+.cu-popup-inner {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--collab);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: all;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.cu-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cu-popup-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--collab);
+}
+
+.cu-popup-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cu-timer {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.cu-submit-btn {
+  align-self: flex-end;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--collab);
+  background: transparent;
+  color: var(--collab);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cu-submit-btn:hover:not(:disabled) {
+  background: var(--collab);
+  color: #fff;
+}
+
+.cu-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Current Understanding results (owner sidebar) ── */
+
+.cu-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cu-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cu-results-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.cu-results-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cu-results-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.cu-results-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.cu-results-avg-value {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Quiz panel — lecturer */
+.quiz-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Quiz prompt — button + popup wrapper */
+.quiz-prompt-wrapper {
+  position: relative;
+}
+
+.quiz-prompt-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--collab);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Quiz prompt — lecturer active state */
+.quiz-prompt-active {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.08);
+}
+
+.quiz-prompt-active__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.quiz-prompt-clear-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.quiz-prompt-clear-btn:hover:not(:disabled) {
+  border-color: var(--ctp-red);
+  color: var(--ctp-red);
+}
+
+.quiz-prompt-clear-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Quiz prompt banner — student sidebar */
+.quiz-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--collab);
+  background: rgba(var(--collab-rgb, 202, 158, 230), 0.06);
+}
+
+.quiz-banner__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--collab);
+  margin: 0;
+}
+
+.quiz-banner__skill {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.quiz-banner__done {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-emerald);
+}
+
+.quiz-banner__score {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.quiz-banner__score--passed { color: var(--color-emerald); }
+.quiz-banner__score--failed { color: var(--color-rose); }
+
+/* Quiz session history */
+.quiz-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.quiz-history__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.quiz-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+}
+
+.quiz-history-item__name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-history-item__score {
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.quiz-history-item__score--passed { color: var(--color-emerald); }
+.quiz-history-item__score--failed { color: var(--color-rose); }
+
+.quiz-history-item__view-btn {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--collab);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--collab);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.quiz-history-item__view-btn:hover {
+  background: var(--collab);
+  color: var(--bg-surface);
 }

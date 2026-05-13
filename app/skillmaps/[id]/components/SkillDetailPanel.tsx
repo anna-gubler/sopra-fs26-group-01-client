@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { X } from "lucide-react";
-import { Skill } from "@/types/skill";
+import { Skill, SkillQuizRef } from "@/types/skill";
 import { ApiService } from "@/api/apiService";
 import { updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
+import { getQuiz, getLatestAttempt } from "@/api/quizApi";
+import QuizEditorModal from "./QuizEditorModal";
+import QuizTakeModal from "./QuizTakeModal";
 import UnderstandingSlider from "./UnderstandingSlider";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/skillmaps.module.css";
@@ -53,7 +56,35 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
-  const prevSessionIdRef = useRef<number | null>(null);
+
+  const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
+  const [quizEditorOpen, setQuizEditorOpen] = useState(false);
+  const [quizTakeOpen, setQuizTakeOpen] = useState(false);
+  const [quizPreviewOpen, setQuizPreviewOpen] = useState(false);
+  const [hasAttempt, setHasAttempt] = useState(false);
+  const [lastScore, setLastScore] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLocalQuiz(skill.quiz ?? null);
+    if (!skill.quiz) {
+      getQuiz(api, skill.id)
+        .then((q) => { if (!cancelled) setLocalQuiz({ id: q.id }); })
+        .catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [skill.id, api]);
+
+  // Fetch latest attempt for button label and last score; re-runs when modal closes
+  useEffect(() => {
+    if (!localQuiz || quizTakeOpen) return;
+    getLatestAttempt(api, localQuiz.id)
+      .then((result) => {
+        setHasAttempt(result !== null);
+        setLastScore(result?.passed !== null && result?.score != null ? result.score : null);
+      })
+      .catch(() => {});
+  }, [api, localQuiz?.id, quizTakeOpen]);
 
   useEffect(() => {
     setUnderstood(skill.isUnderstood);
@@ -64,7 +95,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     setUnderstood(next);
     setToggling(true);
     try {
-      await updateProgress(api, skill.id, next);
+      await updateProgress(api, skill.id, next ? 100 : 0);
       onUnderstoodChange?.(skill.id, next);
     } catch {
       setUnderstood(!next);
@@ -75,23 +106,10 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
   // Initialize slider from understood state; sync to session if one is active
   useEffect(() => {
-    const initial = skill.isUnderstood ? 100 : 0;
+    const initial = skill.skillUnderstandingRating ?? 0;
     setUnderstanding(initial);
     understandingRef.current = initial;
-    if (!isOwner && sessionId !== null && initial > 0) {
-      submitSkillRating(api, sessionId, skill.id, initial).catch(() => {});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skill.id, skill.isUnderstood]);
-
-  // When a session starts while the panel is open, submit the current understanding
-  useEffect(() => {
-    const prev = prevSessionIdRef.current;
-    prevSessionIdRef.current = sessionId;
-    if (prev === null && sessionId !== null && !isOwner && understandingRef.current > 0) {
-      submitSkillRating(api, sessionId, skill.id, understandingRef.current).catch(() => {});
-    }
-  }, [sessionId, api, skill.id, isOwner]);
+  }, [skill.id, skill.skillUnderstandingRating]);
 
   const handleUnderstandingChange = useCallback(
     (val: number) => {
@@ -99,6 +117,11 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       understandingRef.current = val;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(async () => {
+        try {
+          await updateProgress(api, skill.id, val);
+        } catch {
+          // ratings are best-effort; silently ignore failures
+        }
         if (sessionId !== null) {
           try {
             await submitSkillRating(api, sessionId, skill.id, val);
@@ -108,7 +131,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         }
       }, 600);
     },
-    [api, sessionId, skill.id],
+    [api, skill.id],
   );
 
   useEffect(() => {
@@ -118,7 +141,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   }, []);
 
   return (
-    <div className={styles["detail-panel"]}>
+    <div className={styles["detail-panel"]} data-tour="skill-detail-panel">
       <button className={styles["detail-panel-close"]} onClick={onClose} aria-label="Close panel">
         <X size={18} />
       </button>
@@ -131,17 +154,7 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {isOwner && liveRating != null && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Class Understanding</h3>
-          <div className={styles["live-rating-row"]}>
-            <div className={styles["live-rating-bar-track"]}>
-              <div
-                className={styles["live-rating-bar-fill"]}
-                style={{ width: `${liveRating}%`, background: ratingColor(liveRating) }}
-              />
-            </div>
-            <span className={styles["live-rating-value"]} style={{ color: ratingColor(liveRating) }}>
-              {liveRating}%
-            </span>
-          </div>
+          <ScoreBar score={liveRating} />
         </section>
       )}
 
@@ -206,13 +219,152 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
         </section>
       )}
 
-      {isOwner && onEdit && sessionId === null && (
-        <button className={`btn-ghost ${styles["detail-panel-edit-btn"]}`} onClick={onEdit}>
-          Edit Skill
-        </button>
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Notes</h3>
+        <textarea
+          className={styles["detail-panel-notes"]}
+          ref={notesResize.ref}
+          onInput={notesResize.onInput}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          placeholder="Add your personal notes here..."
+        />
+      </section>
+
+      <section className={styles["detail-panel-section"]}>
+        <h3 className={styles["detail-panel-label"]}>Quiz</h3>
+        {isOwner
+          ? <OwnerQuizContent
+              localQuiz={localQuiz}
+              lastScore={lastScore}
+              onOpenEditor={() => setQuizEditorOpen(true)}
+              onPreview={() => setQuizPreviewOpen(true)}
+              onTake={() => setQuizTakeOpen(true)}
+            />
+          : <StudentQuizContent
+              localQuiz={localQuiz}
+              lastScore={lastScore}
+              hasAttempt={hasAttempt}
+              inSession={sessionId !== null}
+              onTake={() => setQuizTakeOpen(true)}
+            />
+        }
+      </section>
+
+      <div className={styles["detail-panel-bottom-actions"]}>
+        {isOwner && localQuiz && (
+          <button className="btn-ghost" onClick={() => setQuizEditorOpen(true)}>
+            Edit Quiz
+          </button>
+        )}
+        {isOwner && onEdit && sessionId === null && (
+          <button className="btn-ghost" onClick={onEdit}>
+            Edit Skill
+          </button>
+        )}
+      </div>
+
+      <QuizEditorModal
+        api={api}
+        open={quizEditorOpen}
+        skillId={skill.id}
+        quizId={localQuiz?.id ?? null}
+        onClose={() => setQuizEditorOpen(false)}
+        onSaved={(quiz) => {
+          setLocalQuiz(quiz);
+          setQuizEditorOpen(false);
+        }}
+      />
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizTakeOpen}
+          skillId={skill.id}
+          quizId={localQuiz.id}
+          onClose={() => setQuizTakeOpen(false)}
+        />
+      )}
+
+      {localQuiz && (
+        <QuizTakeModal
+          api={api}
+          open={quizPreviewOpen}
+          skillId={skill.id}
+          quizId={localQuiz.id}
+          onClose={() => setQuizPreviewOpen(false)}
+          previewOnly
+        />
       )}
     </div>
   );
 };
 
 export default SkillDetailPanel;
+
+function ScoreBar({ score }: { score: number }) {
+  return (
+    <div className={styles["live-rating-row"]}>
+      <div className={styles["live-rating-bar-track"]}>
+        <div
+          className={styles["live-rating-bar-fill"]}
+          style={{ width: `${score}%`, background: ratingColor(score) }}
+        />
+      </div>
+      <span className={styles["live-rating-value"]} style={{ color: ratingColor(score) }}>
+        {score}%
+      </span>
+    </div>
+  );
+}
+
+type OwnerQuizContentProps = {
+  localQuiz: SkillQuizRef | null;
+  lastScore: number | null;
+  onOpenEditor: () => void;
+  onPreview: () => void;
+  onTake: () => void;
+};
+
+function OwnerQuizContent({ localQuiz, lastScore, onOpenEditor, onPreview, onTake }: OwnerQuizContentProps) {
+  if (!localQuiz) {
+    return (
+      <button className="btn-ghost" onClick={onOpenEditor}>
+        Create Quiz
+      </button>
+    );
+  }
+  return (
+    <>
+      {lastScore !== null && <ScoreBar score={lastScore} />}
+      <button className="btn-ghost" onClick={onPreview}>Preview Quiz</button>
+      <button className="btn-ghost" onClick={onTake}>Take Quiz</button>
+    </>
+  );
+}
+
+type StudentQuizContentProps = {
+  localQuiz: SkillQuizRef | null;
+  lastScore: number | null;
+  hasAttempt: boolean;
+  inSession: boolean;
+  onTake: () => void;
+};
+
+function StudentQuizContent({ localQuiz, lastScore, hasAttempt, inSession, onTake }: StudentQuizContentProps) {
+  if (!localQuiz) {
+    return <p className={styles["detail-panel-placeholder"]}>No quiz created yet.</p>;
+  }
+  return (
+    <>
+      {lastScore !== null && <ScoreBar score={lastScore} />}
+      {inSession
+        ? <p className={styles["detail-panel-placeholder"]}>Quiz taking is handled via a lecturer&apos;s prompt during an active collaboration mode.</p>
+        : <button className="btn-ghost" onClick={onTake}>
+            {hasAttempt ? "Retake Quiz" : "Take Quiz"}
+          </button>
+      }
+    </>
+  );
+}
