@@ -9,29 +9,34 @@ import styles from "@/styles/skillmaps.module.css";
 
 type Phase = "loading" | "taking" | "result" | "locked" | "preview";
 
-type Props = {
+type QuizTakeModalProps = {
   api: ApiService;
   open: boolean;
   skillId: number;
   quizId: number;
   onClose: () => void;
   previewOnly?: boolean;
+  sessionStartedAt?: string;
+  savedSelections?: Map<number, number>;
+  onSubmitSuccess?: (selections: Map<number, number>, result: QuizAttempt) => void;
 };
 
-const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, previewOnly }) => {
+const QuizTakeModal: React.FC<QuizTakeModalProps> = ({ api, open, skillId, quizId, onClose, previewOnly, sessionStartedAt, savedSelections, onSubmitSuccess }) => {
   const [phase, setPhase] = useState<Phase>("loading");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [selections, setSelections] = useState<Map<number, number>>(new Map());
   const [result, setResult] = useState<QuizAttempt | null>(null);
   const [pendingAttemptId, setPendingAttemptId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submittedInSession, setSubmittedInSession] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setPhase("loading");
-    setSelections(new Map());
+    setSelections(savedSelections ?? new Map());
     setResult(null);
     setPendingAttemptId(null);
+    setSubmittedInSession(false);
 
     if (previewOnly) {
       getQuizQuestions(api, quizId)
@@ -53,12 +58,22 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, p
           return;
         }
 
-        if (latestAttempt) {
-          if (latestAttempt.passed === null) {
-            setPendingAttemptId(latestAttempt.id);
+        // In a collab session, only consider attempts made after the session started.
+        // Attempts from before the session don't count — the student should take it fresh.
+        const sessionAttempt =
+          latestAttempt && sessionStartedAt
+            ? new Date(latestAttempt.attemptedAt) >= new Date(sessionStartedAt)
+              ? latestAttempt
+              : null
+            : latestAttempt;
+
+        if (sessionAttempt) {
+          if (sessionAttempt.passed === null) {
+            setPendingAttemptId(sessionAttempt.id);
             setPhase("taking");
           } else {
-            setResult(latestAttempt);
+            setResult(sessionAttempt);
+            setSubmittedInSession(!!sessionStartedAt);
             setPhase("result");
           }
         } else {
@@ -69,7 +84,7 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, p
         toast.error("Failed to load quiz.");
         onClose();
       });
-  }, [open, quizId, skillId, previewOnly]);
+  }, [open, quizId, skillId, previewOnly, sessionStartedAt]);
 
   if (!open) return null;
 
@@ -95,6 +110,8 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, p
       const res = await submitAttempt(api, attemptId, { answers });
       setPendingAttemptId(null);
       setResult(res);
+      if (sessionStartedAt) setSubmittedInSession(true);
+      onSubmitSuccess?.(new Map(selections), res);
       setPhase("result");
     } catch {
       toast.error("Failed to submit quiz.");
@@ -159,6 +176,7 @@ const QuizTakeModal: React.FC<Props> = ({ api, open, skillId, quizId, onClose, p
             selections={selections}
             onRetake={handleRetake}
             onClose={onClose}
+            disableRetake={submittedInSession}
           />
         )}
       </div>
@@ -278,16 +296,19 @@ type ResultPhaseProps = {
   selections: Map<number, number>;
   onRetake: () => void;
   onClose: () => void;
+  disableRetake?: boolean;
 };
 
-function ResultPhase({ result, questions, selections, onRetake, onClose }: ResultPhaseProps) {
+function ResultPhase({ result, questions, selections, onRetake, onClose, disableRetake }: ResultPhaseProps) {
+  const hasSelections = selections.size > 0;
+
   return (
     <>
       <h2 className="form-heading">Your Result</h2>
       <p className={styles["quiz-result-score"]}>
         Score: {result.score ?? "—"}% — {result.passed ? "Passed ✓" : "Failed ✗"}
       </p>
-      {selections.size > 0 && (
+      {questions.length > 0 && (
         <div className={styles["quiz-question-list"]}>
           {questions.map((q, qi) => {
             const selectedId = selections.get(q.id);
@@ -301,10 +322,10 @@ function ResultPhase({ result, questions, selections, onRetake, onClose }: Resul
                 </p>
                 <div className={styles["quiz-take-options"]}>
                   {q.answers.map((a) => {
-                    const wasSelected = selectedId === a.id;
-                    const showAsCorrect = wasSelected && a.isCorrect;
+                    const wasSelected = hasSelections && selectedId === a.id;
+                    const showAsCorrect = wasSelected ? a.isCorrect : (!hasSelections && a.isCorrect);
                     const showAsWrong = wasSelected && !a.isCorrect;
-                    const showCorrectHint = !wasSelected && a.isCorrect && selectedWasWrong;
+                    const showCorrectHint = hasSelections && !wasSelected && a.isCorrect && selectedWasWrong;
                     return (
                       <div
                         key={a.id}
@@ -327,6 +348,9 @@ function ResultPhase({ result, questions, selections, onRetake, onClose }: Resul
                             {" "}correct answer
                           </span>
                         )}
+                        {!hasSelections && a.isCorrect && (
+                          <span className={styles["quiz-result-correct-hint"]}> ✓ correct</span>
+                        )}
                       </div>
                     );
                   })}
@@ -337,9 +361,11 @@ function ResultPhase({ result, questions, selections, onRetake, onClose }: Resul
         </div>
       )}
       <div className={styles["quiz-modal-actions"]}>
-        <button type="button" className="btn-gradient" onClick={onRetake}>
-          Retake
-        </button>
+        {!disableRetake && (
+          <button type="button" className="btn-gradient" onClick={onRetake}>
+            Retake
+          </button>
+        )}
         <button type="button" className="btn-ghost" onClick={onClose}>
           Close
         </button>
