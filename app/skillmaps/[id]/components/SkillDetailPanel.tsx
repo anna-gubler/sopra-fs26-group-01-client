@@ -220,19 +220,6 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       )}
 
       <section className={styles["detail-panel-section"]}>
-        <h3 className={styles["detail-panel-label"]}>Notes</h3>
-        <textarea
-          className={styles["detail-panel-notes"]}
-          ref={notesResize.ref}
-          onInput={notesResize.onInput}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={4}
-          placeholder="Add your personal notes here..."
-        />
-      </section>
-
-      <section className={styles["detail-panel-section"]}>
         <h3 className={styles["detail-panel-label"]}>Quiz</h3>
         {isOwner
           ? <OwnerQuizContent
