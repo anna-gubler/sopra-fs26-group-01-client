@@ -17,7 +17,6 @@ const SessionStatsBar: React.FC<SessionStatsBarProps> = ({ aggregated, totalStud
       ? Math.round(values.reduce((sum, v) => sum + v.avg, 0) / values.length)
       : null;
 
-  const strugglingCount = values.filter((v) => v.avg < 40).length;
   const totalRatings = values.reduce((sum, v) => sum + v.count, 0);
 
   return (
@@ -37,11 +36,9 @@ const SessionStatsBar: React.FC<SessionStatsBarProps> = ({ aggregated, totalStud
       </div>
 
       <div className={styles["stat-card"]}>
-        <span className={styles["stat-card__label"]}>Skills with avg below 40%</span>
-        <span className={styles["stat-card__value"]}>
-          {values.length > 0 ? strugglingCount : "—"}
-        </span>
-        <span className={styles["stat-card__sub"]}>skills</span>
+        <span className={styles["stat-card__label"]}>Last current understanding average</span>
+        <span className={styles["stat-card__value"]}>Placeholder</span>
+        <span className={styles["stat-card__sub"]}>&nbsp;</span>
       </div>
 
       <div className={styles["stat-card"]}>

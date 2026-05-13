@@ -27,6 +27,12 @@ const EditSkillMapPage: React.FC = () => {
   const descriptionResize = useAutoResize(description);
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchMap = async () => {
       try {
         const [map, me] = await Promise.all([getSkillMap(api, id), getMe(api)]);
@@ -129,7 +135,7 @@ const EditSkillMapPage: React.FC = () => {
             </div>
             <div className="input-group">
               <label htmlFor="map-levels">Number of Levels</label>
-              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(e.target.value)} required />
+              <input id="map-levels" className="auth-input" type="number" min={1} max={20} value={numberOfLevels} onChange={(e) => setNumberOfLevels(e.target.value)} required />
             </div>
             <div className="input-group input-group--row">
               <label htmlFor="isPublic">Public</label>

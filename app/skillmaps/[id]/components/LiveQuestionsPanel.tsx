@@ -51,6 +51,7 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
   const skillNameMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
 
   const grouped = displayQuestions.reduce<Record<number, typeof displayQuestions>>((acc, q) => {
+    if (q.skillId === null) return acc;
     if (!acc[q.skillId]) acc[q.skillId] = [];
     acc[q.skillId].push(q);
     return acc;

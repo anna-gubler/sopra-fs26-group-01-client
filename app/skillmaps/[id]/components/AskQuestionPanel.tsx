@@ -18,18 +18,17 @@ interface AskQuestionPanelProps {
 
 const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, questions }) => {
   const api = useApiContext();
-  const [skillId, setSkillId] = useState<number>(skills[0]?.id ?? 0);
+  const [skillId, setSkillId] = useState<number | null>(null);
   const [text, setText] = useState("");
   const textResize = useAutoResize(text);
   const [submitting, setSubmitting] = useState(false);
   const [upvoted, setUpvoted] = useState<Set<number>>(new Set());
 
   const handleSubmit = async () => {
-    const effectiveSkillId = skillId || skills[0]?.id;
-    if (!text.trim() || !effectiveSkillId) return;
+    if (!text.trim()) return;
     setSubmitting(true);
     try {
-      await postQuestion(api, session.id, effectiveSkillId, text.trim());
+      await postQuestion(api, session.id, skillId, text.trim());
       setText("");
       toast.success("Question submitted!");
     } catch {
@@ -85,10 +84,11 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
       <div className={styles["qa-form"]}>
         <select
           className={styles["qa-skill-select"]}
-          value={skillId}
-          onChange={(e) => setSkillId(Number(e.target.value))}
+          value={skillId ?? ""}
+          onChange={(e) => setSkillId(e.target.value === "" ? null : Number(e.target.value))}
           disabled={submitting}
         >
+          <option value="">General</option>
           {skills.map((s) => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
@@ -102,7 +102,9 @@ const AskQuestionPanel: React.FC<AskQuestionPanelProps> = ({ session, skills, qu
           placeholder="Ask a question..."
           rows={3}
           disabled={submitting}
+          maxLength={200}
         />
+        <span className={styles["qa-counter"]}>{text.length}/200</span>
         <button
           className={styles["btn-collab-filled"]}
           onClick={handleSubmit}

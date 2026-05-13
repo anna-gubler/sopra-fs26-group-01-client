@@ -121,6 +121,24 @@ textarea::placeholder {
   gap: 14px;
 }
 
+.input-with-counter {
+  position: relative;
+}
+
+.input-with-counter .auth-input {
+  padding-right: 52px;
+}
+
+.input-counter {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .password-field {
   position: relative;
 }

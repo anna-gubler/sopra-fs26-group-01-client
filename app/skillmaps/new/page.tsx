@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -32,6 +32,12 @@ const NewSkillMapPage: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login");
+    }
+  }, []);
 
   return (
     <div className="page-deep">
@@ -66,7 +72,7 @@ const NewSkillMapPage: React.FC = () => {
             </div>
             <div className="input-group">
               <label htmlFor="map-levels">Number of Levels</label>
-              <input id="map-levels" className="auth-input" type="number" min={1} value={numberOfLevels} onChange={(e) => setNumberOfLevels(e.target.value)} required />
+              <input id="map-levels" className="auth-input" type="number" min={1} max={20} value={numberOfLevels} onChange={(e) => setNumberOfLevels(e.target.value)} required />
             </div>
 <button type="submit" className="btn-gradient btn-full">Create</button>
             <button type="button" className="btn-ghost btn-full" onClick={() => router.push("/skillmaps")}>Cancel</button>
