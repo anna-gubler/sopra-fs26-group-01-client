@@ -279,15 +279,28 @@ const SkillMapEditorPage: React.FC = () => {
       const sourceSkill = skills.find((s) => String(s.id) === connection.source);
       const targetSkill = skills.find((s) => String(s.id) === connection.target);
       if (!sourceSkill || !targetSkill) return false;
-      return sourceSkill.level < targetSkill.level;
+      if (sourceSkill.level >= targetSkill.level) return false;
+      const fromId = Number(connection.source);
+      const toId = Number(connection.target);
+      return !dependencies.some(
+        (d) =>
+          (d.fromSkillId === fromId && d.toSkillId === toId) ||
+          (d.fromSkillId === toId && d.toSkillId === fromId)
+      );
     },
-    [skills]
+    [skills, dependencies]
   );
 
   const handleConnect = useCallback(
     async (connection: Connection) => {
       const fromSkillId = Number(connection.source);
       const toSkillId = Number(connection.target);
+      const alreadyExists = dependencies.some(
+        (d) =>
+          (d.fromSkillId === fromSkillId && d.toSkillId === toSkillId) ||
+          (d.fromSkillId === toSkillId && d.toSkillId === fromSkillId)
+      );
+      if (alreadyExists) return;
       const newEdge: Edge = { ...connection, id: `e${fromSkillId}-${toSkillId}`, type: "gradient" };
       const provisional: Dependency = { id: -1, fromSkillId, toSkillId, createdAt: "", updatedAt: "" };
       setEdges((eds) => addEdge(newEdge, eds));
@@ -301,7 +314,7 @@ const SkillMapEditorPage: React.FC = () => {
         setDependencies((deps) => deps.filter((d) => d !== provisional));
       }
     },
-    [api, id]
+    [api, id, dependencies]
   );
 
   const handleConfirmDeleteEdge = useCallback(
@@ -322,6 +335,11 @@ const SkillMapEditorPage: React.FC = () => {
 
   const handleEdgeClick = useCallback(
     (_: React.MouseEvent, edge: Edge) => {
+      if (!isOwner) {
+        toast("You cannot delete dependencies in a joined map. Export the map and import it to edit it as your own.", {
+        });
+        return;
+      }
       const dep = dependencies.find(
         (d) => d.fromSkillId === Number(edge.source) && d.toSkillId === Number(edge.target)
       );
@@ -349,7 +367,7 @@ const SkillMapEditorPage: React.FC = () => {
         },
       });
     },
-    [api, dependencies, handleConfirmDeleteEdge]
+    [api, dependencies, handleConfirmDeleteEdge, isOwner]
   );
 
   if (loading) {
