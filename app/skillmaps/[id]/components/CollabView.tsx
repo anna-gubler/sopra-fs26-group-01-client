@@ -15,6 +15,7 @@ import OwnerSidebar from "./OwnerSidebar";
 import StudentSidebar from "./StudentSidebar";
 import CurrentUnderstandingPopup from "./CurrentUnderstandingPopup";
 import { useSessionRatings } from "@/hooks/useSessionRatings";
+import { useSessionQuizResults } from "@/hooks/useSessionQuizResults";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -37,6 +38,7 @@ interface CollabViewProps {
 
 const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, onSkillClick, onAggregatedChange, liveSkills, liveQuestions }) => {
   const { aggregated, totalStudents } = useSessionRatings(session.id, skillMap.id);
+  const quizResults = useSessionQuizResults(skillMap.id);
 
   useEffect(() => {
     onAggregatedChange?.(aggregated);
@@ -61,8 +63,10 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             displayAggregated={aggregated}
             totalStudents={totalStudents}
             session={session}
+            skillMapId={skillMap.id}
             liveSkills={liveSkills ?? []}
             liveQuestions={liveQuestions ?? []}
+            quizResults={quizResults}
             onSkillClick={onSkillClick}
           />
         ) : (
