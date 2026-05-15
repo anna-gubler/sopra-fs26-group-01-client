@@ -510,7 +510,7 @@ const SkillMapEditorPage: React.FC = () => {
             onNodeClick={handleNodeClick}
             onSkillClick={(skill, avg) => { setSelectedSkill(skill); setSelectedSkillRating(avg); }}
             onAggregatedChange={setLiveAggregated}
-            liveSkills={liveSkills}
+            liveSkills={liveSkills?.length ? liveSkills : skills}
             liveQuestions={liveQuestions}
           />
         </ApiContext.Provider>
