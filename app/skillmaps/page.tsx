@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, importSkillMap } from "@/api/skillmapApi";
+import { getSkillMaps, getSkillMapGraph, getSkillMapMembers, joinSkillMap, importSkillMap, leaveSkillMap } from "@/api/skillmapApi";
+import { confirmToast } from "@/utils/confirmToast";
 import { getActiveSession } from "@/api/sessionApi";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { getMe } from "@/api/userApi";
@@ -85,6 +86,19 @@ const SkillMapsPage: React.FC = () => {
         else toast.error("Failed to join map.");
       }
     }
+  };
+
+  const handleLeave = (map: SkillMap) => {
+    if (!user?.id) return;
+    const userId = user.id;
+    confirmToast(`Leave "${map.title}"?`, async () => {
+      try {
+        await leaveSkillMap(api, map.id, userId);
+        setSkillMaps((prev) => prev.filter((m) => m.id !== map.id));
+      } catch {
+        toast.error("Failed to leave map.");
+      }
+    });
   };
 
   useEffect(() => {
@@ -346,6 +360,12 @@ const SkillMapsPage: React.FC = () => {
 
                 <div className={styles['sm-card-footer']}>
                   <span className={styles['sm-continue']}>Continue Mapping &gt;</span>
+                  <button
+                    className={styles['sm-edit-btn']}
+                    onClick={(e) => { e.stopPropagation(); handleLeave(map); }}
+                  >
+                    Leave
+                  </button>
                 </div>
               </div>
             ))}
