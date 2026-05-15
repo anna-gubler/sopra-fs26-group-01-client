@@ -10,7 +10,8 @@ import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getMe } from "@/api/userApi";
-import { getSkillMap, getSkillMapGraph, updateSkillMap } from "@/api/skillmapApi";
+import { getSkillMap, getSkillMapGraph, updateSkillMap, leaveSkillMap } from "@/api/skillmapApi";
+import { confirmToast } from "@/utils/confirmToast";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
@@ -201,6 +202,19 @@ const SkillMapEditorPage: React.FC = () => {
 
   const handleExport = () => downloadSkillMapExport(api, id, skillMap?.title ?? "skillmap");
 
+  const handleLeave = () => {
+    if (!user?.id || !skillMap) return;
+    const userId = user.id;
+    confirmToast(`Leave "${skillMap.title}"?`, async () => {
+      try {
+        await leaveSkillMap(api, id, userId);
+        router.push("/skillmaps");
+      } catch {
+        toast.error("Failed to leave map.");
+      }
+    });
+  };
+
   const handleAddSkill = () => {
     setEditingSkill(null);
     setModalOpen(true);
@@ -318,8 +332,7 @@ const SkillMapEditorPage: React.FC = () => {
   );
 
   const handleConfirmDeleteEdge = useCallback(
-    async (toastId: string, edge: Edge, dep: Dependency) => {
-      toast.dismiss(toastId);
+    async (edge: Edge, dep: Dependency) => {
       setEdges((eds) => eds.filter((e) => e.id !== edge.id));
       setDependencies((deps) => deps.filter((d) => d.id !== dep.id));
       try {
@@ -336,8 +349,7 @@ const SkillMapEditorPage: React.FC = () => {
   const handleEdgeClick = useCallback(
     (_: React.MouseEvent, edge: Edge) => {
       if (!isOwner) {
-        toast("You cannot delete dependencies in a joined map. Export the map and import it to edit it as your own.", {
-        });
+        toast("You cannot delete dependencies in a joined map. Export the map and import it to edit it as your own.");
         return;
       }
       const dep = dependencies.find(
@@ -346,26 +358,7 @@ const SkillMapEditorPage: React.FC = () => {
       if (!dep) return;
       if (dep.id < 0) { toast("Connection is still being saved…"); return; }
 
-      toast((t) => (
-        <div className={styles["toast-body"]}>
-          <span>Delete this dependency?</span>
-          <div className={styles["toast-actions"]}>
-            <button className="btn-gradient" onClick={() => handleConfirmDeleteEdge(t.id, edge, dep)}>
-              Confirm
-            </button>
-            <button className="btn-ghost" onClick={() => toast.dismiss(t.id)}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      ), {
-        duration: Infinity,
-        style: {
-          background: "var(--bg-elevated)",
-          color: "var(--text-bright)",
-          border: "1px solid var(--border-color)",
-        },
-      });
+      confirmToast("Delete this dependency?", () => handleConfirmDeleteEdge(edge, dep));
     },
     [api, dependencies, handleConfirmDeleteEdge, isOwner]
   );
@@ -404,6 +397,11 @@ const SkillMapEditorPage: React.FC = () => {
             <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setExportModalOpen(true)}>
               <Download size={14} />
               Export
+            </button>
+          )}
+          {!isOwner && (
+            <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={handleLeave}>
+              Leave joined map
             </button>
           )}
           {isOwner && skillMap?.inviteCode && (

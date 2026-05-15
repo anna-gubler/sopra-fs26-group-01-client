@@ -41,6 +41,10 @@ export function deleteSkillMap(api: ApiService, id: number): Promise<void> {
   return api.delete<void>(`/skillmaps/${id}`);
 }
 
+export function leaveSkillMap(api: ApiService, mapId: number, userId: number): Promise<void> {
+  return api.delete<void>(`/skillmaps/${mapId}/members/${userId}`);
+}
+
 export function exportSkillMap(api: ApiService, id: number): Promise<Blob> {
   return api.download(`/skillmaps/${id}/export`);
 }

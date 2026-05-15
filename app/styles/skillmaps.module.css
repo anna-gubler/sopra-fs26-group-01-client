@@ -864,6 +864,14 @@
 }
 
 /* Toast confirmation dialog */
+.toast-container {
+  background: var(--bg-elevated);
+  color: var(--text-bright);
+  /* rgba equivalent of --primary (#e91e8c) at low opacity for the glow ring */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.18), 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
 .toast-body {
   display: flex;
   flex-direction: column;
