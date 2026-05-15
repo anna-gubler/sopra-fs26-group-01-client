@@ -50,16 +50,20 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
 
   const skillNameMap = Object.fromEntries(skills.map((s) => [s.id, s.name]));
 
+  const GENERAL_KEY = -1;
+
   const grouped = displayQuestions.reduce<Record<number, typeof displayQuestions>>((acc, q) => {
-    if (q.skillId === null) return acc;
-    if (!acc[q.skillId]) acc[q.skillId] = [];
-    acc[q.skillId].push(q);
+    const key = q.skillId ?? GENERAL_KEY;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(q);
     return acc;
   }, {});
 
   const sortedSkillIds = Object.keys(grouped)
     .map(Number)
     .sort((a, b) => {
+      if (a === GENERAL_KEY) return 1;
+      if (b === GENERAL_KEY) return -1;
       const levelA = skills.find((s) => s.id === a)?.level ?? 0;
       const levelB = skills.find((s) => s.id === b)?.level ?? 0;
       return levelA - levelB;
@@ -69,7 +73,7 @@ const LiveQuestionsPanel: React.FC<LiveQuestionsPanelProps> = ({ questions, skil
     <div className={styles["qa-list"]}>
       {sortedSkillIds.map((skillId) => {
         const group = grouped[skillId].slice().sort((a, b) => b.upvoteCount - a.upvoteCount);
-        const skillName = skillNameMap[skillId] ?? `Skill #${skillId}`;
+        const skillName = skillId === GENERAL_KEY ? "General" : (skillNameMap[skillId] ?? `Skill #${skillId}`);
         return (
           <div key={skillId} className={styles["qa-skill-group"]}>
             <div className={styles["qa-skill-name"]}>{skillName}</div>
