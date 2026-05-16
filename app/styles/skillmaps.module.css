@@ -959,6 +959,12 @@
   border-color: var(--text-muted);
 }
 
+.understanding-track--disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .understanding-value {
   font-size: 13px;
   font-weight: 600;

@@ -128,7 +128,7 @@ const SkillMapsPage: React.FC = () => {
           maps.map(async (map) => {
             const [graph, members, session] = await Promise.all([
               getSkillMapGraph(api, map.id),
-              getSkillMapMembers(api, map.id),
+              getSkillMapMembers(api, map.id).catch(() => []),
               getActiveSession(api, map.id).catch(() => null),
             ]);
             return [map.id, {

@@ -32,18 +32,20 @@ export function useSessionRatings(
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchRatings = useCallback(async () => {
+    // Keep the two fetches independent so a failure in one doesn't block the other
     try {
-      const [understandings, members]: [SkillUnderstandingAggregate[], Awaited<ReturnType<typeof getSkillMapMembers>>] = await Promise.all([
-        api.get(`/skillmaps/${skillMapId}/skills/understanding`) as Promise<SkillUnderstandingAggregate[]>,
-        getSkillMapMembers(api, skillMapId),
-      ]);
-      const studentCount = members.filter((m) => m.role === "STUDENT").length;
-      setTotalStudents(studentCount);
+      const understandings = await (api.get(`/skillmaps/${skillMapId}/skills/understanding`) as Promise<SkillUnderstandingAggregate[]>);
       const result = new Map<number, RatingAggregate>();
       for (const su of understandings) {
         result.set(su.skillId, { avg: su.avg, count: su.count });
       }
       setAggregated(result);
+    } catch {
+      // silently ignore poll errors
+    }
+    try {
+      const members = await getSkillMapMembers(api, skillMapId);
+      setTotalStudents(members.filter((m) => m.role === "STUDENT").length);
     } catch {
       // silently ignore poll errors
     }

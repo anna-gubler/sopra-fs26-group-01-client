@@ -239,7 +239,7 @@ export default function Home() {
             Log in
           </Link>
           <Link href="/register" className="btn-gradient btn-sm">
-            Get Started
+            Start Mapping
           </Link>
         </div>
       </nav>
