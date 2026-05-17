@@ -11,6 +11,14 @@ export function startSession(api: ApiService, skillMapId: number): Promise<Colla
   return api.post<CollaborationSession>(`/skillmaps/${skillMapId}/sessions`, {});
 }
 
+export function getPastSessions(api: ApiService, skillMapId: number): Promise<CollaborationSession[]> {
+  return api.get<CollaborationSession[]>(`/skillmaps/${skillMapId}/sessions`);
+}
+
+export function restartSession(api: ApiService, skillMapId: number, sessionId: number): Promise<CollaborationSession> {
+  return api.post<CollaborationSession>(`/skillmaps/${skillMapId}/sessions/${sessionId}/restart`, {});
+}
+
 export function endSession(api: ApiService, skillMapId: number): Promise<void> {
   return api.post<void>(`/skillmaps/${skillMapId}/sessions/active/end`, {});
 }

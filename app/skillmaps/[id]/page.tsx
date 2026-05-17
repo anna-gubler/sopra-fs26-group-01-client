@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download } from "lucide-react";
+import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download, RotateCcw } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
@@ -15,6 +15,7 @@ import { confirmToast } from "@/utils/confirmToast";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
 import { startSession, endSession } from "@/api/sessionApi";
+import PastSessionsPanel from "./components/PastSessionsPanel";
 import { ApplicationError } from "@/types/error";
 import { getAvatarUrl } from "@/utils/avatar";
 import { User } from "@/types/user";
@@ -98,6 +99,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [liveAggregated, setLiveAggregated] = useState<Map<number, { avg: number; count: number }>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
   const [showTour, setShowTour] = useState(false);
+  const [showSessionsPanel, setShowSessionsPanel] = useState(false);
   const tourCheckedRef = useRef(false);
 
   const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
@@ -456,6 +458,15 @@ const SkillMapEditorPage: React.FC = () => {
               End Session
             </button>
           )}
+          {isOwner && !isActive && (
+            <button
+              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]}`}
+              onClick={() => setShowSessionsPanel(true)}
+            >
+              <RotateCcw size={14} />
+              Restart Session
+            </button>
+          )}
           {isOwner && !isActive && skillMap?.isPublic && (
             <button
               data-tour="nav-start-session"
@@ -574,6 +585,18 @@ const SkillMapEditorPage: React.FC = () => {
         onExport={handleExport}
         onClose={() => setExportModalOpen(false)}
       />
+
+      {showSessionsPanel && (
+        <PastSessionsPanel
+          skillMapId={id}
+          api={api}
+          onClose={() => setShowSessionsPanel(false)}
+          onRestarted={(s) => {
+            setSession(s);
+            setShowSessionsPanel(false);
+          }}
+        />
+      )}
 
       {selectedSkill && (
         <SkillDetailPanel
