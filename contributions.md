@@ -171,8 +171,8 @@ reason).
 |              | 12.05.2026 |[ISSUE: extend export/import](https://github.com/anna-gubler/sopra-fs26-group-01-server/pull/235/changes/81b80b9a93986090d86884d6d682e62a14f7ce10) |fix(#232): adapt export/import functionality to also include quiz components | the whole map including quizes is now exportable/importable |
 | **@elsithewizzard** |[Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
-| **@sebdahub** |[Date] |[Commit 1] | | |
-|              | [Date] |[Commit 2] | | |
+| **@sebdahub** |[13.05.2026] |[Persistance of notes](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/48f9149ded6683d8d3ec17af539622279fe187e9), [Student Progress](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/139d1803863e7e20f7dacf8a8b7a4b3b54e990fb) | Did two smaller tasks/fixes that were assigned to me |  |
+|              | [13.05.2026] |[Session Start only when public](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/28d3fa26501c484eb9b19ca9aa042c9ea65a8660) | Changed session start so it can only start when the skillmap is public and changed tests correspondingly | is just good practice |
 | **@haslam** |[Date] |[Commit 1] | | |
 |              | [Date] |[Commit 2] | | |
 
