@@ -172,8 +172,8 @@ reason).
 | **@elsithewizzard** |16.05.2026 |[General Bug fixes & Implementation of Collaboration mode CurrentUnterstanding Feature](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/e8b68cf79e52705097cb4d81598b9868706286cf) | As I've put everything into one bigger commit, I'll count it towards both commit totals. I implemented the CurrentUnderstanding feature in Collab Mode. Additionally, I fixed bugs and made small imrpovements to UI, such as Confirmation Buttons for the Collab Session, Live update of User count when people leave the map, persistance (front end) of skill ratings & a fix to the checkbox for completion| General Quality of Life and an extra feature |
 | **@sebdahub** |[13.05.2026] |[Persistance of notes](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/48f9149ded6683d8d3ec17af539622279fe187e9), [Student Progress](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/139d1803863e7e20f7dacf8a8b7a4b3b54e990fb) | Did two smaller tasks/fixes that were assigned to me |  |
 |              | [13.05.2026] |[Session Start only when public](https://github.com/anna-gubler/sopra-fs26-group-01-server/commit/28d3fa26501c484eb9b19ca9aa042c9ea65a8660) | Changed session start so it can only start when the skillmap is public and changed tests correspondingly | is just good practice |
-| **@haslam** |[Date] |[Commit 1] | | |
-|              | [Date] |[Commit 2] | | |
+| **@haslam** |[13.05.2026] |[Additional tests for better coverage](https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/23055a25750702104bbb95f9de6c7ecd8e5a2948) |Added some more tests |Brought test coverage up to 91% (in SonarQube)|
+|              | [16.05.2026] |[Feat(#231) added overview of old sessions & ability to restart in front & backend] (https://github.com/anna-gubler/sopra-fs26-group-01-client/commit/b60f7e29c0786872d918e83d0d7cf064b25dbb30) |Owner of map can restart old sessions|Suggested by reviewer team & nice to have additional feature |
 
 ## Contributions Week 9 - 18.05. to 22.05.
 * Deadline M4: 22.05.
