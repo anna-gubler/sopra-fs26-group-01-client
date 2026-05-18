@@ -9,10 +9,13 @@ export interface RatingAggregate {
   count: number;
 }
 
-interface SkillUnderstandingAggregate {
+interface UnderstandingRating {
+  id: number;
+  sessionId: number;
   skillId: number;
-  avg: number;
-  count: number;
+  rating: number;
+  submittedAt: string;
+  updatedAt: string;
 }
 
 export interface SessionRatingsResult {
@@ -21,7 +24,7 @@ export interface SessionRatingsResult {
 }
 
 export function useSessionRatings(
-  _sessionId: number,
+  sessionId: number,
   skillMapId: number
 ): SessionRatingsResult {
   const api = useApiContext();
@@ -32,24 +35,28 @@ export function useSessionRatings(
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchRatings = useCallback(async () => {
-    // Keep the two fetches independent so a failure in one doesn't block the other
     try {
-      const understandings = await (api.get(`/skillmaps/${skillMapId}/skills/understanding`) as Promise<SkillUnderstandingAggregate[]>);
-      const result = new Map<number, RatingAggregate>();
-      for (const su of understandings) {
-        result.set(su.skillId, { avg: su.avg, count: su.count });
+      const [ratings, members]: [UnderstandingRating[], Awaited<ReturnType<typeof getSkillMapMembers>>] = await Promise.all([
+        api.get(`/sessions/${sessionId}/ratings`) as Promise<UnderstandingRating[]>,
+        getSkillMapMembers(api, skillMapId),
+      ]);
+      const studentCount = members.filter((m) => m.role === "STUDENT").length;
+      setTotalStudents(studentCount);
+      const grouped = new Map<number, number[]>();
+      for (const r of ratings) {
+        if (!grouped.has(r.skillId)) grouped.set(r.skillId, []);
+        grouped.get(r.skillId)!.push(r.rating);
       }
+      const result = new Map<number, RatingAggregate>();
+      grouped.forEach((vals, skillId) => {
+        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+        result.set(skillId, { avg, count: vals.length });
+      });
       setAggregated(result);
     } catch {
       // silently ignore poll errors
     }
-    try {
-      const members = await getSkillMapMembers(api, skillMapId);
-      setTotalStudents(members.filter((m) => m.role === "STUDENT").length);
-    } catch {
-      // silently ignore poll errors
-    }
-  }, [api, skillMapId]);
+  }, [api, sessionId, skillMapId]);
 
   useEffect(() => {
     fetchRatings();

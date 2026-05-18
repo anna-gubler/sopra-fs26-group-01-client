@@ -76,3 +76,10 @@
   margin-left: 8px;
   flex-shrink: 0;
 }
+
+.skill-node__heat-percent {
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-left: 4px;
+}

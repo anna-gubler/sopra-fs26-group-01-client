@@ -48,7 +48,7 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ i
     }
   }, [onSubmit, rating]);
 
-  if (!isActive || remaining <= 0) return null;
+  if (!isActive || remaining <= 0 || submitted) return null;
 
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
@@ -62,9 +62,7 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ i
           <span className={styles["cu-timer"]}>{timeStr}</span>
         </div>
         <p className={styles["cu-popup-subtitle"]}>
-          {submitted
-            ? "Response submitted. You can update it before time runs out."
-            : "How well are you following the class overall?"}
+          How well are you following the class overall?
         </p>
         <UnderstandingSlider value={rating} onChange={setRating} />
         <button
@@ -72,7 +70,7 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ i
           onClick={handleSubmit}
           disabled={rating === 0}
         >
-          {submitted ? "Update" : "Submit"}
+          Submit
         </button>
       </div>
     </div>
