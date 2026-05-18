@@ -25,6 +25,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
   const api = useApiContext();
   const [actionState, setActionState] = useState({ loading: false, selectValue: "", popupOpen: false });
   const [skillsWithQuiz, setSkillsWithQuiz] = useState<SkillWithQuiz[]>([]);
+  const [probing, setProbing] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
   // Graph API does not return quiz data on skills — probe each skill individually.
@@ -33,6 +34,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
   const skillIdsKey = liveSkills.map((s) => s.id).join(",");
   useEffect(() => {
     if (!skillIdsKey) return;
+    setProbing(true);
     Promise.all(
       liveSkills.map((s) =>
         getQuiz(api, s.id)
@@ -41,6 +43,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
       )
     ).then((results) => {
       setSkillsWithQuiz(results.filter((r): r is SkillWithQuiz => r !== null));
+      setProbing(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillIdsKey, api]);
@@ -119,7 +122,7 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
       <button
         className={styles["btn-collab-filled"]}
         onClick={handleOpenPopup}
-        disabled={actionState.loading}
+        disabled={actionState.loading || probing}
       >
         Request Quiz
       </button>
@@ -142,7 +145,8 @@ const PromptQuizButton: React.FC<PromptQuizButtonProps> = ({ skillMapId, session
     </div>
   );
 
-  if (skillsWithQuiz.length === 0) {
+  const noQuizzesFound = !probing && skillsWithQuiz.length === 0;
+  if (noQuizzesFound) {
     return (
       <p className={styles["collab-panel-placeholder"]}>
         No skills with a quiz in this map.
