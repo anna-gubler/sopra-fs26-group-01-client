@@ -5,8 +5,13 @@ import { triggerCurrentUnderstanding, submitCurrentUnderstanding } from "@/api/s
 import { getSkillMapMembers } from "@/api/skillmapApi";
 import { ApiService } from "@/api/apiService";
 import { getApiDomain } from "@/utils/domain";
+import { getRemainingSeconds } from "@/utils/time";
 
 const DURATION_SECONDS = 180;
+
+type LiveMessage =
+  | { type: "UNDERSTANDING_REQUESTED" }
+  | { type: "UNDERSTANDING_UPDATED"; averageRating: number; totalResponses: number };
 
 export interface CUResults {
   avg: number;
@@ -47,7 +52,7 @@ export function useCurrentUnderstanding(
       reconnectDelay: 5000,
       onConnect: () => {
         client.subscribe(`/topic/skillmaps/${skillMapId}/live`, (msg) => {
-          const data = JSON.parse(msg.body);
+          const data = JSON.parse(msg.body) as LiveMessage;
           if (data.type === "UNDERSTANDING_REQUESTED") {
             setIsActive(true);
             setStartedAt(new Date().toISOString());
@@ -69,8 +74,7 @@ export function useCurrentUnderstanding(
   // Auto-expire after DURATION_SECONDS
   useEffect(() => {
     if (!isActive || !startedAt) return;
-    const elapsed = (Date.now() - new Date(startedAt).getTime()) / 1000;
-    const remaining = Math.max(0, DURATION_SECONDS - elapsed);
+    const remaining = getRemainingSeconds(startedAt, DURATION_SECONDS);
     if (remaining <= 0) { setIsActive(false); return; }
     const t = setTimeout(() => setIsActive(false), remaining * 1000);
     return () => clearTimeout(t);

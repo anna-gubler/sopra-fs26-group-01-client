@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { CUResults } from "@/hooks/useCurrentUnderstanding";
+import { useCountdown } from "@/hooks/useCountdown";
+import { useCooldown } from "@/hooks/useCooldown";
 import { ratingColor } from "./UnderstandingHeatmap";
 import styles from "@/styles/collab.module.css";
 
@@ -18,6 +20,20 @@ interface CurrentUnderstandingPanelProps {
   onLastAvgChange?: (avg: number | null) => void;
 }
 
+const LastCheckResult: React.FC<{ avg: number; checkedAt: string | null }> = ({ avg, checkedAt }) => (
+  <div className={styles["cu-results"]} style={{ marginBottom: "10px" }}>
+    <div className={styles["cu-results-header"]}>
+      <span className={styles["cu-results-count"]}>Last check{checkedAt ? ` · ${checkedAt}` : ""}</span>
+      <span className={styles["cu-results-avg-value"]} style={{ color: ratingColor(avg) }}>{avg}%</span>
+    </div>
+    <div className={styles["cu-results-bar-row"]}>
+      <div className={styles["cu-results-bar-track"]}>
+        <div className={styles["cu-results-bar-fill"]} style={{ width: `${avg}%`, background: ratingColor(avg) }} />
+      </div>
+    </div>
+  </div>
+);
+
 const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
   sessionId,
   isActive,
@@ -28,13 +44,14 @@ const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
   onLastAvgChange,
 }) => {
   const [triggering, setTriggering] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [remaining, setRemaining] = useState(0);
   const [lastAvg, setLastAvg] = useState<number | null>(null);
   const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
   const savedRef = useRef<string | null>(null);
   const lsKey = `cu_last_avg_${sessionId}`;
   const lsTimeKey = `cu_last_time_${sessionId}`;
+
+  const remaining = useCountdown(isActive ? startedAt : null, DURATION_SECONDS);
+  const [cooldown, startCooldown] = useCooldown(RETRIGGER_COOLDOWN_SECONDS);
 
   // Load persisted last-check result on mount
   useEffect(() => {
@@ -50,21 +67,6 @@ const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
     if (storedTime) setLastCheckedAt(storedTime);
   }, [sessionId]);
 
-  // Countdown timer
-  useEffect(() => {
-    if (!isActive || !startedAt) {
-      setRemaining(0);
-      return;
-    }
-    const update = () => {
-      const elapsed = (Date.now() - new Date(startedAt).getTime()) / 1000;
-      setRemaining(Math.max(0, Math.round(DURATION_SECONDS - elapsed)));
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
-  }, [isActive, startedAt]);
-
   // Persist last avg + timestamp when timer expires
   useEffect(() => {
     if (!isActive && remaining === 0 && startedAt && savedRef.current !== startedAt && results && results.count > 0) {
@@ -78,13 +80,6 @@ const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
     }
   }, [isActive, remaining, startedAt, results]);
 
-  // Cooldown countdown
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const id = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearInterval(id);
-  }, [cooldown]);
-
   const handleTrigger = async () => {
     setTriggering(true);
     savedRef.current = null;
@@ -95,7 +90,7 @@ const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
     onLastAvgChange?.(null);
     try {
       await onTrigger();
-      setCooldown(RETRIGGER_COOLDOWN_SECONDS);
+      startCooldown();
     } catch {
       // best-effort
     } finally {
@@ -106,19 +101,7 @@ const CurrentUnderstandingPanel: React.FC<CurrentUnderstandingPanelProps> = ({
   if (!isActive || remaining <= 0) {
     return (
       <>
-        {lastAvg !== null && (
-          <div className={styles["cu-results"]} style={{ marginBottom: "10px" }}>
-            <div className={styles["cu-results-header"]}>
-              <span className={styles["cu-results-count"]}>Last check{lastCheckedAt ? ` · ${lastCheckedAt}` : ""}</span>
-              <span className={styles["cu-results-avg-value"]} style={{ color: ratingColor(lastAvg) }}>{lastAvg}%</span>
-            </div>
-            <div className={styles["cu-results-bar-row"]}>
-              <div className={styles["cu-results-bar-track"]}>
-                <div className={styles["cu-results-bar-fill"]} style={{ width: `${lastAvg}%`, background: ratingColor(lastAvg) }} />
-              </div>
-            </div>
-          </div>
-        )}
+        {lastAvg !== null && <LastCheckResult avg={lastAvg} checkedAt={lastCheckedAt} />}
         <button
           className={styles["btn-collab-filled"]}
           onClick={handleTrigger}
