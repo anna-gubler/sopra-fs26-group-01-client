@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/auth.module.css";
-import MappdLoader from "@/components/LoadingAnimation";
+import RegisterLoader from "@/components/RegisterLoader";
 
 
 const Register: React.FC = () => {
@@ -24,9 +24,31 @@ const Register: React.FC = () => {
   const bioResize = useAutoResize(bio);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const pendingNavRef = useRef<string | null>(null);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
+
+  useEffect(() => {
+    if (loading) {
+      setShowLoadingPage(true);
+      startTimeRef.current = Date.now();
+      return;
+    }
+    if (startTimeRef.current === null) return;
+    const remaining = Math.max(0, 3000 - (Date.now() - startTimeRef.current));
+    const timer = setTimeout(() => setShowLoadingPage(false), remaining);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!showLoadingPage && pendingNavRef.current) {
+      router.push(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+  }, [showLoadingPage]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +61,7 @@ const Register: React.FC = () => {
       });
       if (response.token) setToken(response.token);
       if (response.id) setId(String(response.id));
-      router.push("/skillmaps");
+      pendingNavRef.current = "/skillmaps";
     } catch (error) {
       const status = (error as ApplicationError).status;
       if (status === 400) {
@@ -49,6 +71,7 @@ const Register: React.FC = () => {
       } else {
         toast.error("Registration failed. Please try again.");
       }
+      setShowLoadingPage(false);
     } finally {
       setLoading(false);
     }
@@ -56,7 +79,12 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles['auth-page']}>
-      {loading && <MappdLoader overlay label="Creating your account..." />}
+      {showLoadingPage && (
+        <div className="loader-full-page">
+          <div className="grid-overlay" />
+          <RegisterLoader label="Creating your account..." />
+        </div>
+      )}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}
