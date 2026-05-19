@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/auth.module.css";
-import MappdLoader from "@/components/LoadingAnimation";
+import RegisterLoader from "@/components/RegisterLoader";
 
 
 const Register: React.FC = () => {
@@ -24,9 +24,31 @@ const Register: React.FC = () => {
   const bioResize = useAutoResize(bio);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
+  const [minLoadingTimeElapsed, setMinLoadingTimeElapsed] = useState(false);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
+
+  // Start timer when loading begins
+  useEffect(() => {
+    if (loading) {
+      setShowLoadingPage(true);
+      setMinLoadingTimeElapsed(false);
+      // Minimum 1 second (1 animation cycle)
+      const timer = setTimeout(() => {
+        setMinLoadingTimeElapsed(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  // Hide loading page only when both the request is done AND min time has elapsed
+  useEffect(() => {
+    if (!loading && minLoadingTimeElapsed) {
+      setShowLoadingPage(false);
+    }
+  }, [loading, minLoadingTimeElapsed]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +78,7 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles['auth-page']}>
-      {loading && <MappdLoader overlay label="Creating your account..." />}
+      {showLoadingPage && <RegisterLoader label="Creating your account..." />}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}
