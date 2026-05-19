@@ -54,16 +54,16 @@ const styles = `
 
   .reg-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
   .reg-avatar-area { position:relative; width:64px; height:64px; display:flex; align-items:center; justify-content:center; }
-  .reg-outer { position:absolute; width:64px; height:64px; border-radius:50%; border:1.5px solid ${colors.primary}; animation:reg-outerRing 4s ease-in-out infinite; }
-  .reg-dash { position:absolute; width:50px; height:50px; border-radius:50%; border:2px dashed ${colors.primaryDim}; animation:reg-dashRing 4s linear infinite; }
-  .reg-av { width:42px; height:42px; border-radius:50%; border:2.5px solid ${colors.primary}; display:flex; align-items:center; justify-content:center; animation:reg-avatar 4s ease-in-out infinite; position:relative; }
-  .reg-ck { position:absolute; top:-3px; right:-3px; width:18px; height:18px; border-radius:50%; background:${colors.primary}; display:flex; align-items:center; justify-content:center; animation:reg-check 4s ease-in-out infinite; }
+  .reg-outer { position:absolute; width:64px; height:64px; border-radius:50%; border:1.5px solid ${colors.primary}; animation:reg-outerRing 3s ease-in-out infinite; }
+  .reg-dash { position:absolute; width:50px; height:50px; border-radius:50%; border:2px dashed ${colors.primaryDim}; animation:reg-dashRing 3s linear infinite; }
+  .reg-av { width:42px; height:42px; border-radius:50%; border:2.5px solid ${colors.primary}; display:flex; align-items:center; justify-content:center; animation:reg-avatar 3s ease-in-out infinite; position:relative; }
+  .reg-ck { position:absolute; top:-3px; right:-3px; width:18px; height:18px; border-radius:50%; background:${colors.primary}; display:flex; align-items:center; justify-content:center; animation:reg-check 3s ease-in-out infinite; }
   .reg-spark { position:absolute; width:6px; height:6px; border-radius:50%; top:50%; left:50%; margin:-3px 0 0 -3px; }
-  .reg-s1{background:${colors.amber};animation:reg-spark1 4s ease-in-out infinite}
-  .reg-s2{background:${colors.primary};animation:reg-spark2 4s ease-in-out infinite}
-  .reg-s3{background:${colors.amber};animation:reg-spark3 4s ease-in-out infinite}
-  .reg-s4{background:${colors.text};animation:reg-spark4 4s ease-in-out infinite}
-  .reg-s5{background:${colors.primary};animation:reg-spark5 4s ease-in-out infinite}
+  .reg-s1{background:${colors.amber};animation:reg-spark1 3s ease-in-out infinite}
+  .reg-s2{background:${colors.primary};animation:reg-spark2 3s ease-in-out infinite}
+  .reg-s3{background:${colors.amber};animation:reg-spark3 3s ease-in-out infinite}
+  .reg-s4{background:${colors.text};animation:reg-spark4 3s ease-in-out infinite}
+  .reg-s5{background:${colors.primary};animation:reg-spark5 3s ease-in-out infinite}
   .reg-bars { display:flex; gap:3px; align-items:flex-end; height:22px; }
   .reg-bar { width:5px; border-radius:2px; background:${colors.primary}; transform-origin:bottom; }
   .reg-dots { display:flex; gap:5px; }
@@ -110,14 +110,14 @@ export default function RegisterLoader({ label = "registering", className = "" }
           {BARS.map((b, i) => (
             <div key={i} className="reg-bar" style={{
               height: b.h,
-              animation: `reg-barWave 1s ease-in-out ${b.wd}s infinite, reg-barFade 4s ease-in-out ${b.fd}s infinite`,
+              animation: `reg-barWave 1s ease-in-out ${b.wd}s infinite, reg-barFade 3s ease-in-out ${b.fd}s infinite`,
             }} />
           ))}
         </div>
         <div className="reg-dots">
           <div className="reg-dot" style={{ background:colors.primary, animationDelay:"0s" }} />
           <div className="reg-dot" style={{ background:colors.amber, animationDelay:"0.2s" }} />
-          <div className="reg-dot" style={{ background:colors.primary, animationDelay:"0.4s" }} />
+          <div className="reg-dot" style={{ background:colors.primary, animationDelay:"0.3s" }} />
         </div>
         {label && <span className="reg-label" style={{ color:"var(--color-text-secondary,#888)" }}>{label}</span>}
       </div>

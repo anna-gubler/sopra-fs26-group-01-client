@@ -24,6 +24,7 @@ import styles from "@/styles/skillmaps.module.css";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getAvatarUrl } from "@/utils/avatar";
 import { ApplicationError } from "@/types/error";
+import JoinMapLoader from "@/components/JoinMapLoader";
 
 const SkillMapsPage: React.FC = () => {
   const router = useRouter();
@@ -36,6 +37,10 @@ const SkillMapsPage: React.FC = () => {
   const { clear: clearId } = useLocalStorage<string>("id", "");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
+  const [joiningMap, setJoiningMap] = useState(false);
+  const [showJoinLoader, setShowJoinLoader] = useState(false);
+  const joinStartTimeRef = useRef<number | null>(null);
+  const pendingJoinNavRef = useRef<string | null>(null);
   const [exportingMap, setExportingMap] = useState<SkillMap | null>(null);
   const [showTour, setShowTour] = useState(false);
   const tourShownRef = useRef(false);
@@ -64,6 +69,25 @@ const SkillMapsPage: React.FC = () => {
     router.push("/login");
   };
 
+  useEffect(() => {
+    if (joiningMap) {
+      setShowJoinLoader(true);
+      joinStartTimeRef.current = Date.now();
+      return;
+    }
+    if (joinStartTimeRef.current === null) return;
+    const remaining = Math.max(0, 3000 - (Date.now() - joinStartTimeRef.current));
+    const timer = setTimeout(() => setShowJoinLoader(false), remaining);
+    return () => clearTimeout(timer);
+  }, [joiningMap]);
+
+  useEffect(() => {
+    if (!showJoinLoader && pendingJoinNavRef.current) {
+      router.push(pendingJoinNavRef.current);
+      pendingJoinNavRef.current = null;
+    }
+  }, [showJoinLoader]);
+
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     let code = inviteCode.trim();
@@ -73,9 +97,10 @@ const SkillMapsPage: React.FC = () => {
     } catch {
       // not a URL, use as-is
     }
+    setJoiningMap(true);
     try {
       const joined = await joinSkillMap(api, code);
-      router.push(`/skillmaps/${joined.skillMapId}`);
+      pendingJoinNavRef.current = `/skillmaps/${joined.skillMapId}`;
     } catch (err) {
       if (err instanceof Error) {
         const status = (err as ApplicationError).status;
@@ -84,6 +109,9 @@ const SkillMapsPage: React.FC = () => {
         else if (status === 409) toast.error("You're already a member of this map.");
         else toast.error("Failed to join map.");
       }
+      setShowJoinLoader(false);
+    } finally {
+      setJoiningMap(false);
     }
   };
 
@@ -147,6 +175,12 @@ const SkillMapsPage: React.FC = () => {
 
   return (
     <div className={styles['sm-page']}>
+      {showJoinLoader && (
+        <div className="loader-full-page">
+          <div className="grid-overlay" />
+          <JoinMapLoader label="Joining map..." />
+        </div>
+      )}
       <div className="grid-overlay" />
 
       {/* Navbar */}

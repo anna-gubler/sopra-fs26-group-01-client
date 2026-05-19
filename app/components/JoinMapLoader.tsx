@@ -46,24 +46,24 @@ const styles = `
 
   .jm-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
   .jm-scene { position:relative; width:88px; height:88px; display:flex; align-items:flex-end; justify-content:center; }
-  .jm-dropper { animation:jm-dropIn 4s ease-in-out infinite; display:flex; flex-direction:column; align-items:center; }
+  .jm-dropper { animation:jm-dropIn 3s ease-in-out infinite; display:flex; flex-direction:column; align-items:center; }
   .jm-frame { width:68px; height:74px; border:2.5px solid ${colors.amber}; border-bottom:none; border-radius:5px 5px 0 0; position:relative; overflow:hidden; }
-  .jm-light { position:absolute; right:0; top:0; height:100%; background:${colors.amber}; animation:jm-light 4s ease-in-out infinite; }
+  .jm-light { position:absolute; right:0; top:0; height:100%; background:${colors.amber}; animation:jm-light 3s ease-in-out infinite; }
   /* light rays inside frame */
   .jm-ray { position:absolute; top:50%; height:2px; background:#FAEEDA; border-radius:1px; right:0; transform:translateY(-50%) rotate(-12deg); }
-  .jm-ray1 { top:35%; animation:jm-ray1 4s ease-in-out infinite; }
-  .jm-ray2 { top:62%; animation:jm-ray2 4s ease-in-out infinite; }
-  .jm-panel { width:62px; height:68px; background:${colors.primary}; position:absolute; left:0; top:0; animation:jm-slide 4s ease-in-out infinite; }
+  .jm-ray1 { top:35%; animation:jm-ray1 3s ease-in-out infinite; }
+  .jm-ray2 { top:62%; animation:jm-ray2 3s ease-in-out infinite; }
+  .jm-panel { width:62px; height:68px; background:${colors.primary}; position:absolute; left:0; top:0; animation:jm-slide 3s ease-in-out infinite; }
   .jm-stripe { position:absolute; right:8px; top:0; bottom:0; width:3px; background:${colors.primaryDim}; opacity:.35; }
   .jm-stripe2 { position:absolute; right:16px; top:0; bottom:0; width:1.5px; background:${colors.primaryDim}; opacity:.2; }
-  .jm-knob { width:7px; height:7px; border-radius:50%; background:${colors.text}; position:absolute; right:12px; top:32px; animation:jm-knob 4s ease-in-out infinite; }
+  .jm-knob { width:7px; height:7px; border-radius:50%; background:${colors.text}; position:absolute; right:12px; top:32px; animation:jm-knob 3s ease-in-out infinite; }
   .jm-step { width:74px; height:6px; background:${colors.amber}; border-radius:0 0 4px 4px; opacity:.45; }
   .jm-dust { position:absolute; border-radius:50%; right:18px; top:44px; }
-  .jm-d1{width:5px;height:5px;background:#EF9F27;animation:jm-dust1 4s ease-in-out infinite}
-  .jm-d2{width:4px;height:4px;background:#FAEEDA;animation:jm-dust2 4s ease-in-out infinite}
-  .jm-d3{width:5px;height:5px;background:#EF9F27;animation:jm-dust3 4s ease-in-out infinite}
-  .jm-d4{width:3px;height:3px;background:#FBEAF0;animation:jm-dust4 4s ease-in-out infinite}
-  .jm-d5{width:4px;height:4px;background:#BA7517;animation:jm-dust5 4s ease-in-out infinite}
+  .jm-d1{width:5px;height:5px;background:${colors.amber};animation:jm-dust1 3s ease-in-out infinite}
+  .jm-d2{width:4px;height:4px;background:${colors.text};animation:jm-dust2 3s ease-in-out infinite}
+  .jm-d3{width:5px;height:5px;background:${colors.amber};animation:jm-dust3 3s ease-in-out infinite}
+  .jm-d4{width:3px;height:3px;background:${colors.text};animation:jm-dust4 3s ease-in-out infinite}
+  .jm-d5{width:4px;height:4px;background:${colors.amber};animation:jm-dust5 3s ease-in-out infinite}
   .jm-dots { display:flex; gap:5px; }
   .jm-dot { width:5px; height:5px; border-radius:50%; animation:jm-dotP 1.2s ease-in-out infinite; }
   .jm-label { font-size:13px; letter-spacing:.07em; }
@@ -97,9 +97,9 @@ export default function JoinMapLoader({ label = "joining map", className = "" }:
           </div>
         </div>
         <div className="jm-dots">
-          <div className="jm-dot" style={{ background:"#D4537E", animationDelay:"0s" }} />
-          <div className="jm-dot" style={{ background:"#EF9F27", animationDelay:"0.2s" }} />
-          <div className="jm-dot" style={{ background:"#D4537E", animationDelay:"0.4s" }} />
+          <div className="jm-dot" style={{ background:colors.primary, animationDelay:"0s" }} />
+          <div className="jm-dot" style={{ background:colors.amber, animationDelay:"0.2s" }} />
+          <div className="jm-dot" style={{ background:colors.primary, animationDelay:"0.3s" }} />
         </div>
         {label && <span className="jm-label" style={{ color:"var(--color-text-secondary,#888)" }}>{label}</span>}
       </div>

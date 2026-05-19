@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -25,30 +25,30 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showLoadingPage, setShowLoadingPage] = useState(false);
-  const [minLoadingTimeElapsed, setMinLoadingTimeElapsed] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const pendingNavRef = useRef<string | null>(null);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
 
-  // Start timer when loading begins
   useEffect(() => {
     if (loading) {
       setShowLoadingPage(true);
-      setMinLoadingTimeElapsed(false);
-      // Minimum 1 second (1 animation cycle)
-      const timer = setTimeout(() => {
-        setMinLoadingTimeElapsed(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      startTimeRef.current = Date.now();
+      return;
     }
+    if (startTimeRef.current === null) return;
+    const remaining = Math.max(0, 3000 - (Date.now() - startTimeRef.current));
+    const timer = setTimeout(() => setShowLoadingPage(false), remaining);
+    return () => clearTimeout(timer);
   }, [loading]);
 
-  // Hide loading page only when both the request is done AND min time has elapsed
   useEffect(() => {
-    if (!loading && minLoadingTimeElapsed) {
-      setShowLoadingPage(false);
+    if (!showLoadingPage && pendingNavRef.current) {
+      router.push(pendingNavRef.current);
+      pendingNavRef.current = null;
     }
-  }, [loading, minLoadingTimeElapsed]);
+  }, [showLoadingPage]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ const Register: React.FC = () => {
       });
       if (response.token) setToken(response.token);
       if (response.id) setId(String(response.id));
-      router.push("/skillmaps");
+      pendingNavRef.current = "/skillmaps";
     } catch (error) {
       const status = (error as ApplicationError).status;
       if (status === 400) {
@@ -71,6 +71,7 @@ const Register: React.FC = () => {
       } else {
         toast.error("Registration failed. Please try again.");
       }
+      setShowLoadingPage(false);
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,12 @@ const Register: React.FC = () => {
 
   return (
     <div className={styles['auth-page']}>
-      {showLoadingPage && <RegisterLoader label="Creating your account..." />}
+      {showLoadingPage && (
+        <div className="loader-full-page">
+          <div className="grid-overlay" />
+          <RegisterLoader label="Creating your account..." />
+        </div>
+      )}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}

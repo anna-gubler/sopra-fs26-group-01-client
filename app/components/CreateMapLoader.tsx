@@ -56,7 +56,7 @@ const styles = `
   @keyframes cm-dotP { 0%,100%{opacity:.2;transform:scale(.7)} 50%{opacity:1;transform:scale(1)} }
 
   .cm-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
-  .cm-stage { position:relative; width:100px; height:96px; animation:cm-pulse 4.2s ease-in-out infinite; }
+  .cm-stage { position:relative; width:100px; height:96px; animation:cm-pulse 3s ease-in-out infinite; }
   .cm-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
   .cm-node { width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
   .cm-dot { width:7px; height:7px; border-radius:50%; }
@@ -65,24 +65,24 @@ const styles = `
   .cm-n2-wrap { position:absolute; left:4px; top:50px; }
   .cm-n3-wrap { position:absolute; left:72px; top:50px; }
   .cm-n4-wrap { position:absolute; left:38px; top:68px; }
-  .cm-n1 { animation:cm-orbit1 4.2s ease-in-out infinite; }
-  .cm-n2 { animation:cm-orbit2 4.2s ease-in-out infinite; }
-  .cm-n3 { animation:cm-orbit3 4.2s ease-in-out infinite; }
-  .cm-n4 { animation:cm-orbit4 4.2s ease-in-out infinite; }
+  .cm-n1 { animation:cm-orbit1 3s ease-in-out infinite; }
+  .cm-n2 { animation:cm-orbit2 3s ease-in-out infinite; }
+  .cm-n3 { animation:cm-orbit3 3s ease-in-out infinite; }
+  .cm-n4 { animation:cm-orbit4 3s ease-in-out infinite; }
   .cm-svg { position:absolute; top:0; left:0; width:100px; height:96px; overflow:visible; }
   .cm-edge { fill:none; stroke-width:1.5; stroke-dasharray:55; }
   .cm-burst { position:absolute; width:7px; height:7px; border-radius:50%; left:50%; top:50%; margin:-3.5px 0 0 -3.5px; }
-  .cm-b1{background:${colors.amber};animation:cm-burst1 4.2s ease-in-out infinite}
-  .cm-b2{background:${colors.primary};animation:cm-burst2 4.2s ease-in-out infinite}
-  .cm-b3{background:${colors.text};animation:cm-burst3 4.2s ease-in-out infinite}
-  .cm-b4{background:${colors.primaryHover};animation:cm-burst4 4.2s ease-in-out infinite}
-  .cm-b5{background:${colors.amber};animation:cm-burst5 4.2s ease-in-out infinite}
+  .cm-b1{background:${colors.amber};animation:cm-burst1 3s ease-in-out infinite}
+  .cm-b2{background:${colors.primary};animation:cm-burst2 3s ease-in-out infinite}
+  .cm-b3{background:${colors.text};animation:cm-burst3 3s ease-in-out infinite}
+  .cm-b4{background:${colors.primaryHover};animation:cm-burst4 3s ease-in-out infinite}
+  .cm-b5{background:${colors.amber};animation:cm-burst5 3s ease-in-out infinite}
   .cm-dots { display:flex; gap:5px; }
   .cm-dot-pulse { width:5px; height:5px; border-radius:50%; animation:cm-dotP 1.2s ease-in-out infinite; }
   .cm-label { font-size:13px; letter-spacing:.07em; }
 `;
 
-const DUR = "4.2s";
+const DUR = "3s";
 
 interface CreateMapLoaderProps { label?: string; className?: string; }
 

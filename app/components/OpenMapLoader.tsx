@@ -73,24 +73,24 @@ const styles = `
   @keyframes sm-dotP { 0%,100%{opacity:.2;transform:scale(.7)} 50%{opacity:1;transform:scale(1)} }
 
   .sm-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
-  .sm-stage { position:relative; width:106px; height:96px; animation:sm-glow 4.4s ease-in-out infinite; }
+  .sm-stage { position:relative; width:106px; height:96px; animation:sm-glow 3s ease-in-out infinite; }
   .sm-node { position:absolute; width:22px; height:22px; border-radius:5px; }
   .sm-svg { position:absolute; top:0; left:0; width:106px; height:96px; overflow:visible; }
   .sm-edge { fill:none; stroke-width:1.4; stroke-dasharray:65; }
   .sm-bar-wrap { width:88px; height:5px; background:rgba(148,120,150,.15); border-radius:3px; overflow:hidden; }
-  .sm-bar { height:100%; background:linear-gradient(90deg,${colors.primary},${colors.amber}); border-radius:3px; animation:sm-prog 4.4s ease-in-out infinite; }
+  .sm-bar { height:100%; background:linear-gradient(90deg,${colors.primary},${colors.amber}); border-radius:3px; animation:sm-prog 3s ease-in-out infinite; }
   .sm-burst { position:absolute; border-radius:50%; left:50%; top:50%; }
-  .sm-b1{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:${colors.amber};animation:sm-bst1 4.4s ease-in-out infinite}
-  .sm-b2{width:6px;height:6px;margin:-3px 0 0 -3px;background:${colors.primary};animation:sm-bst2 4.4s ease-in-out infinite}
-  .sm-b3{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:${colors.text};animation:sm-bst3 4.4s ease-in-out infinite}
-  .sm-b4{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;background:${colors.primaryHover};animation:sm-bst4 4.4s ease-in-out infinite}
-  .sm-b5{width:6px;height:6px;margin:-3px 0 0 -3px;background:${colors.amber};animation:sm-bst5 4.4s ease-in-out infinite}
+  .sm-b1{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:${colors.amber};animation:sm-bst1 3s ease-in-out infinite}
+  .sm-b2{width:6px;height:6px;margin:-3px 0 0 -3px;background:${colors.primary};animation:sm-bst2 3s ease-in-out infinite}
+  .sm-b3{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:${colors.text};animation:sm-bst3 3s ease-in-out infinite}
+  .sm-b4{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;background:${colors.primaryHover};animation:sm-bst4 3s ease-in-out infinite}
+  .sm-b5{width:6px;height:6px;margin:-3px 0 0 -3px;background:${colors.amber};animation:sm-bst5 3s ease-in-out infinite}
   .sm-dots { display:flex; gap:5px; }
   .sm-dot { width:5px; height:5px; border-radius:50%; animation:sm-dotP 1.2s ease-in-out infinite; }
   .sm-label { font-size:13px; letter-spacing:.07em; }
 `;
 
-const DUR = "4.4s";
+const DUR = "3s";
 
 interface SkillMapLoaderProps { label?: string; className?: string; }
 
@@ -101,21 +101,21 @@ export default function SkillMapLoader({ label = "loading map", className = "" }
       <div className={`sm-wrap ${className}`}>
         <div className="sm-stage">
           <svg className="sm-svg">
-            <line className="sm-edge" x1="53" y1="22" x2="18" y2="42" stroke="#993556" style={{ animation:`sm-e1 ${DUR} ease-in-out infinite` }} />
-            <line className="sm-edge" x1="53" y1="22" x2="88" y2="42" stroke="#BA7517" style={{ animation:`sm-e2 ${DUR} ease-in-out infinite` }} />
-            <line className="sm-edge" x1="18" y1="64" x2="18" y2="72" stroke="#993556" style={{ animation:`sm-e3 ${DUR} ease-in-out infinite` }} />
-            <line className="sm-edge" x1="88" y1="64" x2="53" y2="72" stroke="#BA7517" style={{ animation:`sm-e4 ${DUR} ease-in-out infinite` }} />
-            <line className="sm-edge" x1="88" y1="64" x2="88" y2="72" stroke="#BA7517" style={{ animation:`sm-e5 ${DUR} ease-in-out infinite` }} />
+            <line className="sm-edge" x1="53" y1="22" x2="18" y2="42" stroke={colors.primaryDim} style={{ animation:`sm-e1 ${DUR} ease-in-out infinite` }} />
+            <line className="sm-edge" x1="53" y1="22" x2="88" y2="42" stroke={colors.amberDim} style={{ animation:`sm-e2 ${DUR} ease-in-out infinite` }} />
+            <line className="sm-edge" x1="18" y1="64" x2="18" y2="72" stroke={colors.primaryDim} style={{ animation:`sm-e3 ${DUR} ease-in-out infinite` }} />
+            <line className="sm-edge" x1="88" y1="64" x2="53" y2="72" stroke={colors.amberDim} style={{ animation:`sm-e4 ${DUR} ease-in-out infinite` }} />
+            <line className="sm-edge" x1="88" y1="64" x2="88" y2="72" stroke={colors.amberDim} style={{ animation:`sm-e5 ${DUR} ease-in-out infinite` }} />
           </svg>
           {/* level 1 */}
-          <div className="sm-node" style={{ left:42, top:0, background:"#D4537E", animation:`sm-n1 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:42, top:0, background:colors.primary, animation:`sm-n1 ${DUR} ease-in-out infinite` }} />
           {/* level 2 */}
-          <div className="sm-node" style={{ left:7, top:40, background:"#EF9F27", animation:`sm-n2 ${DUR} ease-in-out infinite` }} />
-          <div className="sm-node" style={{ left:77, top:40, background:"#EF9F27", animation:`sm-n3 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:7, top:40, background:colors.amber, animation:`sm-n2 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:77, top:40, background:colors.amber, animation:`sm-n3 ${DUR} ease-in-out infinite` }} />
           {/* level 3 */}
-          <div className="sm-node" style={{ left:7, top:70, background:"#993556", animation:`sm-n4 ${DUR} ease-in-out infinite` }} />
-          <div className="sm-node" style={{ left:42, top:70, background:"#BA7517", animation:`sm-n5 ${DUR} ease-in-out infinite` }} />
-          <div className="sm-node" style={{ left:77, top:70, background:"#BA7517", animation:`sm-n6 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:7, top:70, background:colors.primaryDim, animation:`sm-n4 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:42, top:70, background:colors.amberDim, animation:`sm-n5 ${DUR} ease-in-out infinite` }} />
+          <div className="sm-node" style={{ left:77, top:70, background:colors.amberDim, animation:`sm-n6 ${DUR} ease-in-out infinite` }} />
           <div className="sm-burst sm-b1" /><div className="sm-burst sm-b2" />
           <div className="sm-burst sm-b3" /><div className="sm-burst sm-b4" />
           <div className="sm-burst sm-b5" />

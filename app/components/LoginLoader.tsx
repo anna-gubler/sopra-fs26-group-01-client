@@ -1,4 +1,5 @@
 import React from "react";
+import { colors } from "@/styles/colors";
 
 const styles = `
   /* === LOGIN LOADER === */
@@ -61,19 +62,19 @@ const styles = `
 
   .log-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
   .log-scene { position:relative; display:flex; flex-direction:column; align-items:center; width:60px; height:70px; justify-content:center; }
-  .log-ripple { position:absolute; width:52px; height:52px; border-radius:50%; border:1.5px solid #D4537E; top:8px; pointer-events:none; }
-  .log-r1 { animation:log-ripple1 4s ease-in-out infinite; }
-  .log-r2 { animation:log-ripple2 4s ease-in-out infinite; }
-  .log-lock { display:flex; flex-direction:column; align-items:center; animation:log-lockAppear 4s ease-in-out infinite; position:relative; }
-  .log-arc { width:28px; height:16px; border:3px solid #D4537E; border-bottom:none; border-radius:14px 14px 0 0; animation:log-arc 4s ease-in-out infinite; }
-  .log-body { width:36px; height:26px; background:#D4537E; border-radius:6px; display:flex; align-items:center; justify-content:center; animation:log-body 4s ease-in-out infinite; position:relative; overflow:hidden; }
-  .log-shine { position:absolute; top:0; left:-100%; width:55%; height:100%; background:linear-gradient(90deg,transparent,rgba(251,234,240,.3),transparent); animation:log-shine 4s ease-in-out infinite; }
-  .log-knob { width:10px; height:10px; border-radius:50%; background:#FBEAF0; animation:log-knob 4s ease-in-out infinite; }
+  .log-ripple { position:absolute; width:52px; height:52px; border-radius:50%; border:1.5px solid ${colors.primary}; top:8px; pointer-events:none; }
+  .log-r1 { animation:log-ripple1 3s ease-in-out infinite; }
+  .log-r2 { animation:log-ripple2 3s ease-in-out infinite; }
+  .log-lock { display:flex; flex-direction:column; align-items:center; animation:log-lockAppear 3s ease-in-out infinite; position:relative; }
+  .log-arc { width:28px; height:16px; border:3px solid ${colors.primary}; border-bottom:none; border-radius:14px 14px 0 0; animation:log-arc 3s ease-in-out infinite; }
+  .log-body { width:36px; height:26px; background:${colors.primary}; border-radius:6px; display:flex; align-items:center; justify-content:center; animation:log-body 3s ease-in-out infinite; position:relative; overflow:hidden; }
+  .log-shine { position:absolute; top:0; left:-100%; width:55%; height:100%; background:linear-gradient(90deg,transparent,rgba(248,227,255,.3),transparent); animation:log-shine 3s ease-in-out infinite; }
+  .log-knob { width:10px; height:10px; border-radius:50%; background:${colors.text}; animation:log-knob 3s ease-in-out infinite; }
   .log-particle { position:absolute; width:5px; height:5px; border-radius:50%; top:50%; left:50%; margin:-2.5px 0 0 -2.5px; }
-  .log-p1{background:#EF9F27;animation:log-p1 4s ease-in-out infinite}
-  .log-p2{background:#FBEAF0;animation:log-p2 4s ease-in-out infinite}
-  .log-p3{background:#EF9F27;animation:log-p3 4s ease-in-out infinite}
-  .log-p4{background:#D4537E;animation:log-p4 4s ease-in-out infinite}
+  .log-p1{background:${colors.amber};animation:log-p1 3s ease-in-out infinite}
+  .log-p2{background:${colors.text};animation:log-p2 3s ease-in-out infinite}
+  .log-p3{background:${colors.amber};animation:log-p3 3s ease-in-out infinite}
+  .log-p4{background:${colors.primary};animation:log-p4 3s ease-in-out infinite}
   .log-dots { display:flex; gap:4px; }
   .log-dot { width:5px; height:5px; border-radius:50%; animation:log-dotP 1.2s ease-in-out infinite; }
   .log-label { font-size:13px; letter-spacing:.07em; }
@@ -102,9 +103,9 @@ export default function LoginLoader({ label = "logging in", className = "" }: Lo
           <div className="log-particle log-p4" />
         </div>
         <div className="log-dots">
-          <div className="log-dot" style={{ background:"#D4537E", animationDelay:"0s" }} />
-          <div className="log-dot" style={{ background:"#EF9F27", animationDelay:"0.2s" }} />
-          <div className="log-dot" style={{ background:"#D4537E", animationDelay:"0.4s" }} />
+          <div className="log-dot" style={{ background:colors.primary, animationDelay:"0s" }} />
+          <div className="log-dot" style={{ background:colors.amber, animationDelay:"0.2s" }} />
+          <div className="log-dot" style={{ background:colors.primary, animationDelay:"0.3s" }} />
         </div>
         {label && <span className="log-label" style={{ color:"var(--color-text-secondary,#888)" }}>{label}</span>}
       </div>
