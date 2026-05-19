@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ReactFlow, Background, Node, Edge, PanOnScrollMode, addEdge, Connection, applyNodeChanges, NodeChange, IsValidConnection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download } from "lucide-react";
+import { Globe, Pencil, Plus, Play, Square, Copy, ChevronLeft, LogOut, Download, RotateCcw } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { useDashboardPolling } from "@/hooks/useDashboardPolling";
 import { ApiContext } from "@/context/ApiContext";
@@ -14,7 +14,8 @@ import { getSkillMap, getSkillMapGraph, updateSkillMap, leaveSkillMap } from "@/
 import { confirmToast } from "@/utils/confirmToast";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
-import { startSession, endSession } from "@/api/sessionApi";
+import { startSession, endSession, getPastSessions } from "@/api/sessionApi";
+import PastSessionsPanel from "./components/PastSessionsPanel";
 import { ApplicationError } from "@/types/error";
 import { getAvatarUrl } from "@/utils/avatar";
 import { User } from "@/types/user";
@@ -159,6 +160,8 @@ const SkillMapEditorPage: React.FC = () => {
   const [liveAggregated, setLiveAggregated] = useState<Map<number, { avg: number; count: number }>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
   const [showTour, setShowTour] = useState(false);
+  const [showSessionsPanel, setShowSessionsPanel] = useState(false);
+  const [hasPastSessions, setHasPastSessions] = useState(false);
   const tourCheckedRef = useRef(false);
 
   const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
@@ -242,6 +245,13 @@ const SkillMapEditorPage: React.FC = () => {
       .then((fresh) => setSelectedSkill(fresh))
       .catch(() => {});
   }, [selectedSkill?.id]);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    getPastSessions(api, id)
+      .then((sessions) => setHasPastSessions(sessions.length > 0))
+      .catch(() => {});
+  }, [isOwner, id]);
 
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
     const skill = skills.find((s) => String(s.id) === node.id);
@@ -506,12 +516,22 @@ const SkillMapEditorPage: React.FC = () => {
               onEnd={async () => {
                 try {
                   await endSession(api, id);
+                  setHasPastSessions(true);
                   refreshSession();
                 } catch {
                   toast.error("Failed to end session. Please try again.");
                 }
               }}
             />
+          )}
+          {isOwner && !isActive && hasPastSessions && (
+            <button
+              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]}`}
+              onClick={() => setShowSessionsPanel(true)}
+            >
+              <RotateCcw size={14} />
+              Restart Session
+            </button>
           )}
           {isOwner && !isActive && skillMap?.isPublic && (
             <StartSessionButton
@@ -626,6 +646,18 @@ const SkillMapEditorPage: React.FC = () => {
         onExport={handleExport}
         onClose={() => setExportModalOpen(false)}
       />
+
+      {showSessionsPanel && (
+        <PastSessionsPanel
+          skillMapId={id}
+          api={api}
+          onClose={() => setShowSessionsPanel(false)}
+          onRestarted={(s) => {
+            setSession({ ...s, isActive: s.isActive ?? (s as unknown as { active: boolean }).active });
+            setShowSessionsPanel(false);
+          }}
+        />
+      )}
 
       {selectedSkill && (
         <SkillDetailPanel

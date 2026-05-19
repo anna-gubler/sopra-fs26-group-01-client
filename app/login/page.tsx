@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import { login, AuthResponse } from "@/api/authApi";
+import { login } from "@/api/authApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ApplicationError } from "@/types/error";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "@/styles/auth.module.css";
+import LoginLoader from "@/components/LoginLoader";
 
 
 const Login: React.FC = () => {
@@ -19,9 +20,34 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const pendingNavRef = useRef<string | null>(null);
   // persist token and user id in localStorage for use across pages
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setId } = useLocalStorage<string>("id", "");
+
+  // When loading starts, record the time. When it ends, wait out the remaining cycle before hiding.
+  useEffect(() => {
+    if (loading) {
+      setShowLoadingPage(true);
+      startTimeRef.current = Date.now();
+      return;
+    }
+    if (startTimeRef.current === null) return;
+    const remaining = Math.max(0, 3000 - (Date.now() - startTimeRef.current));
+    const timer = setTimeout(() => setShowLoadingPage(false), remaining);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  // Navigate only after the loader has finished its cycle
+  useEffect(() => {
+    if (!showLoadingPage && pendingNavRef.current) {
+      router.push(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+  }, [showLoadingPage]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +55,13 @@ const Login: React.FC = () => {
       toast.error("Please enter both username and password.");
       return;
     }
+    setLoading(true);
     try {
       const response = await login(apiService, username, password);
       // store credentials returned by the server
       if (response.token) setToken(response.token);
       if (response.id) setId(String(response.id)); // id is a Java Long, convert to string for localStorage
-      router.push("/skillmaps");
+      pendingNavRef.current = "/skillmaps";
     } catch (error) {
       const status = (error as ApplicationError).status;
       if (status === 400 || status === 401) {
@@ -42,11 +69,20 @@ const Login: React.FC = () => {
       } else {
         toast.error("Login failed. Please try again.");
       }
+      setShowLoadingPage(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles['auth-page']}>
+      {showLoadingPage && (
+        <div className="loader-full-page">
+          <div className="grid-overlay" />
+          <LoginLoader label="Logging in..." />
+        </div>
+      )}
       <div className="grid-overlay" />
       <motion.div
         className={styles['auth-card']}

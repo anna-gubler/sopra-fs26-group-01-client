@@ -39,6 +39,7 @@ export const colors = {
 
   // ── Warning — Amber (Collaboration Mode accent) ────────────────────────
   amber:        '#fb923c',
+  amberDim:     '#ba7517',
   amberBg:      '#1f100a',
 
   // ── Error — Rose ───────────────────────────────────────────────────────

@@ -6,6 +6,7 @@
 @import "./forms.css";
 @import "./dashboard.css";
 @import "./table.css";
+@import "./loader.css";
 
 /* auth.css, landing.css, profile.css, skillmaps.css, skill-node.css
    are now CSS Modules imported directly by the components that use them. */
