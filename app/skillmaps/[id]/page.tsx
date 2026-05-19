@@ -14,7 +14,7 @@ import { getSkillMap, getSkillMapGraph, updateSkillMap, leaveSkillMap } from "@/
 import { confirmToast } from "@/utils/confirmToast";
 import { downloadSkillMapExport } from "@/utils/exportUtils";
 import { createDependency, deleteDependency, getSkill, updateSkill } from "@/api/skillApi";
-import { startSession, endSession } from "@/api/sessionApi";
+import { startSession, endSession, getPastSessions } from "@/api/sessionApi";
 import PastSessionsPanel from "./components/PastSessionsPanel";
 import { ApplicationError } from "@/types/error";
 import { getAvatarUrl } from "@/utils/avatar";
@@ -100,6 +100,7 @@ const SkillMapEditorPage: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showTour, setShowTour] = useState(false);
   const [showSessionsPanel, setShowSessionsPanel] = useState(false);
+  const [hasPastSessions, setHasPastSessions] = useState(false);
   const tourCheckedRef = useRef(false);
 
   const { session, isActive, refresh: refreshSession, setSession, liveSkills, liveQuestions } = useDashboardPolling(api, id);
@@ -183,6 +184,13 @@ const SkillMapEditorPage: React.FC = () => {
       .then((fresh) => setSelectedSkill(fresh))
       .catch(() => {});
   }, [selectedSkill?.id]);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    getPastSessions(api, id)
+      .then((sessions) => setHasPastSessions(sessions.length > 0))
+      .catch(() => {});
+  }, [isOwner, id]);
 
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
     const skill = skills.find((s) => String(s.id) === node.id);
@@ -448,6 +456,7 @@ const SkillMapEditorPage: React.FC = () => {
               onClick={async () => {
                 try {
                   await endSession(api, id);
+                  setHasPastSessions(true);
                   refreshSession();
                 } catch {
                   toast.error("Failed to end session. Please try again.");
@@ -458,7 +467,7 @@ const SkillMapEditorPage: React.FC = () => {
               End Session
             </button>
           )}
-          {isOwner && !isActive && (
+          {isOwner && !isActive && hasPastSessions && (
             <button
               className={`btn-ghost btn-sm ${styles["sm-nav-btn"]}`}
               onClick={() => setShowSessionsPanel(true)}
@@ -592,7 +601,7 @@ const SkillMapEditorPage: React.FC = () => {
           api={api}
           onClose={() => setShowSessionsPanel(false)}
           onRestarted={(s) => {
-            setSession(s);
+            setSession({ ...s, isActive: s.isActive ?? (s as unknown as { active: boolean }).active });
             setShowSessionsPanel(false);
           }}
         />
