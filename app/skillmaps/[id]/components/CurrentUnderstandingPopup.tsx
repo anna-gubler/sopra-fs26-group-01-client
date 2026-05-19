@@ -1,27 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { CollaborationSession } from "@/types/session";
-import { submitCurrentUnderstanding } from "@/api/sessionApi";
-import { useApiContext } from "@/context/ApiContext";
 import UnderstandingSlider from "./UnderstandingSlider";
 import styles from "@/styles/collab.module.css";
 
 const DURATION_SECONDS = 180;
 
 interface CurrentUnderstandingPopupProps {
-  session: CollaborationSession;
+  isActive: boolean;
+  startedAt: string | null;
+  onSubmit: (rating: number) => Promise<void>;
 }
 
-const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ session }) => {
-  const api = useApiContext();
+const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ isActive, startedAt, onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [remaining, setRemaining] = useState(DURATION_SECONDS);
   const lastStartedAtRef = useRef<string | null | undefined>(undefined);
-
-  const isActive = session.currentUnderstandingActive ?? false;
-  const startedAt = session.currentUnderstandingStartedAt ?? null;
 
   // Reset state whenever a new request is triggered
   useEffect(() => {
@@ -46,14 +41,14 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ s
 
   const handleSubmit = useCallback(async () => {
     try {
-      await submitCurrentUnderstanding(api, session.id, rating);
+      await onSubmit(rating);
       setSubmitted(true);
     } catch {
       // best-effort
     }
-  }, [api, session.id, rating]);
+  }, [onSubmit, rating]);
 
-  if (!isActive || remaining <= 0) return null;
+  if (!isActive || remaining <= 0 || submitted) return null;
 
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
@@ -67,9 +62,7 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ s
           <span className={styles["cu-timer"]}>{timeStr}</span>
         </div>
         <p className={styles["cu-popup-subtitle"]}>
-          {submitted
-            ? "Response submitted. You can update it before time runs out."
-            : "How well are you following the class overall?"}
+          How well are you following the class overall?
         </p>
         <UnderstandingSlider value={rating} onChange={setRating} />
         <button
@@ -77,7 +70,7 @@ const CurrentUnderstandingPopup: React.FC<CurrentUnderstandingPopupProps> = ({ s
           onClick={handleSubmit}
           disabled={rating === 0}
         >
-          {submitted ? "Update" : "Submit"}
+          Submit
         </button>
       </div>
     </div>

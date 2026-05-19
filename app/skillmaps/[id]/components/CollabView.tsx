@@ -17,6 +17,8 @@ import StudentSidebar from "./StudentSidebar";
 import CurrentUnderstandingPopup from "./CurrentUnderstandingPopup";
 import { useSessionRatings } from "@/hooks/useSessionRatings";
 import { useSessionQuizResults } from "@/hooks/useSessionQuizResults";
+import { useCurrentUnderstanding } from "@/hooks/useCurrentUnderstanding";
+import { useApiContext } from "@/context/ApiContext";
 import styles from "@/styles/collab.module.css";
 
 const LANE_HEIGHT = 200;
@@ -38,8 +40,10 @@ interface CollabViewProps {
 }
 
 const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session, isOwner, onNodeClick, onSkillClick, onAggregatedChange, liveSkills, liveQuestions }) => {
+  const api = useApiContext();
   const { aggregated, totalStudents } = useSessionRatings(session.id, skillMap.id);
   const quizResults = useSessionQuizResults(skillMap.id);
+  const cu = useCurrentUnderstanding(api, skillMap.id, session.id);
 
   useEffect(() => {
     onAggregatedChange?.(aggregated);
@@ -69,6 +73,11 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
             liveQuestions={liveQuestions ?? []}
             quizResults={quizResults}
             onSkillClick={onSkillClick}
+            cuIsActive={cu.isActive}
+            cuStartedAt={cu.startedAt}
+            cuResults={cu.results}
+            cuTotalStudents={cu.totalStudents}
+            onCuTrigger={cu.trigger}
           />
         ) : (
           <StudentSidebar
@@ -84,7 +93,7 @@ const CollabView: React.FC<CollabViewProps> = ({ nodes, edges, skillMap, session
         </div>
       </aside>
       <div className={styles["collab-graph"]} role="application" aria-label="Collaboration skill map canvas">
-        {!isOwner && <CurrentUnderstandingPopup session={session} />}
+        {!isOwner && <CurrentUnderstandingPopup isActive={cu.isActive} startedAt={cu.startedAt} onSubmit={cu.submit} />}
         <ReactFlow
           nodes={glowedNodes}
           edges={edges}

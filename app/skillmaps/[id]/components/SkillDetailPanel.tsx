@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 import { Skill, SkillQuizRef } from "@/types/skill";
 import { QuizAttempt } from "@/types/quiz";
 import { ApiService } from "@/api/apiService";
-import { updateProgress } from "@/api/skillApi";
+import { getSkill, updateProgress } from "@/api/skillApi";
 import { submitSkillRating } from "@/api/sessionApi";
 import { getQuiz, getLatestAttempt } from "@/api/quizApi";
 import { formatCooldownLabel } from "./quizUtils";
@@ -54,12 +54,14 @@ const dotColor: Record<string, string> = {
 };
 
 const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies, onClose, isOwner, onEdit, onUnderstoodChange, api, sessionId, liveRating }) => {
+  const isEffectivelyLocked = skill.isLocked || skill.difficulty === "locked";
   const color = dotColor[skill.difficulty] ?? "hsl(258, 24%, 40%)";
-  const [understood, setUnderstood] = useState(skill.isUnderstood);
+  const [understood, setUnderstood] = useState(!!skill.isUnderstood);
   const [toggling, setToggling] = useState(false);
   const [understanding, setUnderstanding] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const understandingRef = useRef(0);
+  const saveNowRef = useRef<(() => void) | null>(null);
 
   const [localQuiz, setLocalQuiz] = useState<SkillQuizRef | null>(skill.quiz ?? null);
   const [quizModal, setQuizModal] = useState<"editor" | "take" | "retake" | "viewResult" | "preview" | null>(null);
@@ -106,15 +108,15 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
   };
 
   useEffect(() => {
-    setUnderstood(skill.isUnderstood);
-  }, [skill.id, skill.isUnderstood]);
+    setUnderstood(!!skill.isUnderstood);
+  }, [skill.id]);
 
   const handleToggleUnderstood = async () => {
     const next = !understood;
     setUnderstood(next);
     setToggling(true);
     try {
-      await updateProgress(api, skill.id, next ? 100 : 0);
+      await updateProgress(api, skill.id, next);
       onUnderstoodChange?.(skill.id, next);
     } catch {
       setUnderstood(!next);
@@ -123,39 +125,55 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
     }
   };
 
-  // Initialize slider from understood state; sync to session if one is active
+  // Init slider from localStorage immediately; server value wins once backend returns it
   useEffect(() => {
-    const initial = skill.skillUnderstandingRating ?? 0;
-    setUnderstanding(initial);
-    understandingRef.current = initial;
-  }, [skill.id, skill.skillUnderstandingRating]);
+    const stored = localStorage.getItem(`skill-understanding-${skill.id}`);
+    if (stored !== null) {
+      const val = parseInt(stored, 10);
+      setUnderstanding(val);
+      understandingRef.current = val;
+    }
+
+    let cancelled = false;
+    getSkill(api, skill.id)
+      .then((fresh) => {
+        if (!cancelled && fresh.skillUnderstandingRating != null) {
+          setUnderstanding(fresh.skillUnderstandingRating);
+          understandingRef.current = fresh.skillUnderstandingRating;
+          localStorage.setItem(`skill-understanding-${skill.id}`, String(fresh.skillUnderstandingRating));
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [skill.id]);
 
   const handleUnderstandingChange = useCallback(
     (val: number) => {
       setUnderstanding(val);
       understandingRef.current = val;
+      localStorage.setItem(`skill-understanding-${skill.id}`, String(val));
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(async () => {
-        try {
-          await updateProgress(api, skill.id, val);
-        } catch {
-          // ratings are best-effort; silently ignore failures
-        }
+      const doSave = () => {
         if (sessionId !== null) {
-          try {
-            await submitSkillRating(api, sessionId, skill.id, val);
-          } catch {
-            // ratings are best-effort; silently ignore failures
-          }
+          submitSkillRating(api, sessionId, skill.id, val).catch(() => {});
         }
+      };
+      saveNowRef.current = doSave;
+      debounceRef.current = setTimeout(() => {
+        doSave();
+        saveNowRef.current = null;
       }, 600);
     },
-    [api, skill.id],
+    [api, skill.id, sessionId],
   );
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        saveNowRef.current?.();
+        saveNowRef.current = null;
+      }
     };
   }, []);
 
@@ -216,16 +234,16 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
       {!isOwner && (
         <section className={styles["detail-panel-section"]}>
           <h3 className={styles["detail-panel-label"]}>Mark as Understood</h3>
-          <label className={`${styles["understood-toggle"]} ${skill.isLocked ? styles["understood-toggle--locked"] : ""}`}>
+          <label className={`${styles["understood-toggle"]} ${isEffectivelyLocked ? styles["understood-toggle--locked"] : ""}`}>
             <input
               type="checkbox"
               className={styles["understood-checkbox"]}
               checked={understood}
               onChange={handleToggleUnderstood}
-              disabled={toggling || skill.isLocked}
+              disabled={toggling || isEffectivelyLocked}
             />
             <span className={styles["understood-toggle-label"]}>
-              {skill.isLocked ? "Complete prerequisites first" : understood ? "Understood" : "Not yet understood"}
+              {isEffectivelyLocked ? "Complete prerequisites first" : understood ? "Understood" : "Not yet understood"}
             </span>
           </label>
         </section>
@@ -233,8 +251,8 @@ const SkillDetailPanel: React.FC<SkillDetailPanelProps> = ({ skill, dependencies
 
       {!isOwner && sessionId !== null && (
         <section className={styles["detail-panel-section"]}>
-          <h3 className={styles["detail-panel-label"]}>Session Rating</h3>
-          <UnderstandingSlider value={understanding} onChange={handleUnderstandingChange} />
+          <h3 className={styles["detail-panel-label"]}>Average Skill Rating</h3>
+          <UnderstandingSlider value={understanding} onChange={handleUnderstandingChange} disabled={isEffectivelyLocked} />
         </section>
       )}
 

@@ -9,9 +9,10 @@ const SEGMENT_COUNT = 10;
 interface UnderstandingSliderProps {
   value: number; // 0, 10, 20, ..., 100
   onChange: (value: number) => void;
+  disabled?: boolean;
 }
 
-const UnderstandingSlider: React.FC<UnderstandingSliderProps> = ({ value, onChange }) => {
+const UnderstandingSlider: React.FC<UnderstandingSliderProps> = ({ value, onChange, disabled }) => {
   const isDragging = useRef(false);
   const filled = value / 10;
 
@@ -39,9 +40,13 @@ const UnderstandingSlider: React.FC<UnderstandingSliderProps> = ({ value, onChan
     return () => window.removeEventListener("mouseup", stop);
   }, []);
 
+  const trackClass = disabled
+    ? `${styles["understanding-track"]} ${styles["understanding-track--disabled"]}`
+    : styles["understanding-track"];
+
   return (
     <div className={styles["understanding-row"]}>
-      <div className={styles["understanding-track"]}>
+      <div className={trackClass}>
         {Array.from({ length: SEGMENT_COUNT }, (_, i) => {
           const isFilled = i < filled;
           const color = ratingColor((i + 1) * 10);
@@ -50,8 +55,8 @@ const UnderstandingSlider: React.FC<UnderstandingSliderProps> = ({ value, onChan
               key={i}
               className={styles["understanding-segment"]}
               style={isFilled ? { background: color, borderColor: color } : undefined}
-              onMouseDown={(e) => handleSegmentDown(i, e)}
-              onMouseEnter={() => handleSegmentEnter(i)}
+              onMouseDown={disabled ? undefined : (e) => handleSegmentDown(i, e)}
+              onMouseEnter={disabled ? undefined : () => handleSegmentEnter(i)}
             />
           );
         })}

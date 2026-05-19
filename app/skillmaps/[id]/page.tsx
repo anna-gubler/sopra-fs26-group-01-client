@@ -34,6 +34,67 @@ import styles from "@/styles/skillmaps.module.css";
 import collabStyles from "@/styles/collab.module.css";
 import toast from "react-hot-toast";
 
+const StartSessionButton: React.FC<{ onStart: () => Promise<void> }> = ({ onStart }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button
+        data-tour="nav-start-session"
+        className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
+        onClick={() => setConfirming(true)}
+      >
+        <Play size={14} />
+        Start Session
+      </button>
+    );
+  }
+  return (
+    <span className={styles["sm-publish-confirm"]}>
+      <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirming(false)}>
+        Cancel
+      </button>
+      <button
+        className={`btn-ghost btn-no-lift btn-sm ${styles["sm-nav-btn"]}`}
+        style={{ background: "var(--collab)", borderColor: "var(--collab)", color: "#fff" }}
+        onClick={async () => { await onStart(); setConfirming(false); }}
+      >
+        <Play size={14} />
+        Confirm Start
+      </button>
+    </span>
+  );
+};
+
+const EndSessionButton: React.FC<{ onEnd: () => Promise<void> }> = ({ onEnd }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button
+        className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
+        onClick={() => setConfirming(true)}
+      >
+        <Square size={14} />
+        End Session
+      </button>
+    );
+  }
+  return (
+    <span className={styles["sm-publish-confirm"]}>
+      <button className={`btn-ghost ${styles["sm-nav-btn"]}`} onClick={() => setConfirming(false)}>
+        Cancel
+      </button>
+      <button
+        className={`btn-ghost btn-no-lift btn-sm ${styles["sm-nav-btn"]}`}
+        style={{ background: "var(--collab)", borderColor: "var(--collab)", color: "#fff" }}
+        onClick={async () => { await onEnd(); setConfirming(false); }}
+      >
+        <Square size={14} />
+        Confirm End
+      </button>
+    </span>
+  );
+};
+
 const PublishButton: React.FC<{ onPublish: () => Promise<void> }> = ({ onPublish }) => {
   const [confirming, setConfirming] = useState(false);
   if (!confirming) {
@@ -143,7 +204,7 @@ const SkillMapEditorPage: React.FC = () => {
           data: {
             label: skill.name,
             status: difficultyStatus[skill.difficulty] ?? "default",
-            isLocked: skill.isLocked,
+            isLocked: skill.isLocked || skill.difficulty === "locked",
           },
         }));
 
@@ -441,9 +502,8 @@ const SkillMapEditorPage: React.FC = () => {
             </span>
           )}
           {isOwner && isActive && (
-            <button
-              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
-              onClick={async () => {
+            <EndSessionButton
+              onEnd={async () => {
                 try {
                   await endSession(api, id);
                   refreshSession();
@@ -451,16 +511,11 @@ const SkillMapEditorPage: React.FC = () => {
                   toast.error("Failed to end session. Please try again.");
                 }
               }}
-            >
-              <Square size={14} />
-              End Session
-            </button>
+            />
           )}
           {isOwner && !isActive && skillMap?.isPublic && (
-            <button
-              data-tour="nav-start-session"
-              className={`btn-ghost btn-sm ${styles["sm-nav-btn"]} ${collabStyles["btn-collab"]}`}
-              onClick={async () => {
+            <StartSessionButton
+              onStart={async () => {
                 try {
                   const raw = await startSession(api, id);
                   const s = { ...raw, isActive: raw.isActive ?? (raw as unknown as { active: boolean }).active };
@@ -473,10 +528,7 @@ const SkillMapEditorPage: React.FC = () => {
                   }
                 }
               }}
-            >
-              <Play size={14} />
-              Start Session
-            </button>
+            />
           )}
           <div
             className={styles["sm-nav-avatar"]}

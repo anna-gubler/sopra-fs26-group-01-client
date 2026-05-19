@@ -18,9 +18,12 @@ const SkillNode: React.FC<NodeProps> = ({ data }) => {
   const { label, progress, status = "default", glowColor, heatPercent, isLocked } = data as SkillNodeData;
   const resolvedStatus = isLocked ? "locked" : status;
 
-  const glowStyle = glowColor
-    ? { boxShadow: `0 0 22px 7px ${glowColor}88, 0 0 7px 2px ${glowColor}bb` }
-    : undefined;
+  const fillStyle =
+    heatPercent !== undefined && glowColor
+      ? {
+          background: `linear-gradient(to top, ${glowColor}b3 ${heatPercent}%, var(--bg-surface) ${heatPercent}%)`,
+        }
+      : undefined;
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -35,12 +38,11 @@ const SkillNode: React.FC<NodeProps> = ({ data }) => {
           color: glowColor,
           whiteSpace: "nowrap",
           pointerEvents: "none",
-          textShadow: `0 0 8px ${glowColor}99`,
         }}>
           {heatPercent}%
         </div>
       )}
-      <div className={clsx(styles["skill-node"], styles[`status-${resolvedStatus}`])} style={glowStyle}>
+      <div className={clsx(styles["skill-node"], styles[`status-${resolvedStatus}`])} style={fillStyle}>
         <Handle type="source" position={Position.Top} className={styles["skill-node-handle"]} />
         <span className={styles["skill-node__dot"]} />
         <span className={styles["skill-node__label"]}>{label}</span>

@@ -7,9 +7,10 @@ import styles from "@/styles/collab.module.css";
 interface SessionStatsBarProps {
   aggregated: Map<number, RatingAggregate>;
   totalStudents: number;
+  lastCuAvg?: number | null;
 }
 
-const SessionStatsBar: React.FC<SessionStatsBarProps> = ({ aggregated, totalStudents }) => {
+const SessionStatsBar: React.FC<SessionStatsBarProps> = ({ aggregated, totalStudents, lastCuAvg }) => {
   const values = Array.from(aggregated.values());
 
   const classAvg =
@@ -37,7 +38,9 @@ const SessionStatsBar: React.FC<SessionStatsBarProps> = ({ aggregated, totalStud
 
       <div className={styles["stat-card"]}>
         <span className={styles["stat-card__label"]}>Last current understanding average</span>
-        <span className={styles["stat-card__value"]}>Placeholder</span>
+        <span className={styles["stat-card__value"]}>
+          {lastCuAvg != null ? `${Math.round(lastCuAvg)}%` : "—"}
+        </span>
         <span className={styles["stat-card__sub"]}>&nbsp;</span>
       </div>
 

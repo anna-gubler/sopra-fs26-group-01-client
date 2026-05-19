@@ -50,7 +50,7 @@ const SkillModal: React.FC<SkillModalProps> = ({
   onClose,
   onSaved,
 }) => {
-  const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "", resources: "" });
+  const [skillForm, setSkillForm] = useState({ name: "", description: "", level: 1, difficulty: "locked", resources: "" });
   const descriptionResize = useAutoResize(skillForm.description);
   const resourcesResize = useAutoResize(skillForm.resources);
 
@@ -60,11 +60,11 @@ const SkillModal: React.FC<SkillModalProps> = ({
         name: skill.name,
         description: skill.description ?? "",
         level: skill.level,
-        difficulty: skill.difficulty ?? "",
+        difficulty: skill.difficulty ?? "locked",
         resources: skill.resources ?? "",
       });
     } else {
-      setSkillForm({ name: "", description: "", level: 1, difficulty: "", resources: "" });
+      setSkillForm({ name: "", description: "", level: 1, difficulty: "locked", resources: "" });
     }
   }, [skill, open]);
 
@@ -145,14 +145,14 @@ const SkillModal: React.FC<SkillModalProps> = ({
             </div>
           )}
           <div className="input-group">
-            <label htmlFor="skill-difficulty">Difficulty</label>
+            <label htmlFor="skill-difficulty">Status</label>
             <select
               id="skill-difficulty"
               className="auth-input"
               value={skillForm.difficulty}
               onChange={(e) => setSkillForm((f) => ({ ...f, difficulty: e.target.value }))}
             >
-              <option value="">—</option>
+              <option value="locked">Locked</option>
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
