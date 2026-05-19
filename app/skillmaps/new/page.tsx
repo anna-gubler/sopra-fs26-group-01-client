@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useAutoResize } from "@/hooks/useAutoResize";
@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { BookOpen, ArrowLeft } from "lucide-react";
+import CreateMapLoader from "@/components/CreateMapLoader";
 
 const NewSkillMapPage: React.FC = () => {
   const router = useRouter();
@@ -18,11 +19,36 @@ const NewSkillMapPage: React.FC = () => {
   const [description, setDescription] = useState("");
   const [numberOfLevels, setNumberOfLevels] = useState("1");
   const descriptionResize = useAutoResize(description);
+  const [creating, setCreating] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const startTimeRef = useRef<number | null>(null);
+  const pendingNavRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (creating) {
+      setShowLoader(true);
+      startTimeRef.current = Date.now();
+      return;
+    }
+    if (startTimeRef.current === null) return;
+    const remaining = Math.max(0, 3000 - (Date.now() - startTimeRef.current));
+    const timer = setTimeout(() => setShowLoader(false), remaining);
+    return () => clearTimeout(timer);
+  }, [creating]);
+
+  useEffect(() => {
+    if (!showLoader && pendingNavRef.current) {
+      router.push(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+  }, [showLoader]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreating(true);
     try {
       const map = await createSkillMap(api, { title, description, numberOfLevels: Number(numberOfLevels), isPublic: false });
-      router.push(`/skillmaps/${map.id}`);
+      pendingNavRef.current = `/skillmaps/${map.id}`;
     } catch (err) {
       const status = (err as ApplicationError).status;
       if (status === 403) {
@@ -30,6 +56,9 @@ const NewSkillMapPage: React.FC = () => {
       } else {
         toast.error("Failed to create skill map. Please try again.");
       }
+      setShowLoader(false);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -41,6 +70,12 @@ const NewSkillMapPage: React.FC = () => {
 
   return (
     <div className="page-deep">
+      {showLoader && (
+        <div className="loader-full-page">
+          <div className="grid-overlay" />
+          <CreateMapLoader label="Creating map..." />
+        </div>
+      )}
       <div className="grid-overlay" />
       <nav className="glass-nav">
         <Link href="/skillmaps" className="nav-logo">

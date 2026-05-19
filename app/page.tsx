@@ -269,7 +269,7 @@ export default function Home() {
               Start Mapping
             </button>
             <button className="btn-ghost" onClick={() => router.push("/login")}>
-              Sign In
+              Log In
             </button>
           </motion.div>
         </motion.div>
